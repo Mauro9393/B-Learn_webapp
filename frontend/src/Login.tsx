@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './assets/css/login.css';
 import { useNavigate } from 'react-router-dom';
-import bcrypt from 'bcryptjs';
 
 function Login() {
   const navigate = useNavigate();
