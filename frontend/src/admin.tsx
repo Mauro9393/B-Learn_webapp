@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { supabase } from './supabaseLogin';
 import bcrypt from 'bcryptjs';
 
 function Admin() {
@@ -19,15 +18,22 @@ function Admin() {
     e.preventDefault();
     // Hash della password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const { data, error } = await supabase
-      .from('useraccount')
-      .insert([{ user_mail :email, user_pw: hashedPassword }]);
-    if (error) {
-      setMessage('Errore nella creazione account'+ JSON.stringify(error));
-    } else {
-      setMessage('Account creato con successo!');
-      setEmail('');
-      setPassword('');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/useraccount`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: hashedPassword })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setMessage('Account creato con successo!');
+        setEmail('');
+        setPassword('');
+      } else {
+        setMessage('Errore nella creazione account');
+      }
+    } catch (error) {
+      setMessage('Errore nella creazione account');
     }
   };
 

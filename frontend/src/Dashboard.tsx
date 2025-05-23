@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './assets/css/dashboard.css';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from './supabaseClient';
 
 function Dashboard() {
   const [clientNames, setClientNames] = useState<string[]>([]);
@@ -13,18 +12,15 @@ function Dashboard() {
 
   useEffect(() => {
     const fetchClientNames = async () => {
-      const { data, error } = await supabase
-        .from('userlist')
-        .select('client_name');
-      if (error) {
-        console.error('Errore nel recupero dei client_name:', error);
-      } else {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/userlist`);
+        const data: { client_name: string }[] = await response.json();
         let uniqueNames = Array.from(new Set((data || []).map(item => item.client_name)));
         // Estrai la parte prima della chiocciola
         const userPrefix = currentUserEmail ? currentUserEmail.split('@')[0].toLowerCase() : '';
         // Se non sei admin, filtra i risultati
         if (currentUserEmail && currentUserEmail !== adminEmail) {
-          uniqueNames = uniqueNames.filter(name => {
+          uniqueNames = uniqueNames.filter((name: string) => {
             // Normalizza: tutto minuscolo e senza spazi
             const normalizedClient = name.toLowerCase().replace(/\s+/g, '');
             const normalizedPrefix = userPrefix.toLowerCase().replace(/\s+/g, '');
@@ -32,6 +28,8 @@ function Dashboard() {
           });
         }
         setClientNames(uniqueNames);
+      } catch (error) {
+        console.error('Errore nel recupero dei client_name:', error);
       }
     };
     fetchClientNames();
