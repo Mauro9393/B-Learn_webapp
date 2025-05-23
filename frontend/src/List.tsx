@@ -1,7 +1,6 @@
 import './assets/css/list.css';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { supabase } from './supabaseClient';
 
 // Definisci un'interfaccia per i dati
 interface DataItem {
@@ -29,17 +28,14 @@ function List() {
 
   useEffect(() => {
     const fetchData = async () => {
-      let query = supabase.from('userlist').select('*');
+      let url = `${import.meta.env.VITE_API_URL}/api/userlist`;
       if (clientName) {
-        query = query.eq('client_name', clientName);
+        url += `?client_name=${encodeURIComponent(clientName)}`;
       }
-      const { data, error } = await query;
-      if (error) {
-        console.error('Errore nel recupero dei dati:', error);
-      } else {
-        setData(data || []);
-        setFilteredData(data || []);
-      }
+      const response = await fetch(url);
+      const data = await response.json();
+      setData(data || []);
+      setFilteredData(data || []);
     };
     fetchData();
   }, [clientName]);
