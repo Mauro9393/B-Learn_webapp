@@ -1,5 +1,5 @@
 import './assets/css/list.css';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 // Definisci un'interfaccia per i dati

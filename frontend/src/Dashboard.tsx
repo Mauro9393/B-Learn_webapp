@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './assets/css/dashboard.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -66,7 +66,7 @@ function Dashboard() {
         <button>Filter</button>
       </div>
       <div className="content-grid">
-        {clientNames.map((client, idx) => (
+        {clientNames.map((client) => (
           <div
             key={client}
             className="card"

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './assets/css/login.css';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from './supabaseLogin';
 import bcrypt from 'bcryptjs';
 
 function Login() {
@@ -12,17 +11,21 @@ function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { data, error } = await supabase
-      .from('useraccount')
-      .select('*')
-      .eq('user_mail', email)
-      .single();
-  
-    if (data && await bcrypt.compare(password, data.user_pw)) {
-      localStorage.setItem('userEmail', email);
-      navigate('/dashboard');
-    } else {
-      setError('Email o password errati');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const result = await response.json();
+      if (result.success) {
+        localStorage.setItem('userEmail', email);
+        navigate('/dashboard');
+      } else {
+        setError('Email o password errati');
+      }
+    } catch (err) {
+      setError('Errore di connessione');
     }
   };
 
