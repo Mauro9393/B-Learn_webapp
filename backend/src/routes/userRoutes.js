@@ -3,7 +3,7 @@ const pool = require('../../config/db');
 console.log('Modulo db caricato:', pool);
 const router = express.Router();
 
-router.get('/users', async(req, res) => {
+router.get('/userlist', async(req, res) => {
     try {
         const result = await pool.query('SELECT * FROM userlist');
         res.json(result.rows);
