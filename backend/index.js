@@ -9,6 +9,6 @@ app.use('/auth', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 
-app.listen(PORT, () => {
-    console.log(`Backend listening on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Backend listening on http://0.0.0.0:${PORT}`);
 });
