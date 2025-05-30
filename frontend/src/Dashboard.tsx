@@ -8,7 +8,7 @@ function Dashboard() {
 
   // Recupera l'email dell'utente loggato
   const currentUserEmail = localStorage.getItem('userEmail');
-  const adminEmail = "admin@blearn.fr";
+  const adminEmail = "m.dicarlo@baberlearning.fr";
 
   useEffect(() => {
     const fetchClientNames = async () => {
