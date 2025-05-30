@@ -19,7 +19,11 @@ function Login() {
       const result = await response.json();
       if (result.success) {
         localStorage.setItem('userEmail', email);
-        localStorage.setItem('userRole', result.role);
+        localStorage.setItem('userRole', String(result.role));
+        console.log('Salvato in localStorage:', {
+          userEmail: localStorage.getItem('userEmail'),
+          userRole: localStorage.getItem('userRole')
+        });
         navigate('/dashboard');
       } else {
         setError(result.message || 'Email o password errati');
