@@ -10,6 +10,7 @@ function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleLogin chiamato');
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
         method: 'POST',
@@ -17,6 +18,7 @@ function Login() {
         body: JSON.stringify({ email, password })
       });
       const result = await response.json();
+      console.log('Risposta login:', result);
       if (result.success) {
         localStorage.setItem('userEmail', email);
         localStorage.setItem('userRole', String(result.role));
