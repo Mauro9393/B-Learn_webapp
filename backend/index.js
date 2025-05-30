@@ -13,9 +13,6 @@ app.use(express.json());
 app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 
-// Servi i file statici del frontend buildato
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Backend listening on http://0.0.0.0:${PORT}`);
 });
