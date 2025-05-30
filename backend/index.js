@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-    origin: 'http://163.172.159.116',
+    origin: true,
     credentials: true
 }));
 app.use(express.json());
