@@ -18,7 +18,7 @@ app.use('/api', authRoutes);
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // Per tutte le altre rotte non API, restituisci index.html (SPA)
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
