@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const app = express();
@@ -16,11 +15,6 @@ app.use('/api', authRoutes);
 
 // Servi i file statici del frontend buildato
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-// Per tutte le altre rotte non API, restituisci index.html (SPA)
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Backend listening on http://0.0.0.0:${PORT}`);
