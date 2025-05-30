@@ -8,10 +8,9 @@ function Admin() {
   const [message, setMessage] = useState('');
 
   // Sostituisci con la tua email admin
-  const adminEmail = "admin@blearn.fr";
-  const currentUserEmail = localStorage.getItem('userEmail');
+  const userRole = localStorage.getItem('userRole');
 
-  if (currentUserEmail !== adminEmail) {
+  if (userRole !== '1') {
     return <div>Accesso negato</div>;
   }
 
