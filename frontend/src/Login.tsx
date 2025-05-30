@@ -19,6 +19,7 @@ function Login() {
       const result = await response.json();
       if (result.success) {
         localStorage.setItem('userEmail', email);
+        localStorage.setItem('userRole', result.role);
         navigate('/dashboard');
       } else {
         setError(result.message || 'Email o password errati');
