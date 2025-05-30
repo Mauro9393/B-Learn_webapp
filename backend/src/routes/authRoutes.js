@@ -60,15 +60,29 @@ router.post('/register', async(req, res) => {
 router.post('/login', async(req, res) => {
     const { email, password } = req.body;
     try {
-        const result = await pool.query('SELECT u.*, r.name as role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.user_mail = $1', [email]);
-        const user = result.rows[0];
+        const { rows } = await pool.query(`
+            SELECT u.id, u.user_mail, u.user_pw, u.active,
+                   u.role_id, r.name AS role_name
+            FROM users u
+            JOIN roles r     ON u.role_id = r.id
+            WHERE u.user_mail = $1
+        `, [email]);
+        const user = rows[0];
         if (user && await bcrypt.compare(password, user.user_pw)) {
             // Se è user, deve essere attivo
             if (user.role_name === 'user' && !user.active) {
                 return res.json({ success: false, message: 'Devi confermare la tua email prima di accedere.' });
             }
             // Login riuscito per admin/superadmin anche se non attivi
-            res.json({ success: true, role: user.role_id, user: user });
+            return res.json({
+                success: true,
+                role: user.role_id,
+                user: {
+                    id: user.id,
+                    email: user.user_mail,
+                    role_name: user.role_name
+                }
+            });
         } else {
             // Login fallito
             res.json({ success: false, message: 'Email o password errati.' });
