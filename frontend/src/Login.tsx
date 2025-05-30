@@ -21,7 +21,7 @@ function Login() {
         localStorage.setItem('userEmail', email);
         navigate('/dashboard');
       } else {
-        setError('Email o password errati');
+        setError(result.message || 'Email o password errati');
       }
     } catch (err) {
       setError('Errore di connessione');

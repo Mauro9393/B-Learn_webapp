@@ -1,0 +1,56 @@
+/* Stile base per Inscription */
+
+.inscription-container {
+    max-width: 400px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.inscription-container h1 {
+    margin-bottom: 24px;
+    color: #1976d2;
+}
+
+.inscription-container form {
+    width: 100%;
+}
+
+.inscription-container input[type="text"],
+.inscription-container input[type="email"],
+.inscription-container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.inscription-container button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    background: #1976d2;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.inscription-container button:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+}
+
+.inscription-container p {
+    margin-top: 10px;
+    font-size: 15px;
+}

@@ -1,0 +1,54 @@
+/* Stile base per AddPartner */
+
+.add-partner-container {
+    max-width: 400px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.add-partner-container h1 {
+    margin-bottom: 24px;
+    color: #1976d2;
+}
+
+.add-partner-container form {
+    width: 100%;
+}
+
+.add-partner-container input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.add-partner-container button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    background: #1976d2;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-partner-container button:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+}
+
+.add-partner-container p {
+    margin-top: 10px;
+    font-size: 15px;
+}

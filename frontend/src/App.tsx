@@ -4,6 +4,8 @@ import Login from './Login'
 import Dashboard from './Dashboard'
 import List from './List';
 import Admin from './admin';
+import Inscription from './Inscription';
+import CreateChatbot from './CreateChatbot';
 import './App.css'
 
 function App() {
@@ -11,9 +13,11 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/inscription" element={<Inscription />} />
         <Route path="/login" element={<Login />} /> 
         <Route path="/list" element={<List />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/create-chatbot" element={<CreateChatbot />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </Router>

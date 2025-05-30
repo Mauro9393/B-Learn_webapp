@@ -46,13 +46,31 @@ function Dashboard() {
       <header className="dashboard-header">
         <h1>Lorem ipsum</h1>
         <div className="user-icon">👤</div>
-        {currentUserEmail === adminEmail && (
-          <button
-            style={{ marginLeft: '20px', padding: '8px 16px', borderRadius: '4px', background: '#1976d2', color: '#fff', border: 'none', cursor: 'pointer' }}
-            onClick={() => navigate('/admin')}
-          >
-            Add user
-          </button>
+        {(currentUserEmail === adminEmail || currentUserEmail) && (
+          <>
+            {currentUserEmail === adminEmail && (
+              <>
+                <button
+                  style={{ marginLeft: '20px', padding: '8px 16px', borderRadius: '4px', background: '#1976d2', color: '#fff', border: 'none', cursor: 'pointer' }}
+                  onClick={() => navigate('/admin')}
+                >
+                  Add user
+                </button>
+                <button
+                  style={{ marginLeft: '10px', padding: '8px 16px', borderRadius: '4px', background: '#43a047', color: '#fff', border: 'none', cursor: 'pointer' }}
+                  onClick={() => navigate('/create-chatbot')}
+                >
+                  Add chatbot
+                </button>
+              </>
+            )}
+            <button
+              style={{ marginLeft: '10px', padding: '8px 16px', borderRadius: '4px', background: '#ff9800', color: '#fff', border: 'none', cursor: 'pointer' }}
+              onClick={() => navigate('/add-partner')}
+            >
+              Add partner
+            </button>
+          </>
         )}
         <button
           style={{ marginLeft: '20px', padding: '8px 16px', borderRadius: '4px', background: '#e53935', color: '#fff', border: 'none', cursor: 'pointer' }}
