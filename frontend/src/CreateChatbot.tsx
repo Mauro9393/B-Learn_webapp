@@ -47,9 +47,14 @@ const CreateChatbot = () => {
       });
       const result = await response.json();
       if (result.success) {
+        // Recupera la mappa esistente o crea una nuova
+        const namesMap = JSON.parse(localStorage.getItem('chatbotNamesMap') || '{}');
+        namesMap[chatbotId] = name;
+        localStorage.setItem('chatbotNamesMap', JSON.stringify(namesMap));
+
         setSuccess('Chatbot creato con successo!');
         setTimeout(() => {
-          navigate('/dashboard', { state: { lastCreatedChatbotName: name, lastCreatedChatbotKey: chatbotId } });
+          navigate('/dashboard');
         }, 2000);
       } else {
         setError(result.message || 'Errore durante la creazione');
