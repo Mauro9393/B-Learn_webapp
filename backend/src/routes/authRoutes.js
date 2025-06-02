@@ -205,6 +205,7 @@ console.log("Sto per registrare la route /chatbots");
 router.post('/chatbots', async(req, res) => {
     try {
         const { name, storyline_key, description, tenant_id } = req.body;
+        console.log("Ricevuto dal frontend:", req.body);
         await pool.query(
             'INSERT INTO chatbots (name, storyline_key, tenant_id, description, created_at) VALUES ($1, $2, $3, $4, NOW())', [name, storyline_key, tenant_id, description]
         );
