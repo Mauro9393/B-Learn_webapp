@@ -110,7 +110,12 @@ function Dashboard() {
           </div>
         ))}
         {chatbots.map(bot => (
-          <div key={bot.id} className="card">
+          <div
+            key={bot.id}
+            className="card"
+            onClick={() => navigate(`/list?client_name=${encodeURIComponent(bot.storyline_key)}`)}
+            style={{ cursor: 'pointer', margin: '10px', padding: '20px', border: '1px solid #ccc' }}
+          >
             <h2>{bot.storyline_key}</h2>
             <p>{bot.description}</p>
             <p>ID: {bot.id}</p>
