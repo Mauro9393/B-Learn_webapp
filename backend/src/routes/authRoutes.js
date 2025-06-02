@@ -224,4 +224,13 @@ router.get('/chatbots', async(req, res) => {
     }
 });
 
+router.get('/tenants', async(req, res) => {
+    try {
+        const result = await pool.query('SELECT id, name FROM tenants');
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
