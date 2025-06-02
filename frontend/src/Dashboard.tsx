@@ -2,9 +2,17 @@ import { useEffect, useState } from 'react';
 import './assets/css/dashboard.css';
 import { useNavigate } from 'react-router-dom';
 
+interface Chatbot {
+  id: number;
+  storyline_key: string;
+  tenant_id: number;
+  description: string;
+  created_at: string;
+}
+
 function Dashboard() {
   const [clientNames, setClientNames] = useState<string[]>([]);
-  const [chatbots, setChatbots] = useState([]);
+  const [chatbots, setChatbots] = useState<Chatbot[]>([]);
   const navigate = useNavigate();
 
   // Recupera l'email dell'utente loggato
