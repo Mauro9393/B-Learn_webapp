@@ -23,6 +23,15 @@ function Login() {
         localStorage.setItem('userEmail', email);
         localStorage.setItem('userRole', String(result.role));
         localStorage.setItem('tenantId', result.user.tenant_id);
+        fetch(`${import.meta.env.VITE_API_URL}/api/tenants`)
+        .then(res => res.json())
+        .then((tenants: { id: number|string, name: string }[]) => {
+          const tenant = tenants.find(t => String(t.id) === String(result.user.tenant_id));
+          if (tenant) {
+            localStorage.setItem('tenantName', tenant.name);
+          }
+          navigate('/dashboard');
+        });
         console.log('Salvato in localStorage:', {
           userEmail: localStorage.getItem('userEmail'),
           userRole: localStorage.getItem('userRole'),
