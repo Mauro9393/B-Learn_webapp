@@ -22,9 +22,11 @@ function Login() {
       if (result.success) {
         localStorage.setItem('userEmail', email);
         localStorage.setItem('userRole', String(result.role));
+        localStorage.setItem('tenantId', result.user.tenant_id);
         console.log('Salvato in localStorage:', {
           userEmail: localStorage.getItem('userEmail'),
-          userRole: localStorage.getItem('userRole')
+          userRole: localStorage.getItem('userRole'),
+          tenantId: localStorage.getItem('tenantId')
         });
         navigate('/dashboard');
       } else {

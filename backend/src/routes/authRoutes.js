@@ -201,10 +201,9 @@ router.get('/confirm', async(req, res) => {
 
 router.post('/chatbots', async(req, res) => {
     try {
-        const { name, description, storyline_key } = req.body;
-        // Salva il nuovo chatbot nel database
+        const { storyline_key, description, tenant_id } = req.body;
         await pool.query(
-            'INSERT INTO chatbots (storyline_key, description) VALUES ($1, $2)', [storyline_key, description]
+            'INSERT INTO chatbots (storyline_key, tenant_id, description, created_at) VALUES ($1, $2, $3, NOW())', [storyline_key, tenant_id, description]
         );
         res.json({ success: true, message: 'Chatbot creato con successo!' });
     } catch (error) {

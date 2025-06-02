@@ -39,10 +39,11 @@ const CreateChatbot = () => {
     }
     setLoading(true);
     try {
+      const tenant_id = localStorage.getItem('tenantId');
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, storyline_key: chatbotId })
+        body: JSON.stringify({ name, description, storyline_key: chatbotId, tenant_id })
       });
       const result = await response.json();
       if (result.success) {
