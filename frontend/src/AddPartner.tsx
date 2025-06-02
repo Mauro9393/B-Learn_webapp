@@ -22,7 +22,7 @@ const AddPartner = () => {
     }
   };
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -31,10 +31,34 @@ const AddPartner = () => {
       setError('Inserisci almeno una email.');
       return;
     }
-    // Qui andrebbe la chiamata backend per inviare le email
-    setSuccess('Inviti inviati (simulato, solo frontend)!');
-    setEmails(['', '', '']);
-    setTimeout(() => navigate('/dashboard'), 2000);
+
+    // Recupera il nome del tenant da localStorage
+    const tenantName = localStorage.getItem('tenantName');
+    if (!tenantName) {
+      setError('Tenant non trovato. Riprova dopo aver effettuato il login.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/invite-partner`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emails: validEmails,
+          tenantName: tenantName
+        })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setSuccess('Inviti inviati con successo!');
+        setEmails(['', '', '']);
+        setTimeout(() => navigate('/dashboard'), 2000);
+      } else {
+        setError(result.message || 'Errore durante l\'invio degli inviti.');
+      }
+    } catch (err) {
+      setError('Errore di connessione con il server.');
+    }
   };
 
   return (

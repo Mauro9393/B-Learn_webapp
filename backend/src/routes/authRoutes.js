@@ -168,9 +168,9 @@ router.post('/invite-partner', async(req, res) => {
             await transporter.sendMail({
                 from: 'noreplyblearn@gmail.com',
                 to: email,
-                subject: 'Invito a registrarti su B-Learn',
-                html: `<p>Sei stato invitato a registrarti su B-Learn.<br>
-                       Clicca qui per completare la registrazione: <a href="${link}">${link}</a></p>`
+                subject: 'Invitation à vous inscrire sur B-Lear',
+                html: `<p>Vous avez été invité à vous inscrire sur B-Learn. <br>
+                       Cliquez ici pour compléter votre inscription : <a href="${link}">${link}</a></p>`
             });
         }
 
