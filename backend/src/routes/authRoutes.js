@@ -63,7 +63,7 @@ router.post('/login', async(req, res) => {
     try {
         const { rows } = await pool.query(`
             SELECT u.id, u.user_mail, u.user_pw, u.active,
-                   u.role_id, r.name AS role_name
+                   u.role_id, r.name AS role_name, u.tenant_id
             FROM users u
             JOIN roles r     ON u.role_id = r.id
             WHERE u.user_mail = $1
@@ -81,7 +81,8 @@ router.post('/login', async(req, res) => {
                 user: {
                     id: user.id,
                     email: user.user_mail,
-                    role_name: user.role_name
+                    role_name: user.role_name,
+                    tenant_id: user.tenant_id
                 }
             });
         } else {
