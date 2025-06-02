@@ -119,10 +119,14 @@ function Dashboard() {
           <div
             key={bot.id}
             className="card"
-            onClick={() => navigate(`/chatbot/${bot.id}`)}
+            onClick={() => navigate(`/list?client_name=${encodeURIComponent(bot.storyline_key)}`)}
             style={{ cursor: 'pointer', margin: '10px', padding: '20px', border: '1px solid #ccc' }}
           >
             <h2>{bot.name}</h2>
+            <p>{bot.description}</p>
+            <p style={{ fontWeight: 'bold', color: '#888', fontSize: '0.95em' }}>
+              ID Chatbot : {bot.storyline_key}
+            </p>
           </div>
         ))}
       </div>
