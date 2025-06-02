@@ -1,3 +1,4 @@
+console.log("authRoutes.js caricato!");
 const express = require('express');
 const { registerUser, authenticateUser } = require('../auth');
 const router = express.Router();
