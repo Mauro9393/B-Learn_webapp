@@ -199,4 +199,17 @@ router.get('/confirm', async(req, res) => {
     res.send('Account confermato! Ora puoi effettuare il login.');
 });
 
+router.post('/chatbots', async(req, res) => {
+    try {
+        const { name, description, storyline_key } = req.body;
+        // Salva il nuovo chatbot nel database
+        await pool.query(
+            'INSERT INTO chatbots (storyline_key, description) VALUES ($1, $2)', [storyline_key, description]
+        );
+        res.json({ success: true, message: 'Chatbot creato con successo!' });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
