@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './assets/css/dashboard.css';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 
 interface Chatbot {
   id: number;
@@ -15,16 +15,11 @@ function Dashboard() {
   const [clientNames, setClientNames] = useState<string[]>([]);
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
   const navigate = useNavigate();
-  const location = useLocation();
-  const lastCreatedChatbotName = location.state?.lastCreatedChatbotName;
-  const lastCreatedChatbotKey = location.state?.lastCreatedChatbotKey;
 
   // Recupera l'email dell'utente loggato
   const currentUserEmail = (localStorage.getItem('userEmail') || '').toLowerCase().trim();
   const adminEmail = "m.dicarlo@baberlearning.fr";
   const userRole = localStorage.getItem('userRole');
-
-  const namesMap = JSON.parse(localStorage.getItem('chatbotNamesMap') || '{}');
 
   useEffect(() => {
     const fetchClientNames = async () => {
