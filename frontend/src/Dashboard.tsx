@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
   const [clientNames, setClientNames] = useState<string[]>([]);
+  const [chatbots, setChatbots] = useState([]);
   const navigate = useNavigate();
 
   // Recupera l'email dell'utente loggato
@@ -35,6 +36,15 @@ function Dashboard() {
     };
     fetchClientNames();
   }, [currentUserEmail]);
+
+  useEffect(() => {
+    const fetchChatbots = async () => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`);
+      const data = await response.json();
+      setChatbots(data);
+    };
+    fetchChatbots();
+  }, []);
 
   // Funzione di logout
   const handleLogout = () => {
@@ -89,6 +99,13 @@ function Dashboard() {
             style={{ cursor: 'pointer', margin: '10px', padding: '20px', border: '1px solid #ccc' }}
           >
             <h2>{client}</h2>
+          </div>
+        ))}
+        {chatbots.map(bot => (
+          <div key={bot.id} className="card">
+            <h2>{bot.storyline_key}</h2>
+            <p>{bot.description}</p>
+            <p>ID: {bot.id}</p>
           </div>
         ))}
       </div>
