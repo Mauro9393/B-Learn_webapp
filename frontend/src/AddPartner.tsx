@@ -80,7 +80,7 @@ const AddPartner = () => {
             placeholder={`Email partner ${idx + 1}`}
             value={email}
             onChange={e => handleEmailChange(idx, e.target.value)}
-            required={idx < 3}
+            required={idx === 0}
             style={{ display: 'block', marginBottom: '8px' }}
           />
         ))}
