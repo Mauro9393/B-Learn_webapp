@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/CreateChatbot.css';
+
+interface Tenant {
+  id: number;
+  name: string;
+}
 
 function generateChatbotId(name: string) {
   // Genera un id alfanumerico unico basato sul nome e un random
@@ -17,7 +22,15 @@ const CreateChatbot = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [selectedTenantId, setSelectedTenantId] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/tenants`)
+      .then(res => res.json())
+      .then(data => setTenants(data));
+  }, []);
 
   const handleGenerateId = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,11 +52,15 @@ const CreateChatbot = () => {
     }
     setLoading(true);
     try {
-      const tenant_id = localStorage.getItem('tenantId');
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, storyline_key: chatbotId, tenant_id })
+        body: JSON.stringify({
+          name,
+          description,
+          storyline_key: chatbotId,
+          tenant_id: selectedTenantId
+        })
       });
       const result = await response.json();
       if (result.success) {
@@ -83,6 +100,16 @@ const CreateChatbot = () => {
           required
           style={{ minHeight: '80px', marginTop: '10px' }}
         />
+        <select
+          value={selectedTenantId}
+          onChange={e => setSelectedTenantId(e.target.value)}
+          required
+        >
+          <option value="">Seleziona cliente</option>
+          {tenants.map(t => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
         {chatbotId && (
           <input
             type="text"
