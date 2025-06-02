@@ -20,6 +20,7 @@ function Dashboard() {
   const currentUserEmail = (localStorage.getItem('userEmail') || '').toLowerCase().trim();
   const adminEmail = "m.dicarlo@baberlearning.fr";
   const userRole = localStorage.getItem('userRole');
+  const tenantId = localStorage.getItem('tenantId');
 
   useEffect(() => {
     const fetchClientNames = async () => {
@@ -54,6 +55,10 @@ function Dashboard() {
     };
     fetchChatbots();
   }, []);
+
+  const filteredChatbots = userRole === '1'
+    ? chatbots // superadmin vede tutto
+    : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
 
   // Funzione di logout
   const handleLogout = () => {
@@ -110,16 +115,14 @@ function Dashboard() {
             <h2>{client}</h2>
           </div>
         ))}
-        {chatbots.map(bot => (
+        {filteredChatbots.map(bot => (
           <div
             key={bot.id}
             className="card"
-            onClick={() => navigate(`/list?client_name=${encodeURIComponent(bot.storyline_key)}`)}
+            onClick={() => navigate(`/chatbot/${bot.id}`)}
             style={{ cursor: 'pointer', margin: '10px', padding: '20px', border: '1px solid #ccc' }}
           >
             <h2>{bot.name}</h2>
-            <p>{bot.description}</p>
-            <p style={{ fontWeight: 'bold', color: '#888', fontSize: '0.95em' }}>ID Chatbot : {bot.storyline_key}</p>
           </div>
         ))}
       </div>
