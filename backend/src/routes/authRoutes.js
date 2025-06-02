@@ -200,6 +200,7 @@ router.get('/confirm', async(req, res) => {
     res.send('Account confermato! Ora puoi effettuare il login.');
 });
 
+console.log("Sto per registrare la route /chatbots");
 router.post('/chatbots', async(req, res) => {
     try {
         const { storyline_key, description, tenant_id } = req.body;
