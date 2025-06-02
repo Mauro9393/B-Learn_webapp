@@ -125,7 +125,7 @@ function Dashboard() {
                 : bot.storyline_key}
             </h2>
             <p>{bot.description}</p>
-            <p>ID: {bot.id}</p>
+            <p> Id Chatbot : {bot.storyline_key}</p>
           </div>
         ))}
       </div>
