@@ -48,7 +48,9 @@ const CreateChatbot = () => {
       const result = await response.json();
       if (result.success) {
         setSuccess('Chatbot creato con successo!');
-        setTimeout(() => navigate('/dashboard'), 2000);
+        setTimeout(() => {
+          navigate('/dashboard', { state: { lastCreatedChatbotName: name, lastCreatedChatbotKey: chatbotId } });
+        }, 2000);
       } else {
         setError(result.message || 'Errore durante la creazione');
       }

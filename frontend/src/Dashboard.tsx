@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './assets/css/dashboard.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Chatbot {
   id: number;
@@ -14,6 +14,9 @@ function Dashboard() {
   const [clientNames, setClientNames] = useState<string[]>([]);
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const lastCreatedChatbotName = location.state?.lastCreatedChatbotName;
+  const lastCreatedChatbotKey = location.state?.lastCreatedChatbotKey;
 
   // Recupera l'email dell'utente loggato
   const currentUserEmail = (localStorage.getItem('userEmail') || '').toLowerCase().trim();
@@ -116,7 +119,11 @@ function Dashboard() {
             onClick={() => navigate(`/list?client_name=${encodeURIComponent(bot.storyline_key)}`)}
             style={{ cursor: 'pointer', margin: '10px', padding: '20px', border: '1px solid #ccc' }}
           >
-            <h2>{bot.storyline_key}</h2>
+            <h2>
+              {(lastCreatedChatbotKey === bot.storyline_key && lastCreatedChatbotName)
+                ? lastCreatedChatbotName
+                : bot.storyline_key}
+            </h2>
             <p>{bot.description}</p>
             <p>ID: {bot.id}</p>
           </div>
