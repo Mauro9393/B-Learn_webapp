@@ -119,7 +119,7 @@ function Dashboard() {
       <div className="filter-section">
         <input
           type="text"
-          placeholder="Cerca chatbot per nome"
+          placeholder="Find by name's chatbot"
           value={filter}
           onChange={e => setFilter(e.target.value)}
         />
