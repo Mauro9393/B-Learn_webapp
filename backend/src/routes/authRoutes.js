@@ -165,7 +165,7 @@ router.post('/invite-partner', async(req, res) => {
                 'INSERT INTO invitations (email, token, tenant_id, role_id, expires_at, used, created_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL \'2 days\', false, NOW())', [email, token, tenantId, roleId]
             );
             // Invia email
-            const link = `https://tuodominio/inscription?token=${token}`;
+            const link = `http://163.172.159.116:3001/inscription?token=${token}`;
             await transporter.sendMail({
                 from: 'noreplyblearn@gmail.com',
                 to: email,
