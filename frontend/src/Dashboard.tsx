@@ -14,6 +14,7 @@ interface Chatbot {
 function Dashboard() {
   const [clientNames, setClientNames] = useState<string[]>([]);
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
+  const [filter, setFilter] = useState('');
   const navigate = useNavigate();
 
   // Recupera l'email dell'utente loggato
@@ -101,8 +102,12 @@ function Dashboard() {
         </button>
       </header>
       <div className="filter-section">
-        <input type="text" placeholder="Lorem ipsum" />
-        <button>Filter</button>
+        <input
+          type="text"
+          placeholder="Cerca chatbot per nome"
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+        />
       </div>
       <div className="content-grid">
         {clientNames.map((client) => (
