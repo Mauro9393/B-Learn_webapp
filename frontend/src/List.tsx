@@ -5,12 +5,12 @@ import { useLocation } from 'react-router-dom';
 // Definisci un'interfaccia per i dati
 interface DataItem {
   id: number;
+  user_email: string;
+  chatbot_name: string;
   name: string;
   score: number;
-  client_name: string;
-  user_id: string;
-  historique: string;
-  rapport: string;
+  chat_history: string;
+  chat_analysis: string;
 }
 
 function useQuery() {
@@ -22,15 +22,15 @@ function List() {
   const [modalContent, setModalContent] = useState<string | null>(null);
   const [modalTitle, setModalTitle] = useState<string>('');
   const query = useQuery();
-  const clientName = query.get('client_name');
+  const chatbotName = query.get('chatbot_name');
   const [filter, setFilter] = useState('');
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       let url = `${import.meta.env.VITE_API_URL}/api/userlist`;
-      if (clientName) {
-        url += `?client_name=${encodeURIComponent(clientName)}`;
+      if (chatbotName) {
+        url += `?chatbot_name=${encodeURIComponent(chatbotName)}`;
       }
       const response = await fetch(url);
       const data = await response.json();
@@ -38,7 +38,7 @@ function List() {
       setFilteredData(data || []);
     };
     fetchData();
-  }, [clientName]);
+  }, [chatbotName]);
 
   useEffect(() => {
     setFilteredData(
@@ -47,10 +47,10 @@ function List() {
         return (
           item.name.toLowerCase().includes(search) ||
           String(item.score).toLowerCase().includes(search) ||
-          item.client_name.toLowerCase().includes(search) ||
-          item.user_id.toLowerCase().includes(search) ||
-          (item.historique && item.historique.toLowerCase().includes(search)) ||
-          (item.rapport && item.rapport.toLowerCase().includes(search))
+          item.chatbot_name.toLowerCase().includes(search) ||
+          item.user_email.toLowerCase().includes(search) ||
+          (item.chat_history && item.chat_history.toLowerCase().includes(search)) ||
+          (item.chat_analysis && item.chat_analysis.toLowerCase().includes(search))
         );
       })
     );
@@ -117,16 +117,16 @@ function List() {
               <td>{item.id}</td>
               <td>{item.name}</td>
               <td>{item.score}</td>
-              <td>{item.client_name}</td>
-              <td>{item.user_id}</td>
+              <td>{item.chatbot_name}</td>
+              <td>{item.user_email}</td>
               <td>
                 <button
-                  onClick={() => openModal('Historique', item.historique)}
-                  disabled={!item.historique}
+                  onClick={() => openModal('Historique', item.chat_history)}
+                  disabled={!item.chat_history}
                   style={{
-                    backgroundColor: !item.historique ? '#ccc' : undefined,
-                    color: !item.historique ? '#666' : undefined,
-                    cursor: !item.historique ? 'not-allowed' : 'pointer',
+                    backgroundColor: !item.chat_history ? '#ccc' : undefined,
+                    color: !item.chat_history ? '#666' : undefined,
+                    cursor: !item.chat_history ? 'not-allowed' : 'pointer',
                     padding: '2px 8px',
                     fontSize: '0.85em',
                     borderRadius: '4px',
@@ -138,12 +138,12 @@ function List() {
               </td>
               <td>
                 <button
-                  onClick={() => openModal('Rapport', item.rapport)}
-                  disabled={!item.rapport}
+                  onClick={() => openModal('Rapport', item.chat_analysis)}
+                  disabled={!item.chat_analysis}
                   style={{
-                    backgroundColor: !item.rapport ? '#ccc' : undefined,
-                    color: !item.rapport ? '#666' : undefined,
-                    cursor: !item.rapport ? 'not-allowed' : 'pointer',
+                    backgroundColor: !item.chat_analysis ? '#ccc' : undefined,
+                    color: !item.chat_analysis ? '#666' : undefined,
+                    cursor: !item.chat_analysis ? 'not-allowed' : 'pointer',
                     padding: '2px 8px',
                     fontSize: '0.85em',
                     borderRadius: '4px',

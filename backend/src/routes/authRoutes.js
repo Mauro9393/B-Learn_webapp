@@ -235,4 +235,21 @@ router.get('/tenants', async(req, res) => {
     }
 });
 
+router.get('/userlist', async(req, res) => {
+    try {
+        const chatbotName = req.query.chatbot_name;
+        let query = "SELECT * FROM userlist";
+        let params = [];
+        if (chatbotName) {
+            query += " WHERE chatbot_name = $1";
+            params.push(chatbotName);
+        }
+        const result = await pool.query(query, params);
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error("Errore nel recupero userlist:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
