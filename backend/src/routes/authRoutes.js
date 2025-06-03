@@ -141,6 +141,7 @@ const transporter = nodemailer.createTransport({
 
 router.post('/invite-partner', async(req, res) => {
     try {
+        console.log("Ricevuta richiesta:", req.body);
         const { emails, tenantName } = req.body; // emails: array di email, tenantName: nome azienda
         if (!emails || !Array.isArray(emails) || emails.length === 0) {
             return res.status(400).json({ success: false, message: 'Nessuna email fornita.' });
@@ -176,6 +177,7 @@ router.post('/invite-partner', async(req, res) => {
 
         res.json({ success: true, message: 'Inviti inviati!' });
     } catch (error) {
+        console.error("Errore in /invite-partner:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 });

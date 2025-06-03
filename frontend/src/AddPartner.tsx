@@ -49,6 +49,7 @@ const AddPartner = () => {
         })
       });
       const result = await response.json();
+      console.log(result);
       if (result.success) {
         setSuccess('Inviti inviati con successo!');
         setEmails(['', '', '']);
