@@ -73,7 +73,7 @@ function Dashboard() {
     : chatbots.filter(bot => String(bot.tenant_id) === tenantId)
   ).filter(bot =>
     (bot.name || '').toLowerCase().includes(filter.toLowerCase()) &&
-    (selectedClient === '' || (bot.client_name || '') === selectedClient)
+    (selectedClient === '' || String(bot.tenant_id) === selectedClient)
   );
 
   // Funzione di logout
@@ -131,7 +131,7 @@ function Dashboard() {
           >
             <option value="">Tutti i clienti</option>
             {tenants.map(tenant => (
-              <option key={tenant.id} value={tenant.name}>{tenant.name}</option>
+              <option key={tenant.id} value={tenant.id}>{tenant.name}</option>
             ))}
           </select>
         )}
