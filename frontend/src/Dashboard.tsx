@@ -63,8 +63,8 @@ function Dashboard() {
     ? chatbots
     : chatbots.filter(bot => String(bot.tenant_id) === tenantId)
   ).filter(bot =>
-    bot.name.toLowerCase().includes(filter.toLowerCase()) &&
-    (selectedClient === '' || bot.client_name === selectedClient)
+    (bot.name || '').toLowerCase().includes(filter.toLowerCase()) &&
+    (selectedClient === '' || (bot.client_name || '') === selectedClient)
   );
 
   // Funzione di logout
