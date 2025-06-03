@@ -17,6 +17,7 @@ function Dashboard() {
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
   const [filter, setFilter] = useState('');
   const [selectedClient, setSelectedClient] = useState('');
+  const [tenants, setTenants] = useState<{ id: number, name: string }[]>([]);
   const navigate = useNavigate();
 
   // Recupera l'email dell'utente loggato
@@ -58,6 +59,14 @@ function Dashboard() {
     };
     fetchChatbots();
   }, []);
+
+  useEffect(() => {
+    if (userRole === '1') {
+      fetch(`${import.meta.env.VITE_API_URL}/api/tenants`)
+        .then(res => res.json())
+        .then(data => setTenants(data));
+    }
+  }, [userRole]);
 
   const filteredChatbots = (userRole === '1'
     ? chatbots
@@ -114,16 +123,18 @@ function Dashboard() {
           value={filter}
           onChange={e => setFilter(e.target.value)}
         />
-        <select
-          value={selectedClient}
-          onChange={e => setSelectedClient(e.target.value)}
-          style={{ marginLeft: '10px' }}
-        >
-          <option value="">Tutti i clienti</option>
-          {clientNames.map(client => (
-            <option key={client} value={client}>{client}</option>
-          ))}
-        </select>
+        {userRole === '1' && (
+          <select
+            value={selectedClient}
+            onChange={e => setSelectedClient(e.target.value)}
+            style={{ marginLeft: '10px' }}
+          >
+            <option value="">Tutti i clienti</option>
+            {tenants.map(tenant => (
+              <option key={tenant.id} value={tenant.name}>{tenant.name}</option>
+            ))}
+          </select>
+        )}
       </div>
       <div className="content-grid">
         {clientNames.map((client) => (
