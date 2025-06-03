@@ -129,7 +129,7 @@ function Dashboard() {
             onChange={e => setSelectedClient(e.target.value)}
             style={{ marginLeft: '10px' }}
           >
-            <option value="">Tutti i clienti</option>
+            <option value="">All client</option>
             {tenants.map(tenant => (
               <option key={tenant.id} value={tenant.id}>{tenant.name}</option>
             ))}
