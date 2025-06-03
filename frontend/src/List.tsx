@@ -36,6 +36,7 @@ function List() {
       console.log("URL richiesta:", url);
       const response = await fetch(url);
       const data = await response.json();
+      console.log("Risposta dal backend:", data);
       setData(data || []);
       setFilteredData(data || []);
     };
