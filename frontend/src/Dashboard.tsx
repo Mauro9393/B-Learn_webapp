@@ -20,35 +20,8 @@ function Dashboard() {
   const navigate = useNavigate();
 
   // Recupera l'email dell'utente loggato
-  const currentUserEmail = (localStorage.getItem('userEmail') || '').toLowerCase().trim();
-  const adminEmail = "m.dicarlo@baberlearning.fr";
   const userRole = localStorage.getItem('userRole');
   const tenantId = localStorage.getItem('tenantId');
-
-  useEffect(() => {
-    const fetchClientNames = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/userlist`);
-        const data: { client_name: string }[] = await response.json();
-        let uniqueNames = Array.from(new Set((data || []).map(item => item.client_name)));
-        // Estrai la parte prima della chiocciola
-        const userPrefix = currentUserEmail ? currentUserEmail.split('@')[0].toLowerCase() : '';
-        // Se non sei admin, filtra i risultati
-        if (currentUserEmail && currentUserEmail !== adminEmail) {
-          uniqueNames = uniqueNames.filter((name: string) => {
-            // Normalizza: tutto minuscolo e senza spazi
-            const normalizedClient = name.toLowerCase().replace(/\s+/g, '');
-            const normalizedPrefix = userPrefix.toLowerCase().replace(/\s+/g, '');
-            return normalizedClient.includes(normalizedPrefix);
-          });
-        }
-        setClientNames(uniqueNames);
-      } catch (error) {
-        console.error('Errore nel recupero dei client_name:', error);
-      }
-    };
-    fetchClientNames();
-  }, [currentUserEmail]);
 
   useEffect(() => {
     const fetchChatbots = async () => {
