@@ -9,12 +9,14 @@ interface Chatbot {
   tenant_id: number;
   description: string;
   created_at: string;
+  client_name: string;
 }
 
 function Dashboard() {
   const [clientNames, setClientNames] = useState<string[]>([]);
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
   const [filter, setFilter] = useState('');
+  const [selectedClient, setSelectedClient] = useState('');
   const navigate = useNavigate();
 
   // Recupera l'email dell'utente loggato
@@ -57,9 +59,13 @@ function Dashboard() {
     fetchChatbots();
   }, []);
 
-  const filteredChatbots = userRole === '1'
-    ? chatbots // superadmin vede tutto
-    : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
+  const filteredChatbots = (userRole === '1'
+    ? chatbots
+    : chatbots.filter(bot => String(bot.tenant_id) === tenantId)
+  ).filter(bot =>
+    bot.name.toLowerCase().includes(filter.toLowerCase()) &&
+    (selectedClient === '' || bot.client_name === selectedClient)
+  );
 
   // Funzione di logout
   const handleLogout = () => {
@@ -108,6 +114,16 @@ function Dashboard() {
           value={filter}
           onChange={e => setFilter(e.target.value)}
         />
+        <select
+          value={selectedClient}
+          onChange={e => setSelectedClient(e.target.value)}
+          style={{ marginLeft: '10px' }}
+        >
+          <option value="">Tutti i clienti</option>
+          {clientNames.map(client => (
+            <option key={client} value={client}>{client}</option>
+          ))}
+        </select>
       </div>
       <div className="content-grid">
         {clientNames.map((client) => (
