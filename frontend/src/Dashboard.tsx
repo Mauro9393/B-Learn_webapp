@@ -137,16 +137,6 @@ function Dashboard() {
         )}
       </div>
       <div className="content-grid">
-        {clientNames.map((client) => (
-          <div
-            key={client}
-            className="card"
-            onClick={() => navigate(`/list?client_name=${encodeURIComponent(client)}`)}
-            style={{ cursor: 'pointer', margin: '10px', padding: '20px', border: '1px solid #ccc' }}
-          >
-            <h2>{client}</h2>
-          </div>
-        ))}
         {filteredChatbots.map(bot => (
           <div
             key={bot.id}
