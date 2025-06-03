@@ -44,7 +44,7 @@ router.post('/register', async(req, res) => {
             'INSERT INTO email_confirmations (user_id, token, type) VALUES ($1, $2, $3)', [userId, confirmationToken, 'confirm']
         );
         // Invia email di conferma
-        const confirmLink = `https://tuodominio/confirm?token=${confirmationToken}`;
+        const confirmLink = `http://163.172.159.116:3000/api/confirm?token=${confirmationToken}`;
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
