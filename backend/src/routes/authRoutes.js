@@ -243,11 +243,13 @@ router.get('/userlist', async(req, res) => {
         if (chatbotName) {
             query += " WHERE chatbot_name = $1";
             params.push(chatbotName);
+        } else {
+            // Se non vuoi mostrare tutto, restituisci []
+            return res.status(200).json([]);
         }
         const result = await pool.query(query, params);
         res.status(200).json(result.rows);
     } catch (err) {
-        console.error("Errore nel recupero userlist:", err);
         res.status(500).json({ error: err.message });
     }
 });
