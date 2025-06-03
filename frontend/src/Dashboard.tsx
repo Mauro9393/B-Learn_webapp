@@ -13,7 +13,6 @@ interface Chatbot {
 }
 
 function Dashboard() {
-  const [clientNames, setClientNames] = useState<string[]>([]);
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
   const [filter, setFilter] = useState('');
   const [selectedClient, setSelectedClient] = useState('');
