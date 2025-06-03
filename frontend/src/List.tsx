@@ -27,6 +27,7 @@ function List() {
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
 
   useEffect(() => {
+    console.log("chatbotName in useEffect:", chatbotName);
     const fetchData = async () => {
       let url = `${import.meta.env.VITE_API_URL}/api/userlist`;
       if (chatbotName) {

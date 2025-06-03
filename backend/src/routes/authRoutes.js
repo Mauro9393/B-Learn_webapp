@@ -238,16 +238,18 @@ router.get('/tenants', async(req, res) => {
 router.get('/userlist', async(req, res) => {
     try {
         const chatbotName = req.query.chatbot_name;
+        console.log("Filtro chatbot_name:", chatbotName);
         let query = "SELECT * FROM userlist";
         let params = [];
         if (chatbotName) {
             query += " WHERE chatbot_name = $1";
             params.push(chatbotName);
         } else {
-            // Se non vuoi mostrare tutto, restituisci []
             return res.status(200).json([]);
         }
+        console.log("Query eseguita:", query, params);
         const result = await pool.query(query, params);
+        console.log("Risultati trovati:", result.rows.length);
         res.status(200).json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
