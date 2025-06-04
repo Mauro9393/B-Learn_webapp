@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './assets/css/login.css';
 import { useNavigate } from 'react-router-dom';
+import logoBlearn from './assets/logo-blearn.png';
 
 function Login() {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ function Login() {
         ))}
       </div>
       <div className="login-container">
-        <img src="/assets/logo-blearn.png" alt="B-learn Logo" className="login-logo" />
+        <img src={logoBlearn} alt="B-learn Logo" className="login-logo" />
         <h1>Connexion</h1>
         <p className="login-subtitle">Accédez à votre espace B-learn</p>
         <form className="login-form" onSubmit={handleLogin}>
