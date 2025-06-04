@@ -229,6 +229,7 @@ function Dashboard() {
               <div className="chatbot-client">{bot.name}</div>
             )}
             <div className="chatbot-id">ID: {bot.storyline_key}</div>
+            <br />
             <h2>{bot.name}</h2>
             <p>{bot.description}</p>
             <div className="chatbot-meta">
