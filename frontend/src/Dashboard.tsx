@@ -91,6 +91,19 @@ function Dashboard() {
     (selectedClient === '' || String(bot.tenant_id) === selectedClient)
   );
 
+  // PAGINAZIONE
+  const itemsPerPage = 6;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(filteredChatbots.length / itemsPerPage));
+  const paginatedChatbots = filteredChatbots.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+  useEffect(() => { setCurrentPage(1); }, [filter, selectedClient, filteredChatbots.length]);
+
   // Funzione di logout
   const handleLogout = () => {
     localStorage.removeItem('userEmail');
@@ -193,8 +206,13 @@ function Dashboard() {
           </select>
         )}
       </div>
-      <div className="content-grid">
-        {filteredChatbots.map(bot => (
+      {/* PAGINAZIONE INFO */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'1.5rem 0 1rem 0'}}>
+        <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>Page {currentPage}/{totalPages}</span>
+        <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>{filteredChatbots.length} chatbots trouvés</span>
+      </div>
+      <div className="content-grid paginated-grid">
+        {paginatedChatbots.map(bot => (
           <div
             key={bot.id}
             className="card"
@@ -216,6 +234,16 @@ function Dashboard() {
             </button>
           </div>
         ))}
+      </div>
+      {/* PAGINAZIONE BOTTONI */}
+      <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:'1rem',margin:'2rem 0 1rem 0'}}>
+        <button className="pagination-btn" onClick={()=>goToPage(currentPage-1)} disabled={currentPage===1} style={{padding:'0.6rem 1.2rem',borderRadius:'8px',fontWeight:600,fontSize:'0.9rem',background:'#fff',color:'#7F53F5',border:'1px solid #e0e0e0',cursor:currentPage===1?'not-allowed':'pointer',opacity:currentPage===1?0.5:1}}>← Précédent</button>
+        <span className="pagination-pages">
+          {[...Array(totalPages)].map((_,i)=>(
+            <button key={i+1} className={`page-btn${currentPage===i+1?' active':''}`} onClick={()=>goToPage(i+1)} style={{background:currentPage===i+1?'linear-gradient(90deg,#5B6DF6 0%,#7F53F5 100%)':'#fff',color:currentPage===i+1?'#fff':'#7F53F5',border:'1px solid #e0e0e0',borderRadius:'6px',padding:'0.5rem 0.8rem',fontSize:'0.9rem',fontWeight:600,margin:'0 2px',minWidth:'35px',cursor:'pointer'}}>{i+1}</button>
+          ))}
+        </span>
+        <button className="pagination-btn" onClick={()=>goToPage(currentPage+1)} disabled={currentPage===totalPages} style={{padding:'0.6rem 1.2rem',borderRadius:'8px',fontWeight:600,fontSize:'0.9rem',background:'#fff',color:'#7F53F5',border:'1px solid #e0e0e0',cursor:currentPage===totalPages?'not-allowed':'pointer',opacity:currentPage===totalPages?0.5:1}}>Suivant →</button>
       </div>
     </div>
   );
