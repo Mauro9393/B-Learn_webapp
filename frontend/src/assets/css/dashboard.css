@@ -235,6 +235,10 @@ body {
     transition: transform 0.15s, box-shadow 0.15s;
     position: relative;
     margin: 0 auto;
+    width: 320px;
+    max-width: 100%;
+    min-width: 260px;
+    box-sizing: border-box;
 }
 
 .card:hover {
@@ -251,6 +255,8 @@ body {
 .card p {
     color: #444;
     margin-bottom: 1.2rem;
+    word-break: break-word;
+    white-space: pre-line;
 }
 
 .card .chatbot-id {
