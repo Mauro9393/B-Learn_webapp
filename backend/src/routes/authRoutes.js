@@ -244,7 +244,7 @@ router.get('/userlist', async(req, res) => {
         if (chatbotName) {
             query += " WHERE chatbot_name = $1";
             params.push(chatbotName);
-        } else {
+        } else if (!req.query.all) {
             return res.status(200).json([]);
         }
         console.log("Query eseguita:", query, params);

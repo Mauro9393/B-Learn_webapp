@@ -198,8 +198,6 @@ function Dashboard() {
           <div
             key={bot.id}
             className="card"
-            onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(bot.storyline_key)}`)}
-            style={{ cursor: 'pointer', margin: '10px', padding: '20px', border: '1px solid #ccc' }}
             data-name={userRole === '1' ? bot.name : undefined}
             data-client={userRole === '1' ? bot.client_name : undefined}
           >
@@ -209,7 +207,13 @@ function Dashboard() {
             <div className="chatbot-meta">
               {getLearnersForChatbot(bot.storyline_key)} learners &bull; {getSimulationsForChatbot(bot.storyline_key)} simulations
             </div>
-            {/* Eventuali altri bottoni/azioni qui */}
+            <button
+              className="btn"
+              style={{ width: '100%', marginTop: 'auto' }}
+              onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(bot.storyline_key)}`)}
+            >
+              Voir le détail
+            </button>
           </div>
         ))}
       </div>
