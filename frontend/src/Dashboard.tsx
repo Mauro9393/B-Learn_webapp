@@ -30,6 +30,9 @@ function Dashboard() {
     topChatbot: { name: '', count: 0 }
   });
   const [showSummaryDetails, setShowSummaryDetails] = useState(false);
+
+  const [copied, setCopied] = useState<string | null>(null);
+
   const navigate = useNavigate();
 
   // Recupera l'email dell'utente loggato
@@ -331,7 +334,12 @@ function Dashboard() {
                   title="Copia ID"
                   onClick={e => {
                     e.stopPropagation();
-                    navigator.clipboard.writeText(bot.storyline_key);
+                    navigator.clipboard.writeText(bot.storyline_key)
+                    .then(() => {
+                      setCopied(bot.storyline_key);
+                      setTimeout(() => setCopied(null), 2000);
+                    })
+                    .catch(err => console.error("Errore nella copia:", err));
                   }}
                 >
                   {/* SVG icona due quadrati */}
@@ -339,6 +347,9 @@ function Dashboard() {
                     <rect x="5" y="5" width="10" height="10" rx="2" fill="#7F53F5" fillOpacity="0.18" stroke="#7F53F5" strokeWidth="1.2"/>
                     <rect x="8" y="8" width="7" height="7" rx="1.5" fill="#7F53F5" stroke="#7F53F5" strokeWidth="1.2"/>
                   </svg>
+                  {copied === bot.storyline_key && (
+                    <span className="copied-message">Copié !</span>
+                  )}
                 </span>
               </div>
               <br /><br />
