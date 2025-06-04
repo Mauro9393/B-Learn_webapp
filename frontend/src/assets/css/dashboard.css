@@ -809,6 +809,7 @@ button:hover,
     align-items: center;
     margin-left: 4px;
     cursor: pointer;
+    background: #9ba6f9;
     transition: color 0.2s, background 0.2s;
     border-radius: 4px;
     padding: 2px;
