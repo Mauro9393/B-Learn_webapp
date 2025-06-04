@@ -226,7 +226,7 @@ body {
     box-shadow: 0 4px 24px rgba(127, 83, 245, 0.10);
     padding: 2rem 2.5rem;
     min-width: 260px;
-    max-width: 320px;
+    max-width: 380px;
     text-align: left;
     display: flex;
     flex-direction: column;
@@ -235,7 +235,7 @@ body {
     transition: transform 0.15s, box-shadow 0.15s;
     position: relative;
     margin: 0 auto;
-    width: 320px;
+    width: 380px;
     max-width: 100%;
     min-width: 260px;
     box-sizing: border-box;
