@@ -225,6 +225,9 @@ function Dashboard() {
             data-name={userRole === '1' ? bot.name : undefined}
             data-client={userRole === '1' ? bot.client_name : undefined}
           >
+            {bot.name && (
+              <div className="chatbot-client">{bot.name}</div>
+            )}
             <div className="chatbot-id">ID: {bot.storyline_key}</div>
             <h2>{bot.name}</h2>
             <p>{bot.description}</p>

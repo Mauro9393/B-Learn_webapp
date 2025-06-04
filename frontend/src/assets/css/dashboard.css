@@ -455,3 +455,23 @@ button:hover,
         margin-top: 0.5rem;
     }
 }
+
+.dashboard-filters-left input[type="text"],
+.dashboard-filters-left select {
+    padding: 0.8rem 1rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+    margin: 0 0.5rem 0 0;
+    outline: none;
+}
+
+.dashboard-filters-left input[type="text"]:focus,
+.dashboard-filters-left select:focus {
+    border-color: #7F53F5;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
+}
