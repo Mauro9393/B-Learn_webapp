@@ -29,6 +29,7 @@ function Dashboard() {
     totalSimulations: 0,
     topChatbot: { name: '', count: 0 }
   });
+  const [showSummaryDetails, setShowSummaryDetails] = useState(false);
   const navigate = useNavigate();
 
   // Recupera l'email dell'utente loggato
@@ -155,37 +156,115 @@ function Dashboard() {
         </button>
       </header>
 
-      {/* MINI DASHBOARD CARDS */}
-      <div className="mini-dashboard-cards">
-        <div className="mini-dashboard-card">
-          <div className="card-emoji">🤖</div>
-          <h3>Chatbots</h3>
-          <div className="mini-value">{stats.totalChatbots}</div>
-          <div className="card-badge positive">Total</div>
-        </div>
-        <div className="mini-dashboard-card">
-          <div className="card-emoji">👥</div>
-          <h3>Learners</h3>
-          <div className="mini-value">{stats.totalLearners}</div>
-          <div className="card-badge positive">Total</div>
-        </div>
-        <div className="mini-dashboard-card">
-          <div className="card-emoji">🎯</div>
-          <h3>Simulations</h3>
-          <div className="mini-value">{stats.totalSimulations}</div>
-          <div className="card-badge positive">Total</div>
-        </div>
-        <div className="mini-dashboard-card">
-          <div className="card-emoji">⭐</div>
-          <h3>Top Chatbots</h3>
-          <div className="mini-value">{stats.topChatbot.count}</div>
-          <div className="top-chatbots-names">
-            {stats.topChatbot.name && (
-              <div className="chatbot-name-small">👑 {stats.topChatbot.name}</div>
-            )}
+      {/* MINI DASHBOARD CARDS + BOTTONE GAMIFICATO + SEZIONE DETTAGLIATA */}
+      <section className="summary-section">
+        <div className="mini-dashboard-cards">
+          <div className="mini-dashboard-card">
+            <div className="card-emoji">🤖</div>
+            <h3>Chatbots</h3>
+            <div className="mini-value">{stats.totalChatbots}</div>
+            <div className="card-badge positive">+2 ce mois-ci</div>
+          </div>
+          <div className="mini-dashboard-card">
+            <div className="card-emoji">👥</div>
+            <h3>Learners</h3>
+            <div className="mini-value">{stats.totalLearners}</div>
+            <div className="card-badge positive">+12 learners</div>
+          </div>
+          <div className="mini-dashboard-card">
+            <div className="card-emoji">🎯</div>
+            <h3>Simulations</h3>
+            <div className="mini-value">{stats.totalSimulations}</div>
+            <div className="card-badge positive">+56 simulations</div>
+          </div>
+          <div className="mini-dashboard-card">
+            <div className="card-emoji">⭐</div>
+            <h3>Top Chatbots</h3>
+            <div className="mini-value">{stats.topChatbot.count}</div>
+            <div className="top-chatbots-names">
+              {stats.topChatbot.name && (
+                <div className="chatbot-name-small">👑 {stats.topChatbot.name}</div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+        {/* Bottone gamificato */}
+        <div className="expand-section">
+          <button
+            className="expand-btn gamified"
+            onClick={() => setShowSummaryDetails(v => !v)}
+            id="expandBtn"
+          >
+            <span className="btn-icon">🎲</span>
+            <span id="expandText">{showSummaryDetails ? 'Masquer les stats' : 'Découvrir les stats'}</span>
+            <span className="expand-icon" id="expandIcon" style={{transform: showSummaryDetails ? 'rotate(180deg)' : 'rotate(0deg)'}}>{showSummaryDetails ? '▲' : '▼'}</span>
+            <div className="btn-glow"></div>
+          </button>
+        </div>
+        {/* Sezione dettagliata (espandibile) */}
+        {showSummaryDetails && (
+          <div className="summary-details" id="summaryDetails" style={{display: 'flex'}}>
+            {/* Top 5 Simulations (statico) */}
+            <div className="summary-widget gamified">
+              <h3 className="widget-title">🏆 Hall of Fame - Top Simulations</h3>
+              <div className="top-simulations">
+                <div className="simulation-item rank-1">
+                  <span className="simulation-rank gold">👑 #1</span>
+                  <span className="simulation-name">Vente Retail</span>
+                  <span className="simulation-count">58 <small>runs</small></span>
+                  <div className="achievement-badge">🥇 Champion</div>
+                </div>
+                <div className="simulation-item rank-2">
+                  <span className="simulation-rank silver">🥈 #2</span>
+                  <span className="simulation-name">Formation Sécurité</span>
+                  <span className="simulation-count">45 <small>runs</small></span>
+                  <div className="achievement-badge">🔥 Hot</div>
+                </div>
+                <div className="simulation-item rank-3">
+                  <span className="simulation-rank bronze">🥉 #3</span>
+                  <span className="simulation-name">Relation Client</span>
+                  <span className="simulation-count">41 <small>runs</small></span>
+                  <div className="achievement-badge">⭐ Star</div>
+                </div>
+                <div className="simulation-item">
+                  <span className="simulation-rank">#4</span>
+                  <span className="simulation-name">Onboarding RH</span>
+                  <span className="simulation-count">34 <small>runs</small></span>
+                </div>
+                <div className="simulation-item">
+                  <span className="simulation-rank">#5</span>
+                  <span className="simulation-name">Négociation</span>
+                  <span className="simulation-count">28 <small>runs</small></span>
+                </div>
+              </div>
+            </div>
+            {/* Statistiche evolutive (statico) */}
+            <div className="summary-widget gamified">
+              <h3 className="widget-title">📊 Mes stats</h3>
+              <div className="evolution-stats">
+                <div className="evolution-item streak">
+                  <div className="evolution-icon">🚀</div>
+                  <div className="evolution-label">Nouvelles simulations</div>
+                  <div className="evolution-value positive">+120</div>
+                  <div className="evolution-change">🔥 Streak de 15%!</div>
+                </div>
+                <div className="evolution-item level-up">
+                  <div className="evolution-icon">👑</div>
+                  <div className="evolution-label">Nouveaux learners</div>
+                  <div className="evolution-value positive">+12</div>
+                  <div className="evolution-change">⚡ Level Up +8%</div>
+                </div>
+                <div className="evolution-item achievement">
+                  <div className="evolution-icon">🎯</div>
+                  <div className="evolution-label">Score moyen</div>
+                  <div className="evolution-value positive">+3.2</div>
+                  <div className="evolution-change">🏆 Achievement unlocked!</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* SEZIONE TITOLO E CONTEGGIO */}
       <div className="section-header-dashboard">
