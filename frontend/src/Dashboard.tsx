@@ -186,10 +186,14 @@ function Dashboard() {
           Déconnexion
         </button>
       </header>
-      {/* PAGINAZIONE INFO */}
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'1.5rem 0 1rem 0'}}>
+      {/* SEZIONE TITOLO E CONTEGGIO */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'2rem 0 0.5rem 0'}}>
+        <span style={{fontWeight:800,fontSize:'1.3rem',color:'#5B6DF6'}}>Tous les Chatbots</span>
+        <span style={{border:'1.5px solid #e0e0e0',borderRadius:'10px',padding:'0.5rem 1.2rem',background:'#fff',color:'#7F53F5',fontWeight:600,fontSize:'0.95rem',boxShadow:'0 2px 8px rgba(127,83,245,0.08)'}}>{filteredChatbots.length} chatbots trouvés</span>
+      </div>
+      {/* PAGINAZIONE INFO SOTTO */}
+      <div style={{display:'flex',justifyContent:'flex-end',alignItems:'center',margin:'0 0 1.2rem 0'}}>
         <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>Page {currentPage}/{totalPages}</span>
-        <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>{filteredChatbots.length} chatbots trouvés</span>
       </div>
       <div className="filter-section">
         <input
@@ -211,7 +215,7 @@ function Dashboard() {
           </select>
         )}
       </div>
-      <div className="content-grid paginated-grid">
+      <div className="content-grid paginated-grid" style={{justifyContent:'center'}}>
         {paginatedChatbots.map(bot => (
           <div
             key={bot.id}
@@ -227,7 +231,7 @@ function Dashboard() {
             </div>
             <button
               className="btn"
-              style={{ width: '100%', marginTop: 'auto' }}
+              style={{ minWidth: '120px', maxWidth: '160px', padding: '0.6rem 1.2rem', fontSize: '1rem', marginTop: '0.5rem', alignSelf: 'flex-start' }}
               onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(bot.storyline_key)}`)}
             >
               Voir le détail

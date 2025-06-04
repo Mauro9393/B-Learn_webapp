@@ -327,12 +327,16 @@ button:hover,
 .paginated-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 32px;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 @media (max-width: 900px) {
     .paginated-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+        justify-content: center;
     }
 }
 
