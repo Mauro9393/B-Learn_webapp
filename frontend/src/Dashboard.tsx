@@ -331,12 +331,34 @@ function Dashboard() {
                   title="Copia ID"
                   onClick={e => {
                     e.stopPropagation();
-                    navigator.clipboard.writeText(bot.storyline_key)
-                    .then(() => {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                      navigator.clipboard.writeText(bot.storyline_key)
+                        .then(() => {
+                          setCopied(bot.storyline_key);
+                          setTimeout(() => setCopied(null), 2000);
+                        })
+                        .catch(err => {
+                          // Fallback se la Clipboard API fallisce
+                          const textarea = document.createElement('textarea');
+                          textarea.value = bot.storyline_key;
+                          document.body.appendChild(textarea);
+                          textarea.select();
+                          document.execCommand('copy');
+                          document.body.removeChild(textarea);
+                          setCopied(bot.storyline_key);
+                          setTimeout(() => setCopied(null), 2000);
+                        });
+                    } else {
+                      // Fallback se la Clipboard API non esiste
+                      const textarea = document.createElement('textarea');
+                      textarea.value = bot.storyline_key;
+                      document.body.appendChild(textarea);
+                      textarea.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(textarea);
                       setCopied(bot.storyline_key);
                       setTimeout(() => setCopied(null), 2000);
-                    })
-                    .catch(err => console.error("Errore nella copia:", err));
+                    }
                   }}
                 >
                   {/* SVG icona due quadrati */}
