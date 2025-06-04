@@ -186,6 +186,11 @@ function Dashboard() {
           Déconnexion
         </button>
       </header>
+      {/* PAGINAZIONE INFO */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'1.5rem 0 1rem 0'}}>
+        <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>Page {currentPage}/{totalPages}</span>
+        <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>{filteredChatbots.length} chatbots trouvés</span>
+      </div>
       <div className="filter-section">
         <input
           type="text"
@@ -205,11 +210,6 @@ function Dashboard() {
             ))}
           </select>
         )}
-      </div>
-      {/* PAGINAZIONE INFO */}
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'1.5rem 0 1rem 0'}}>
-        <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>Page {currentPage}/{totalPages}</span>
-        <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>{filteredChatbots.length} chatbots trouvés</span>
       </div>
       <div className="content-grid paginated-grid">
         {paginatedChatbots.map(bot => (
