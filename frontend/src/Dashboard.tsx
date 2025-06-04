@@ -56,6 +56,14 @@ function Dashboard() {
     }
   }, [userRole]);
 
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/userlist?all=1`)
+      .then(res => res.json())
+      .then((data: UserlistRow[]) => {
+        setUserlist(data);
+      });
+  }, []);
+
   // Fetch userlist per statistiche
   useEffect(() => {
     // Calcola le statistiche filtrate in base al ruolo
