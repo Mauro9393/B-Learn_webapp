@@ -192,7 +192,7 @@ function Dashboard() {
         <span className="riquadro-chatbots-trouves">{filteredChatbots.length} chatbots trouvés</span>
       </div>
       {/* SEZIONE FILTRI E PAGINAZIONE INLINE */}
-      <div className="dashboard-filters-row">
+      <div className="filters-section">
         <div className="dashboard-filters-left">
           <input
             type="text"

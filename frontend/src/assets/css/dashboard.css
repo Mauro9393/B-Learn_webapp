@@ -37,12 +37,15 @@ body {
     font-size: 24px;
 }
 
-.filter-section {
-    margin: 20px 0;
+.filters-section {
     display: flex;
-    gap: 10px;
-    background: none;
-    padding: 0;
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9ff;
+    border-radius: 12px;
+    border: 1px solid #e8ebf7;
 }
 
 .filter-section input[type="text"] {
@@ -423,14 +426,6 @@ button:hover,
     border-color: #5B6DF6;
 }
 
-.dashboard-filters-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 0 1.5rem 0;
-    gap: 1.5rem;
-}
-
 .dashboard-filters-left {
     display: flex;
     align-items: center;
@@ -445,7 +440,7 @@ button:hover,
 }
 
 @media (max-width: 900px) {
-    .dashboard-filters-row {
+    .filters-section {
         flex-direction: column;
         align-items: stretch;
         gap: 0.8rem;
