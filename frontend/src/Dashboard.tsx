@@ -218,32 +218,34 @@ function Dashboard() {
         </div>
       </div>
       <div className="content-grid paginated-grid">
-        {paginatedChatbots.map(bot => (
-          <div
-            key={bot.id}
-            className="card"
-            data-name={userRole === '1' ? bot.name : undefined}
-            data-client={userRole === '1' ? bot.client_name : undefined}
-          >
-            {bot.name && (
-              <div className="chatbot-client">{bot.name}</div>
-            )}
-            <div className="chatbot-id">ID: {bot.storyline_key}</div>
-            <br />
-            <h2>{bot.name}</h2>
-            <p>{bot.description}</p>
-            <div className="chatbot-meta">
-              {getLearnersForChatbot(bot.storyline_key)} learners &bull; {getSimulationsForChatbot(bot.storyline_key)} simulations
-            </div>
-            <button
-              className="btn"
-              style={{ minWidth: '120px', maxWidth: '160px', padding: '0.6rem 1.2rem', fontSize: '1rem', marginTop: '0.5rem', alignSelf: 'flex-start' }}
-              onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(bot.storyline_key)}`)}
+        {paginatedChatbots.map(bot => {
+          const tenant = tenants.find(t => String(t.id) === String(bot.tenant_id));
+          return (
+            <div
+              key={bot.id}
+              className="card"
+              data-name={userRole === '1' ? bot.name : undefined}
+              data-client={userRole === '1' ? tenant?.name : undefined}
             >
-              Voir le détail
-            </button>
-          </div>
-        ))}
+              {tenant && (
+                <div className="chatbot-client">{tenant.name}</div>
+              )}
+              <div className="chatbot-id">ID: {bot.storyline_key}</div>
+              <h2>{bot.name}</h2>
+              <p>{bot.description}</p>
+              <div className="chatbot-meta">
+                {getLearnersForChatbot(bot.storyline_key)} learners &bull; {getSimulationsForChatbot(bot.storyline_key)} simulations
+              </div>
+              <button
+                className="btn"
+                style={{ minWidth: '120px', maxWidth: '160px', padding: '0.6rem 1.2rem', fontSize: '1rem', marginTop: '0.5rem', alignSelf: 'flex-start' }}
+                onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(bot.storyline_key)}`)}
+              >
+                Voir le détail
+              </button>
+            </div>
+          );
+        })}
       </div>
       {/* PAGINAZIONE BOTTONI */}
       <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:'1rem',margin:'2rem 0 1rem 0'}}>
