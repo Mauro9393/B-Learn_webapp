@@ -122,38 +122,6 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* MINI DASHBOARD CARDS */}
-      <div className="mini-dashboard-cards">
-        <div className="mini-dashboard-card">
-          <div className="card-emoji">🤖</div>
-          <h3>Chatbots</h3>
-          <div className="mini-value">{stats.totalChatbots}</div>
-          <div className="card-badge positive">Total</div>
-        </div>
-        <div className="mini-dashboard-card">
-          <div className="card-emoji">👥</div>
-          <h3>Learners</h3>
-          <div className="mini-value">{stats.totalLearners}</div>
-          <div className="card-badge positive">Total</div>
-        </div>
-        <div className="mini-dashboard-card">
-          <div className="card-emoji">🎯</div>
-          <h3>Simulations</h3>
-          <div className="mini-value">{stats.totalSimulations}</div>
-          <div className="card-badge positive">Total</div>
-        </div>
-        <div className="mini-dashboard-card">
-          <div className="card-emoji">⭐</div>
-          <h3>Top Chatbots</h3>
-          <div className="mini-value">{stats.topChatbot.count}</div>
-          <div className="top-chatbots-names">
-            {stats.topChatbot.name && (
-              <div className="chatbot-name-small">👑 {stats.topChatbot.name}</div>
-            )}
-          </div>
-        </div>
-      </div>
-
       <header className="dashboard-header">
         <h1>Dashboard</h1>
         <div className="user-icon">👤</div>
@@ -186,6 +154,39 @@ function Dashboard() {
           Déconnexion
         </button>
       </header>
+
+      {/* MINI DASHBOARD CARDS */}
+      <div className="mini-dashboard-cards">
+        <div className="mini-dashboard-card">
+          <div className="card-emoji">🤖</div>
+          <h3>Chatbots</h3>
+          <div className="mini-value">{stats.totalChatbots}</div>
+          <div className="card-badge positive">Total</div>
+        </div>
+        <div className="mini-dashboard-card">
+          <div className="card-emoji">👥</div>
+          <h3>Learners</h3>
+          <div className="mini-value">{stats.totalLearners}</div>
+          <div className="card-badge positive">Total</div>
+        </div>
+        <div className="mini-dashboard-card">
+          <div className="card-emoji">🎯</div>
+          <h3>Simulations</h3>
+          <div className="mini-value">{stats.totalSimulations}</div>
+          <div className="card-badge positive">Total</div>
+        </div>
+        <div className="mini-dashboard-card">
+          <div className="card-emoji">⭐</div>
+          <h3>Top Chatbots</h3>
+          <div className="mini-value">{stats.topChatbot.count}</div>
+          <div className="top-chatbots-names">
+            {stats.topChatbot.name && (
+              <div className="chatbot-name-small">👑 {stats.topChatbot.name}</div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* SEZIONE TITOLO E CONTEGGIO */}
       <div className="section-header-dashboard">
         <span style={{fontWeight:800,fontSize:'1.3rem',color:'#5B6DF6'}}>Tous les Chatbots</span>
