@@ -368,7 +368,7 @@ function Dashboard() {
                     <rect x="8" y="8" width="7" height="7" rx="1.5" fill="#7F53F5" stroke="#7F53F5" strokeWidth="1.2"/>
                   </svg>
                   {copied === bot.storyline_key && (
-                    <span className="copied-message">Copié !</span>
+                    <span className="copied-message">Copié</span>
                   )}
                 </span>
               </div>
