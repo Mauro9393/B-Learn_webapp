@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './assets/css/login.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,6 +7,13 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    document.body.classList.add('login-page');
+    return () => {
+      document.body.classList.remove('login-page');
+    };
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,36 +46,44 @@ function Login() {
         });
         navigate('/dashboard');
       } else {
-        setError(result.message || 'Email o password errati');
+        setError(result.message || 'Email ou mot de passe incorrect');
       }
     } catch (err) {
-      setError('Errore di connessione');
+      setError('Erreur de connexion');
     }
   };
 
   return (
-    <div className="login-container">
-      <h1>Login</h1>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="e-mail"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Log in</button>
-        
-      </form>
-      {error && <p style={{color: 'red'}}>{error}</p>}
-    </div>
+    <main className="login-main-centered">
+      <div className="animated-bg">
+        {[...Array(12)].map((_, i) => (
+          <div className="sphere" key={i}></div>
+        ))}
+      </div>
+      <div className="login-container">
+        <img src="/assets/logo-blearn.png" alt="B-learn Logo" className="login-logo" />
+        <h1>Connexion</h1>
+        <p className="login-subtitle">Accédez à votre espace B-learn</p>
+        <form className="login-form" onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Mot de passe"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Se connecter</button>
+        </form>
+        {error && <p style={{color: 'red', marginTop: '1rem'}}>{error}</p>}
+      </div>
+    </main>
   );
 }
 
