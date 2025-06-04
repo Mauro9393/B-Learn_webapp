@@ -258,19 +258,16 @@ function Dashboard() {
                   <div className="evolution-icon">🚀</div>
                   <div className="evolution-label">Nouvelles simulations</div>
                   <div className="evolution-value positive">+120</div>
-                  <div className="evolution-change">🔥 Streak de 15%!</div>
                 </div>
                 <div className="evolution-item level-up">
                   <div className="evolution-icon">👑</div>
                   <div className="evolution-label">Nouveaux learners</div>
                   <div className="evolution-value positive">+12</div>
-                  <div className="evolution-change">⚡ Level Up +8%</div>
                 </div>
                 <div className="evolution-item achievement">
                   <div className="evolution-icon">🎯</div>
                   <div className="evolution-label">Score moyen</div>
                   <div className="evolution-value positive">+3.2</div>
-                  <div className="evolution-change">🏆 Achievement unlocked!</div>
                 </div>
               </div>
             </div>
