@@ -64,7 +64,7 @@ function Dashboard() {
       });
   }, []);
 
-  // Fetch userlist per statistiche
+  // Calcolo statistiche filtrate per ruolo (incluso totalChatbots)
   useEffect(() => {
     // Calcola le statistiche filtrate in base al ruolo
     const tenantChatbots = userRole === '1'
@@ -79,6 +79,7 @@ function Dashboard() {
 
     const totalSimulations = tenantUserlist.length;
     const uniqueLearners = new Set(tenantUserlist.map(row => row.user_email)).size;
+    const totalChatbots = tenantChatbots.length;
 
     // Top chatbot
     const chatbotCount: Record<string, number> = {};
@@ -94,13 +95,10 @@ function Dashboard() {
       ...s,
       totalSimulations,
       totalLearners: uniqueLearners,
+      totalChatbots,
       topChatbot
     }));
   }, [userlist, chatbots, userRole, tenantId]);
-
-  useEffect(() => {
-    setStats(s => ({ ...s, totalChatbots: chatbots.length }));
-  }, [chatbots]);
 
   const filteredChatbots = (userRole === '1'
     ? chatbots
