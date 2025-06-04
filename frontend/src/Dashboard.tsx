@@ -319,12 +319,16 @@ function Dashboard() {
               {tenant && (
                 <div className="chatbot-client">{tenant.name}</div>
               )}
-              <div className="chatbot-id" style={{display:'flex',alignItems:'center',gap:'6px'}}>
-                ID: {bot.storyline_key}
+              <div className="chatbot-id">
+                <span
+                  className="chatbot-id-text"
+                  title={bot.storyline_key}
+                >
+                  ID: {bot.storyline_key}
+                </span>
                 <span
                   className="copy-id-icon"
                   title="Copia ID"
-                  style={{cursor:'pointer',marginLeft:'4px',display:'flex',alignItems:'center'}}
                   onClick={e => {
                     e.stopPropagation();
                     navigator.clipboard.writeText(bot.storyline_key);

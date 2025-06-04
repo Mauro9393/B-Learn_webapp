@@ -265,10 +265,6 @@ body {
 }
 
 .card .chatbot-id {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -276,9 +272,25 @@ body {
     color: #fff;
     font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.3rem 0.6rem;
     border-radius: 6px;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    max-width: 170px;
+    /* regola la larghezza massima del box */
+    padding: 0.3rem 0.6rem;
+    gap: 4px;
+    box-sizing: border-box;
+}
+
+.card .chatbot-id-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 90px;
+    /* regola la larghezza massima del testo */
+    vertical-align: middle;
 }
 
 .card .chatbot-client {
