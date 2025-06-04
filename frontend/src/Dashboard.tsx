@@ -347,6 +347,7 @@ function Dashboard() {
                           document.body.removeChild(textarea);
                           setCopied(bot.storyline_key);
                           setTimeout(() => setCopied(null), 2000);
+                          console.error('Errore copia negli appunti:', err);
                         });
                     } else {
                       // Fallback se la Clipboard API non esiste
