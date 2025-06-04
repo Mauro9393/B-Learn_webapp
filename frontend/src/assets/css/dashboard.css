@@ -265,6 +265,10 @@ body {
 }
 
 .card .chatbot-id {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -786,4 +790,19 @@ button:hover,
     font-size: 0.75rem;
     color: #7F53F5;
     font-weight: 600;
+}
+
+.copy-id-icon {
+    display: flex;
+    align-items: center;
+    margin-left: 4px;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.copy-id-icon:hover {
+    background: #f3f0ff;
+    color: #5B6DF6;
 }

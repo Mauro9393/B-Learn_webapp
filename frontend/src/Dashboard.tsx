@@ -319,7 +319,24 @@ function Dashboard() {
               {tenant && (
                 <div className="chatbot-client">{tenant.name}</div>
               )}
-              <div className="chatbot-id">ID: {bot.storyline_key}</div>
+              <div className="chatbot-id" style={{display:'flex',alignItems:'center',gap:'6px'}}>
+                ID: {bot.storyline_key}
+                <span
+                  className="copy-id-icon"
+                  title="Copia ID"
+                  style={{cursor:'pointer',marginLeft:'4px',display:'flex',alignItems:'center'}}
+                  onClick={e => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(bot.storyline_key);
+                  }}
+                >
+                  {/* SVG icona due quadrati */}
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="5" width="10" height="10" rx="2" fill="#7F53F5" fillOpacity="0.18" stroke="#7F53F5" strokeWidth="1.2"/>
+                    <rect x="8" y="8" width="7" height="7" rx="1.5" fill="#7F53F5" stroke="#7F53F5" strokeWidth="1.2"/>
+                  </svg>
+                </span>
+              </div>
               <br /><br />
               <h2>{bot.name}</h2>
               <p>{bot.description}</p>
