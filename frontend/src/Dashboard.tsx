@@ -58,30 +58,37 @@ function Dashboard() {
 
   // Fetch userlist per statistiche
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/userlist?all=1`)
-      .then(res => res.json())
-      .then((data: UserlistRow[]) => {
-        setUserlist(data);
-        // Calcolo statistiche globali
-        const totalSimulations = data.length;
-        const uniqueLearners = new Set(data.map(row => row.user_email)).size;
-        // Top chatbot
-        const chatbotCount: Record<string, number> = {};
-        data.forEach(row => {
-          chatbotCount[row.chatbot_name] = (chatbotCount[row.chatbot_name] || 0) + 1;
-        });
-        let topChatbot = { name: '', count: 0 };
-        for (const [name, count] of Object.entries(chatbotCount)) {
-          if (count > topChatbot.count) topChatbot = { name, count };
-        }
-        setStats(s => ({
-          ...s,
-          totalSimulations,
-          totalLearners: uniqueLearners,
-          topChatbot
-        }));
-      });
-  }, []);
+    // Calcola le statistiche filtrate in base al ruolo
+    const tenantChatbots = userRole === '1'
+      ? chatbots
+      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
+
+    const tenantStorylineKeys = tenantChatbots.map(bot => bot.storyline_key);
+
+    const tenantUserlist = userRole === '1'
+      ? userlist
+      : userlist.filter(row => tenantStorylineKeys.includes(row.chatbot_name));
+
+    const totalSimulations = tenantUserlist.length;
+    const uniqueLearners = new Set(tenantUserlist.map(row => row.user_email)).size;
+
+    // Top chatbot
+    const chatbotCount: Record<string, number> = {};
+    tenantUserlist.forEach(row => {
+      chatbotCount[row.chatbot_name] = (chatbotCount[row.chatbot_name] || 0) + 1;
+    });
+    let topChatbot = { name: '', count: 0 };
+    for (const [name, count] of Object.entries(chatbotCount)) {
+      if (count > topChatbot.count) topChatbot = { name, count };
+    }
+
+    setStats(s => ({
+      ...s,
+      totalSimulations,
+      totalLearners: uniqueLearners,
+      topChatbot
+    }));
+  }, [userlist, chatbots, userRole, tenantId]);
 
   useEffect(() => {
     setStats(s => ({ ...s, totalChatbots: chatbots.length }));
