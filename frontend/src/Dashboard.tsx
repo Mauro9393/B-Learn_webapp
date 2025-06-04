@@ -121,6 +121,16 @@ function Dashboard() {
   const getSimulationsForChatbot = (storyline_key: string) =>
     userlist.filter(row => row.chatbot_name === storyline_key).length;
 
+  // Recupero il tenant name del top chatbot
+  let topChatbotTenantName = '';
+  if (stats.topChatbot.name) {
+    const topChatbot = chatbots.find(bot => bot.storyline_key === stats.topChatbot.name);
+    if (topChatbot) {
+      const tenant = tenants.find(t => String(t.id) === String(topChatbot.tenant_id));
+      if (tenant) topChatbotTenantName = tenant.name;
+    }
+  }
+
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
@@ -183,7 +193,7 @@ function Dashboard() {
             <div className="mini-value">{stats.topChatbot.count}</div>
             <div className="top-chatbots-names">
               {stats.topChatbot.name && (
-                <div className="chatbot-name-small">👑 {stats.topChatbot.name}</div>
+                <div className="chatbot-name-small">👑 {topChatbotTenantName}</div>
               )}
             </div>
           </div>
