@@ -394,7 +394,7 @@ function Dashboard() {
               <button
                 className="btn"
                 style={{ minWidth: '120px', maxWidth: '160px', padding: '0.6rem 1.2rem', fontSize: '1rem', marginTop: '0.5rem', alignSelf: 'flex-start' }}
-                onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(bot.storyline_key)}`)}
+                onClick={() => navigate(`/chatbot/${bot.id}`)}
               >
                 Voir le détail
               </button>

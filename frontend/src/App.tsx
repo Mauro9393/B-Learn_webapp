@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Login from './Login'
 import Dashboard from './Dashboard'
@@ -7,6 +6,7 @@ import AddPartner from './AddPartner';
 import Admin from './admin';
 import Inscription from './Inscription';
 import CreateChatbot from './CreateChatbot';
+import ChatbotDetail from './ChatbotDetail';
 import './App.css'
 
 function App() {
@@ -21,6 +21,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/create-chatbot" element={<CreateChatbot />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/chatbot/:chatbotId" element={<ChatbotDetail />} />
       </Routes>
     </Router>
   )
