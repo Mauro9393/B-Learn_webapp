@@ -45,7 +45,7 @@ const ChatbotDetail: React.FC = () => {
   if (!data) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Chatbot non trovato.</div></div>;
 
   return (
-    <div className="chatbot-detail-bg">
+    <div className="">
       <main className="chatbot-detail-main">
         {/* Breadcrumb */}
         <div className="breadcrumb">
