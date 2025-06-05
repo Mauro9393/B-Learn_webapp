@@ -9,7 +9,6 @@ interface StudentRow {
   simulations: number;
   score: number;
   last_date: string;
-  last_score: number;
 }
 
 const StudentList: React.FC = () => {
@@ -112,7 +111,7 @@ const StudentList: React.FC = () => {
                     <td className="td-group">{stu.group}</td>
                     <td className="td-simulations">{stu.simulations}</td>
                     <td className="td-score">
-                      <span className={`score-badge score-badge-table ${stu.last_score >= 90 ? 'score-high' : stu.last_score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.last_score}</span>
+                      <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
                     </td>
                     <td className="td-date">
                       <span className="date-badge">{stu.last_date}</span>
