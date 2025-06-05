@@ -129,6 +129,9 @@
     padding: 12px 10px;
     text-align: center;
     border-bottom: 1px solid #eee;
+    border-left: none;
+    border-right: none;
+    border-top: none;
 }
 
 .simulations-table th {
