@@ -88,7 +88,7 @@ const ChatbotDetail: React.FC = () => {
           <button className="action-btn primary" onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(data.storyline_key)}`)}>
             Voir la liste des simulations
           </button>
-          <button className="action-btn primary" onClick={() => navigate(`/chatbot/${data.storyline_key}/learners/${encodeURIComponent('inserisci@email.com')}`)}>
+          <button className="action-btn primary" onClick={() => navigate(`/chatbot/${data.storyline_key}/learners`)}>
             Voir la liste des learners
           </button>
         </div>

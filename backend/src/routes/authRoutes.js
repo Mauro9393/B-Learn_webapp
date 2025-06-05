@@ -285,4 +285,30 @@ router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
     }
 });
 
+// Restituisce la lista degli studenti unici per uno specifico chatbot_name (storyline_key)
+router.get('/learners-list', async(req, res) => {
+    try {
+        const { storyline_key } = req.query;
+        if (!storyline_key) {
+            return res.status(400).json({ message: 'storyline_key mancante' });
+        }
+        const result = await pool.query(`
+            SELECT 
+                user_email AS email,
+                MAX(name) AS name,
+                '' AS group,
+                COUNT(*) AS simulations,
+                COALESCE(ROUND(AVG(score)),0) AS score,
+                TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
+            FROM userlist
+            WHERE chatbot_name = $1
+            GROUP BY user_email
+            ORDER BY last_date DESC
+        `, [storyline_key]);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

@@ -8,6 +8,7 @@ import Inscription from './Inscription';
 import CreateChatbot from './CreateChatbot';
 import ChatbotDetail from './ChatbotDetail';
 import StudentDetail from './StudentDetail';
+import StudentList from './StudentList';
 import './App.css'
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/chatbot/:storyline_key" element={<ChatbotDetail />} />
         <Route path="/chatbot/:storyline_key/learners/:email" element={<StudentDetail />} />
+        <Route path="/chatbot/:storyline_key/learners" element={<StudentList />} />
       </Routes>
     </Router>
   )
