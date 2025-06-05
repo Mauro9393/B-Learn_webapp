@@ -57,6 +57,7 @@ const ChatbotDetail: React.FC = () => {
         <div className="chatbot-card">
           <div className="chatbot-header">
             <div className="chatbot-id-detail">ID: {data.storyline_key}</div>
+            <br />
             <h1 className="chatbot-name">🤖 {data.name}</h1>
             <div className="manager-info">
               <span className="manager-label">👤 Manager référent :</span>
