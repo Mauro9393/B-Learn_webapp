@@ -109,12 +109,13 @@
 
 .student-table th,
 .student-table td {
-    padding: 1.2rem 0.8rem;
+    padding: 0.8rem 0.6rem;
     text-align: center;
     border-bottom: 1.5px solid #f3f3f3;
     font-size: 1.08rem;
     background: none;
-    border-right: none !important;
+    border-left: none;
+    border-bottom: 1px solid #e0e0e0 !important;
 }
 
 .student-table th {
@@ -291,6 +292,8 @@
     .student-table td {
         padding: 0.4rem 0.2rem;
         font-size: 0.8rem;
+        border-left: none;
+        border-bottom: 1px solid #e0e0e0;
     }
     .th-name,
     .td-name {
@@ -313,5 +316,7 @@
         top: 0;
         z-index: 10;
         background: #f7f8fa;
+        border-left: none;
+        border-bottom: 1px solid #e0e0e0;
     }
 }
