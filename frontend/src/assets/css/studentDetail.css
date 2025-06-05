@@ -1,0 +1,181 @@
+.student-detail-main {
+    max-width: 900px;
+    margin: 40px auto 0 auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px rgba(80, 80, 120, 0.08);
+    padding: 32px 32px 24px 32px;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.breadcrumb {
+    font-size: 1.05rem;
+    color: #888;
+    margin-bottom: 18px;
+}
+
+.breadcrumb-link {
+    color: #5B6DF6;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-right: 2px;
+}
+
+.breadcrumb .current {
+    color: #222;
+    font-weight: 700;
+}
+
+.student-profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.profile-content {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.profile-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #7F53F5;
+    color: #fff;
+    font-size: 2.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.student-name {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #5B6DF6;
+    margin: 0;
+}
+
+.student-stats {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: #f8f8fa;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-size: 1.1rem;
+    color: #444;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(123, 83, 245, 0.05);
+    min-width: 120px;
+    flex: 1;
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+}
+
+.stat-label {
+    color: #888;
+    font-size: 1.08rem;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    color: #6a6af6;
+    font-weight: 800;
+}
+
+.best-score {
+    color: #43a047;
+}
+
+.average-score {
+    color: #ff9800;
+}
+
+.simulations-history {
+    margin-top: 24px;
+}
+
+.simulations-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(123, 83, 245, 0.07);
+}
+
+.simulations-table th,
+.simulations-table td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.simulations-table th {
+    background: #f5f7ff;
+    color: #7F53F5;
+    font-weight: 700;
+    font-size: 1.08rem;
+}
+
+.simulations-table tr:last-child td {
+    border-bottom: none;
+}
+
+.score-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #fff;
+}
+
+.score-high {
+    background: #43a047;
+}
+
+.score-medium {
+    background: #ff9800;
+}
+
+.score-low {
+    background: #e53935;
+}
+
+.btn-small {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    background: #7F53F5;
+    color: #fff;
+    cursor: pointer;
+    margin: 0 2px;
+    transition: background 0.2s;
+}
+
+.btn-small:hover {
+    background: #5B6DF6;
+}
