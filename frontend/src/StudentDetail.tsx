@@ -30,8 +30,10 @@ const StudentDetail: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Recupera i dati dello studente e le simulazioni
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/learner-detail?storyline_key=${storyline_key}&email=${email}`);
+        console.log("Email param:", email);
+        const url = `${import.meta.env.VITE_API_URL}/api/learner-detail?storyline_key=${storyline_key}&email=${email}`;
+        console.log("Chiamata API:", url);
+        const res = await fetch(url);
         const data = await res.json();
         setStats(data);
       } catch (e) {
