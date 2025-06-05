@@ -47,12 +47,6 @@ const ChatbotDetail: React.FC = () => {
   return (
     <div className="">
       <main className="chatbot-detail-main">
-        {/* Breadcrumb */}
-        <div className="breadcrumb">
-          <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt; 
-          <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Chatbots</span> &gt; 
-          <span className="current">{data.name}</span>
-        </div>
         {/* Card principale */}
         <div className="chatbot-card">
           <div className="chatbot-header">
@@ -64,6 +58,11 @@ const ChatbotDetail: React.FC = () => {
               <span className="manager-email">{data.manager_email}</span>
             </div>
           </div>
+        </div>
+        {/* Breadcrumb */}
+        <div className="breadcrumb">
+          <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;  
+          <span className="current">{data.name}</span>
         </div>
         {/* Statistiche principali */}
         <div className="chatbot-main-stats">

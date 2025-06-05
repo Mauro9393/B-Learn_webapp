@@ -55,7 +55,7 @@ const StudentList: React.FC = () => {
       <main className="student-list-main">
         {/* Breadcrumb */}
         <div className="breadcrumb">
-          <span className="breadcrumb-link" onClick={() => navigate(-1)}>Dashboard</span> &gt; 
+          <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
           <span className="breadcrumb-link" onClick={() => navigate(-1)}>Chatbots</span> &gt; 
           <span className="current">Liste des learners</span>
         </div>

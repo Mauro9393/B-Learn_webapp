@@ -114,7 +114,8 @@ const StudentDetail: React.FC = () => {
       </div>
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Liste des learners</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-3)}>Dashboard</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt; 
         <span className="breadcrumb-link" onClick={() => navigate(-1)}>Learners</span> &gt; 
         <span className="current">{learner.name}</span>
       </div>
