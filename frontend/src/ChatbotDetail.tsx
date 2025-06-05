@@ -86,10 +86,10 @@ const ChatbotDetail: React.FC = () => {
         {/* Bottoni azione */}
         <div className="action-buttons">
           <button className="action-btn primary" onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(data.storyline_key)}`)}>
-            Voir la liste des learners
+            Voir la liste des simulations
           </button>
           <button className="action-btn secondary" onClick={() => alert('Funzionalità in arrivo!')}>
-            Voir la liste des simulations
+          Voir la liste des learners
           </button>
         </div>
       </main>

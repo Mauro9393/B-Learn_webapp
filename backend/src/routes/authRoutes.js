@@ -256,15 +256,30 @@ router.get('/userlist', async(req, res) => {
     }
 });
 
-// Restituisce un chatbot tramite storyline_key
+// Restituisce un chatbot tramite storyline_key con stats learners/simulations/avg_score
 router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
     try {
         const { storyline_key } = req.params;
-        const result = await pool.query('SELECT * FROM chatbots WHERE storyline_key = $1', [storyline_key]);
-        if (result.rows.length === 0) {
+        // Prendi il chatbot
+        const chatbotRes = await pool.query('SELECT * FROM chatbots WHERE storyline_key = $1', [storyline_key]);
+        if (chatbotRes.rows.length === 0) {
             return res.status(404).json({ message: 'Chatbot non trovato' });
         }
-        res.json(result.rows[0]);
+        const chatbot = chatbotRes.rows[0];
+        // Prendi stats da userlist
+        const statsRes = await pool.query(`
+            SELECT 
+                COUNT(*) AS simulations,
+                COUNT(DISTINCT user_email) AS learners,
+                COALESCE(AVG(score),0) AS avg_score
+            FROM userlist
+            WHERE chatbot_name = $1
+        `, [storyline_key]);
+        const stats = statsRes.rows[0];
+        chatbot.simulations = parseInt(stats.simulations, 10);
+        chatbot.learners = parseInt(stats.learners, 10);
+        chatbot.avg_score = Math.round(Number(stats.avg_score));
+        res.json(chatbot);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
