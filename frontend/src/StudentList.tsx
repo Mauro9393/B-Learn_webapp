@@ -65,15 +65,15 @@ const StudentList: React.FC = () => {
               <option value="5">≥ 5 simulations</option>
             </select>
           </div>
-          <table className="student-table styled-table">
+          <table className="student-table styled-table no-vertical-lines">
             <thead>
               <tr>
-                <th>Nom</th>
-                <th>Groupe</th>
-                <th>Simulations</th>
-                <th>Score</th>
-                <th>Dernière simulation</th>
-                <th>Détails</th>
+                <th className="th-name">Nom <span className="sort-arrow">⇅</span></th>
+                <th className="th-group">Groupe <span className="sort-arrow">⇅</span></th>
+                <th className="th-simulations">Simulations</th>
+                <th className="th-score">Score <span className="sort-arrow">⇅</span></th>
+                <th className="th-date">Dernière simulation <span className="sort-arrow">⇅</span></th>
+                <th className="th-details">Détails</th>
               </tr>
             </thead>
             <tbody>
@@ -84,13 +84,17 @@ const StudentList: React.FC = () => {
               ) : (
                 students.map(stu => (
                   <tr key={stu.email}>
-                    <td>{stu.name}</td>
-                    <td>{stu.group}</td>
-                    <td>{stu.simulations}</td>
-                    <td><span className={`score-badge ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span></td>
-                    <td className="date-cell">{stu.last_date}</td>
-                    <td>
-                      <button className="btn" onClick={() => navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`)}>Voir</button>
+                    <td className="td-name">{stu.name}</td>
+                    <td className="td-group">{stu.group}</td>
+                    <td className="td-simulations">{stu.simulations}</td>
+                    <td className="td-score">
+                      <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
+                    </td>
+                    <td className="td-date">
+                      <span className="date-badge">{stu.last_date}</span>
+                    </td>
+                    <td className="td-details">
+                      <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`)}>Voir</button>
                     </td>
                   </tr>
                 ))
