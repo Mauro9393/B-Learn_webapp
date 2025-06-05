@@ -13,15 +13,15 @@ interface Simulation {
   name: string;
 }
 
-interface StudentStats {
-  name: string;
-  email: string;
-  avatar: string;
-  simulations: number;
-  best_score: number;
-  avg_score: number;
-  simulationHistory: Simulation[];
-}
+//interface StudentStats {
+//  name: string;
+//  email: string;
+//  avatar: string;
+//  simulations: number;
+//  best_score: number;
+//  avg_score: number;
+//  simulationHistory: Simulation[];
+//}
 
 const StudentDetail: React.FC = () => {
   const { storyline_key, email } = useParams<{ storyline_key: string; email: string }>();
