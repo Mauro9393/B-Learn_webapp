@@ -256,6 +256,8 @@
     .student-table td {
         padding: 0.7rem 0.4rem;
         font-size: 0.95rem;
+        border-left: none;
+        border-bottom: 1px solid #e0e0e0;
     }
     .th-name,
     .td-name {
