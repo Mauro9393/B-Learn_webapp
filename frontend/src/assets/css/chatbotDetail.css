@@ -11,9 +11,9 @@
     border-radius: 22px;
     box-shadow: 0 8px 32px rgba(127, 83, 245, 0.18);
     padding: 38px 38px 32px 38px;
-    max-width: 520px;
+    max-width: 720px;
     width: 100%;
-    margin: 48px auto;
+    margin: auto;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -151,6 +151,7 @@
     align-items: center;
     box-shadow: 0 1px 4px rgba(123, 83, 245, 0.05);
     min-width: 120px;
+    flex: 1;
 }
 
 .secondary-stat-label {
