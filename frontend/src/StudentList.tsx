@@ -16,6 +16,9 @@ const StudentList: React.FC = () => {
   const navigate = useNavigate();
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [minScore, setMinScore] = useState('');
+  const [minSimulations, setMinSimulations] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,6 +34,21 @@ const StudentList: React.FC = () => {
     };
     fetchData();
   }, [storyline_key]);
+
+  const filteredStudents = students.filter(stu => {
+    // Filtro per ricerca testo (nome o email)
+    const matchesSearch =
+      stu.name.toLowerCase().includes(search.toLowerCase()) ||
+      stu.email.toLowerCase().includes(search.toLowerCase());
+
+    // Filtro per punteggio minimo
+    const matchesScore = minScore ? stu.score >= parseInt(minScore) : true;
+
+    // Filtro per simulazioni minime
+    const matchesSimulations = minSimulations ? stu.simulations >= parseInt(minSimulations) : true;
+
+    return matchesSearch && matchesScore && matchesSimulations;
+  });
 
   return (
     <div className="">
@@ -52,14 +70,19 @@ const StudentList: React.FC = () => {
         {/* Tabella learners */}
         <div className="student-list-table-card">
           <div className="filters">
-            <input type="text" placeholder="Rechercher un learner..." disabled />
-            <select disabled>
+            <input
+              type="text"
+              placeholder="Rechercher un learner..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <select value={minScore} onChange={e => setMinScore(e.target.value)}>
               <option value="">Tous les scores</option>
               <option value="90">Score ≥ 90</option>
               <option value="80">Score ≥ 80</option>
               <option value="70">Score ≥ 70</option>
             </select>
-            <select disabled>
+            <select value={minSimulations} onChange={e => setMinSimulations(e.target.value)}>
               <option value="">Toutes les simulations</option>
               <option value="10">≥ 10 simulations</option>
               <option value="5">≥ 5 simulations</option>
@@ -79,10 +102,10 @@ const StudentList: React.FC = () => {
             <tbody>
               {loading ? (
                 <tr><td colSpan={6}>Caricamento...</td></tr>
-              ) : students.length === 0 ? (
+              ) : filteredStudents.length === 0 ? (
                 <tr><td colSpan={6}>Nessun learner trovato.</td></tr>
               ) : (
-                students.map(stu => (
+                filteredStudents.map(stu => (
                   <tr key={stu.email}>
                     <td className="td-name">{stu.name}</td>
                     <td className="td-group">{stu.group}</td>
