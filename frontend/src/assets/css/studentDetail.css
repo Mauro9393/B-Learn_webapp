@@ -141,8 +141,8 @@
     font-size: 1.08rem;
 }
 
-tr {
-    border: none;
+tr:not(:last-child) td {
+    border: none !important;
 }
 
 .simulations-table tr:last-child td {
