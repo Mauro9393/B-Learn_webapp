@@ -103,12 +103,6 @@ const StudentDetail: React.FC = () => {
 
   return (
     <main className="student-detail-main">
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Liste des learners</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Learners</span> &gt; 
-        <span className="current">{learner.name}</span>
-      </div>
       {/* Profilo */}
       <div className="student-profile">
         <div className="profile-content" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
@@ -117,6 +111,12 @@ const StudentDetail: React.FC = () => {
           </div>
           <h1 className="student-name" style={{textAlign: 'center', marginTop: '12px'}}>{learner.name}</h1>
         </div>
+      </div>
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Liste des learners</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Learners</span> &gt; 
+        <span className="current">{learner.name}</span>
       </div>
       {/* Statistiche */}
       <div className="student-stats">

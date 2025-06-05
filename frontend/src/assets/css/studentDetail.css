@@ -1,5 +1,5 @@
 .student-detail-main {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 40px auto 0 auto;
     background: #fff;
     border-radius: 18px;
@@ -12,6 +12,8 @@
     font-size: 1.05rem;
     color: #888;
     margin-bottom: 18px;
+    margin-top: 18px;
+    ;
 }
 
 .breadcrumb-link {
@@ -29,7 +31,7 @@
 .student-profile {
     display: flex;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 25px;
 }
 
 .profile-content {
