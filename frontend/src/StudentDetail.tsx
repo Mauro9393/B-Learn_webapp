@@ -23,6 +23,19 @@ interface Simulation {
 //  simulationHistory: Simulation[];
 //}
 
+const getInitials = (name: string) => {
+  if (!name) return '';
+  const parts = name.split(/\s|,|-/).filter(Boolean);
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+};
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('fr-FR');
+};
+
 const StudentDetail: React.FC = () => {
   const { storyline_key, email } = useParams<{ storyline_key: string; email: string }>();
   const navigate = useNavigate();
@@ -48,6 +61,10 @@ const StudentDetail: React.FC = () => {
   if (!simulations.length) return <div className="student-detail-main">Learner non trovato.</div>;
 
   const learner = simulations[0];
+  const initials = getInitials(learner.name);
+  const numSimulations = simulations.length;
+  const bestScore = Math.max(...simulations.map(s => s.score));
+  const avgScore = Math.round(simulations.reduce((acc, s) => acc + s.score, 0) / numSimulations);
 
   return (
     <main className="student-detail-main">
@@ -60,9 +77,28 @@ const StudentDetail: React.FC = () => {
       {/* Profilo */}
       <div className="student-profile">
         <div className="profile-content">
+          <div className="profile-avatar">
+            <div className="avatar-circle">{initials}</div>
+          </div>
           <h1 className="student-name">{learner.name}</h1>
-          <p>Email: {learner.user_email}</p>
-          <p>Numero simulazioni: {simulations.length}</p>
+        </div>
+      </div>
+      {/* Statistiche */}
+      <div className="student-stats">
+        <div className="stat-card">
+          <span className="stat-icon">🎯</span>
+          <span className="stat-label">Simulations :</span>
+          <span className="stat-value">{numSimulations}</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-icon">🏆</span>
+          <span className="stat-label">Meilleur score :</span>
+          <span className="stat-value best-score">{bestScore}</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-icon">📊</span>
+          <span className="stat-label">Score moyen :</span>
+          <span className="stat-value average-score">{avgScore}</span>
         </div>
       </div>
       {/* Storico simulazioni */}
@@ -70,28 +106,18 @@ const StudentDetail: React.FC = () => {
         <table className="simulations-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Email</th>
-              <th>Chatbot</th>
+              <th>Date simulation</th>
+              <th>Simulations</th>
+              <th>Historique conversation</th>
+              <th>Analyse conversation</th>
               <th>Score</th>
-              <th>Chat history</th>
-              <th>Chat analysis</th>
-              <th>Data</th>
             </tr>
           </thead>
           <tbody>
             {simulations.map(sim => (
               <tr key={sim.id}>
+                <td>{formatDate(sim.created_at)}</td>
                 <td>{sim.id}</td>
-                <td>{sim.name}</td>
-                <td>{sim.user_email}</td>
-                <td>{sim.chatbot_name}</td>
-                <td>
-                  <span className={`score-badge ${sim.score >= 90 ? 'score-high' : sim.score >= 75 ? 'score-medium' : 'score-low'}`}>
-                    {sim.score}
-                  </span>
-                </td>
                 <td>
                   <button className="btn-small btn-view" title="Visualiser" onClick={() => alert(sim.chat_history)}>
                     Visualiser
@@ -102,7 +128,9 @@ const StudentDetail: React.FC = () => {
                     Visualiser
                   </button>
                 </td>
-                <td>{sim.created_at}</td>
+                <td>
+                  <span className={`score-badge ${sim.score >= 90 ? 'score-high' : sim.score >= 75 ? 'score-medium' : 'score-low'}`}>{sim.score}</span>
+                </td>
               </tr>
             ))}
           </tbody>
