@@ -53,15 +53,15 @@ const StudentList: React.FC = () => {
   return (
     <div className="">
       <main className="student-list-main">
+        {/* Card centrale titolo */}
+        <div className="student-list-title-card">
+          <h1>Liste des learners</h1>
+        </div>
         {/* Breadcrumb */}
         <div className="breadcrumb">
           <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
           <span className="breadcrumb-link" onClick={() => navigate(-1)}>Chatbots</span> &gt; 
           <span className="current">Liste des learners</span>
-        </div>
-        {/* Card centrale titolo */}
-        <div className="student-list-title-card">
-          <h1>Liste des learners</h1>
         </div>
         {/* Statistiche generali learners (placeholder, puoi aggiungere dati reali) */}
         {/* <div className="student-list-stats">
