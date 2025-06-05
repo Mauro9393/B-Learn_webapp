@@ -8,9 +8,9 @@
 
 .student-list-main {
     background: #fff;
-    border-radius: 22px;
-    box-shadow: 0 8px 32px rgba(127, 83, 245, 0.18);
-    padding: 38px 38px 32px 38px;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(127, 83, 245, 0.10);
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
     max-width: 900px;
     width: 100%;
     margin: 48px auto;
@@ -42,8 +42,8 @@
     background: #f8f8fa;
     border-radius: 18px;
     box-shadow: 0 2px 12px rgba(127, 83, 245, 0.07);
-    padding: 24px 24px 18px 24px;
-    margin-bottom: 22px;
+    padding: 2rem 2rem 1.5rem 2rem;
+    margin-bottom: 28px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -51,17 +51,44 @@
 
 .student-list-title-card h1 {
     color: #5B6DF6;
-    font-size: 2.1rem;
+    font-size: 2.2rem;
     font-weight: 800;
     margin: 0;
+    letter-spacing: -1px;
 }
 
 .student-list-table-card {
     background: #f8f8fa;
     border-radius: 18px;
     box-shadow: 0 2px 12px rgba(127, 83, 245, 0.07);
-    padding: 24px 18px 18px 18px;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
     margin-bottom: 0;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 1rem;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: #f7f8fa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filters input:focus,
+.filters select:focus {
+    outline: none;
+    border-color: #7F53F5;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
 }
 
 .student-table.styled-table {
@@ -69,9 +96,10 @@
     border-collapse: separate;
     border-spacing: 0;
     background: #fff;
-    border-radius: 16px;
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 1px 6px rgba(123, 83, 245, 0.07);
+    box-shadow: 0 4px 24px rgba(127, 83, 245, 0.10);
+    table-layout: fixed;
 }
 
 .student-table.no-vertical-lines th,
@@ -81,86 +109,100 @@
 
 .student-table th,
 .student-table td {
-    padding: 18px 0 18px 0;
+    padding: 1.2rem 0.8rem;
     text-align: center;
-    border-bottom: 1.5px solid #f0f0f0;
+    border-bottom: 1.5px solid #ececec;
     font-size: 1.08rem;
+    background: none;
 }
 
 .student-table th {
-    background: #f5f7ff;
+    background: #f7f8fa;
     color: #5B6DF6;
     font-weight: 800;
-    font-size: 1.09rem;
+    font-size: 1.12rem;
     border-top: none;
     letter-spacing: 0.01em;
     border-bottom: 2.5px solid #ece6ff;
+    height: 3.2rem;
+    position: relative;
+    z-index: 2;
 }
 
 .student-table tr:last-child td {
     border-bottom: none;
 }
 
+.student-table tbody tr:hover {
+    background: #f3f6ff;
+    transition: background-color 0.2s;
+}
+
 .th-name,
 .td-name {
     text-align: left;
-    padding-left: 24px;
-    min-width: 160px;
+    padding-left: 28px;
+    min-width: 180px;
+    font-weight: 600;
 }
 
 .th-group,
 .td-group {
     text-align: left;
-    min-width: 120px;
+    min-width: 140px;
+    font-weight: 600;
 }
 
 .th-simulations,
 .td-simulations {
-    min-width: 90px;
+    min-width: 100px;
 }
 
 .th-score,
 .td-score {
-    min-width: 90px;
+    min-width: 100px;
 }
 
 .th-date,
 .td-date {
-    min-width: 140px;
+    min-width: 160px;
 }
 
 .th-details,
 .td-details {
-    min-width: 110px;
+    min-width: 120px;
 }
 
 .score-badge-table {
-    font-size: 1.01rem;
+    font-size: 0.95rem;
     font-weight: 700;
-    border-radius: 10px;
-    padding: 6px 18px;
+    border-radius: 12px;
+    padding: 0.3em 1.2em;
     background: #f5f7ff;
     color: #fff;
     display: inline-block;
     min-width: 48px;
+    box-shadow: 0 1px 4px rgba(127, 83, 245, 0.07);
+    border: none;
+    text-align: center;
 }
 
 .score-high {
-    background: #e6f7ec !important;
-    color: #43a047 !important;
-    border: 1.5px solid #43a047;
+    background: linear-gradient(135deg, #32cd32, #90ee90) !important;
+    color: #2ecc40 !important;
+    border: 1px solid #c3e6cb !important;
 }
 
 .score-medium {
-    background: #fff6e0 !important;
-    color: #ff9800 !important;
-    border: 1.5px solid #ff9800;
+    background: linear-gradient(135deg, #f9a826, #ffeaa7) !important;
+    color: #f9a826 !important;
+    border: 1px solid #ffeaa7 !important;
 }
 
 .score-low {
-    background: #ffeaea !important;
-    color: #e53935 !important;
-    border: 1.5px solid #e53935;
+    background: linear-gradient(135deg, #e74c3c, #f8d7da) !important;
+    color: #e74c3c !important;
+    border: 1px solid #f5c6cb !important;
 }
 
 .btn-voir {
@@ -169,11 +211,13 @@
     font-weight: 800;
     font-size: 1.08rem;
     border-radius: 14px;
-    padding: 10px 32px;
+    padding: 0.9rem 2.2rem;
     border: none;
     box-shadow: 0 2px 8px rgba(127, 83, 245, 0.08);
     transition: background 0.2s, color 0.2s;
     cursor: pointer;
+    margin: 0 auto;
+    display: block;
 }
 
 .btn-voir:hover {
@@ -192,4 +236,79 @@
     color: #b3a6f7;
     font-weight: 700;
     vertical-align: middle;
+}
+
+
+/* Responsive */
+
+@media (max-width: 900px) {
+    .student-list-main {
+        padding: 1.2rem;
+    }
+    .student-list-title-card {
+        padding: 1.2rem 1.2rem 1rem 1.2rem;
+    }
+    .student-list-table-card {
+        padding: 1.2rem 0.5rem 1rem 0.5rem;
+    }
+    .student-table th,
+    .student-table td {
+        padding: 0.7rem 0.4rem;
+        font-size: 0.95rem;
+    }
+    .th-name,
+    .td-name {
+        min-width: 120px;
+    }
+    .th-group,
+    .td-group {
+        min-width: 90px;
+    }
+    .th-date,
+    .td-date {
+        min-width: 90px;
+    }
+    .btn-voir {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .student-list-main {
+        padding: 0.5rem;
+    }
+    .student-list-title-card {
+        padding: 0.7rem 0.7rem 0.5rem 0.7rem;
+    }
+    .student-list-table-card {
+        padding: 0.7rem 0.2rem 0.5rem 0.2rem;
+    }
+    .student-table th,
+    .student-table td {
+        padding: 0.4rem 0.2rem;
+        font-size: 0.8rem;
+    }
+    .th-name,
+    .td-name {
+        min-width: 80px;
+    }
+    .th-group,
+    .td-group {
+        min-width: 60px;
+    }
+    .th-date,
+    .td-date {
+        min-width: 60px;
+    }
+    .btn-voir {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.8rem;
+    }
+    .student-table th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #f7f8fa;
+    }
 }
