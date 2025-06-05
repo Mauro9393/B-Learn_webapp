@@ -111,9 +111,10 @@
 .student-table td {
     padding: 1.2rem 0.8rem;
     text-align: center;
-    border-bottom: 1.5px solid #ececec;
+    border-bottom: 1.5px solid #f3f3f3;
     font-size: 1.08rem;
     background: none;
+    border-right: none !important;
 }
 
 .student-table th {
@@ -123,7 +124,7 @@
     font-size: 1.12rem;
     border-top: none;
     letter-spacing: 0.01em;
-    border-bottom: 2.5px solid #ece6ff;
+    border-bottom: 2.5px solid #f3f3f3;
     height: 3.2rem;
     position: relative;
     z-index: 2;
