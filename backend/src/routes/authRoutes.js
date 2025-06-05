@@ -299,8 +299,9 @@ router.get('/learners-list', async(req, res) => {
                 '' AS group,
                 COUNT(*) AS simulations,
                 COALESCE(ROUND(AVG(score)),0) AS score,
-                TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
-            FROM userlist
+                TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date,
+                (SELECT score FROM userlist u2 WHERE u2.user_email = u1.user_email AND u2.chatbot_name = u1.chatbot_name ORDER BY created_at DESC LIMIT 1) AS last_score
+            FROM userlist u1
             WHERE chatbot_name = $1
             GROUP BY user_email
             ORDER BY last_date DESC
