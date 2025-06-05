@@ -1,18 +1,67 @@
-.student-list-main {
-    max-width: 900px;
-    margin: 40px auto 0 auto;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 2px 16px rgba(80, 80, 120, 0.08);
-    padding: 32px 32px 24px 32px;
-    font-family: 'Montserrat', Arial, sans-serif;
+.student-list-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #7f7bfd 0%, #6a6af6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-h1 {
+.student-list-main {
+    background: #fff;
+    border-radius: 22px;
+    box-shadow: 0 8px 32px rgba(127, 83, 245, 0.18);
+    padding: 38px 38px 32px 38px;
+    max-width: 900px;
+    width: 100%;
+    margin: 48px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.breadcrumb {
+    font-size: 1.08rem;
+    color: #888;
+    margin-bottom: 18px;
+    padding-left: 6px;
+}
+
+.breadcrumb-link {
+    color: #7F53F5;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-right: 2px;
+}
+
+.breadcrumb .current {
+    color: #222;
+    font-weight: 700;
+}
+
+.student-list-title-card {
+    background: #f8f8fa;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(127, 83, 245, 0.07);
+    padding: 24px 24px 18px 24px;
+    margin-bottom: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.student-list-title-card h1 {
     color: #5B6DF6;
     font-size: 2.1rem;
     font-weight: 800;
-    margin-bottom: 18px;
+    margin: 0;
+}
+
+.student-list-table-card {
+    background: #f8f8fa;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(127, 83, 245, 0.07);
+    padding: 24px 18px 18px 18px;
+    margin-bottom: 0;
 }
 
 .filters {
@@ -30,9 +79,10 @@ h1 {
     min-width: 0;
 }
 
-.student-table {
+.student-table.styled-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     background: #fff;
     border-radius: 12px;
     overflow: hidden;
@@ -41,7 +91,7 @@ h1 {
 
 .student-table th,
 .student-table td {
-    padding: 12px 10px;
+    padding: 14px 10px;
     text-align: center;
     border-bottom: 1px solid #eee;
 }
@@ -52,13 +102,14 @@ h1 {
     font-weight: 700;
     font-size: 1.08rem;
     cursor: pointer;
+    border-top: none;
 }
 
 .student-table tr:last-child td {
     border-bottom: none;
 }
 
-.score {
+.score-badge {
     display: inline-block;
     padding: 4px 12px;
     border-radius: 8px;
