@@ -256,4 +256,18 @@ router.get('/userlist', async(req, res) => {
     }
 });
 
+// Restituisce un chatbot tramite storyline_key
+router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
+    try {
+        const { storyline_key } = req.params;
+        const result = await pool.query('SELECT * FROM chatbots WHERE storyline_key = $1', [storyline_key]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Chatbot non trovato' });
+        }
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

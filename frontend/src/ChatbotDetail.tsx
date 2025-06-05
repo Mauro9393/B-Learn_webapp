@@ -13,7 +13,7 @@ interface ChatbotDetailData {
 }
 
 const ChatbotDetail: React.FC = () => {
-  const { chatbotId } = useParams<{ chatbotId: string }>();
+  const { storyline_key } = useParams<{ storyline_key: string }>();
   const navigate = useNavigate();
   const [data, setData] = useState<ChatbotDetailData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,7 @@ const ChatbotDetail: React.FC = () => {
     // Recupera i dettagli del chatbot tramite API
     const fetchData = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots/${chatbotId}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots/storyline/${storyline_key}`);
         const chatbot = await res.json();
         // Simulazione dati statistici (da adattare se disponibili via API)
         setData({
@@ -41,7 +41,7 @@ const ChatbotDetail: React.FC = () => {
       }
     };
     fetchData();
-  }, [chatbotId]);
+  }, [storyline_key]);
 
   if (loading) return <div className="chatbot-detail-main">Caricamento...</div>;
   if (!data) return <div className="chatbot-detail-main">Chatbot non trovato.</div>;

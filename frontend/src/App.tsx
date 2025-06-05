@@ -21,7 +21,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/create-chatbot" element={<CreateChatbot />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/chatbot/:chatbotId" element={<ChatbotDetail />} />
+        <Route path="/chatbot/:storyline_key" element={<ChatbotDetail />} />
       </Routes>
     </Router>
   )
