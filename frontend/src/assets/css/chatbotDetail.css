@@ -1,21 +1,33 @@
+.chatbot-detail-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #7f7bfd 0%, #6a6af6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .chatbot-detail-main {
-    max-width: 700px;
-    margin: 40px auto 0 auto;
     background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 2px 16px rgba(80, 80, 120, 0.08);
-    padding: 32px 32px 24px 32px;
-    font-family: 'Montserrat', Arial, sans-serif;
+    border-radius: 22px;
+    box-shadow: 0 8px 32px rgba(127, 83, 245, 0.18);
+    padding: 38px 38px 32px 38px;
+    max-width: 520px;
+    width: 100%;
+    margin: 48px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .breadcrumb {
-    font-size: 1.05rem;
+    font-size: 1.08rem;
     color: #888;
     margin-bottom: 18px;
+    padding-left: 6px;
 }
 
 .breadcrumb-link {
-    color: #5B6DF6;
+    color: #7F53F5;
     cursor: pointer;
     text-decoration: underline;
     margin-right: 2px;
@@ -26,74 +38,98 @@
     font-weight: 700;
 }
 
-.chatbot-header {
+.chatbot-card {
+    background: #f8f8fa;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(127, 83, 245, 0.07);
+    padding: 24px 24px 18px 24px;
+    margin-bottom: 22px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    margin-bottom: 18px;
 }
 
-.chatbot-info {
-    flex: 1;
+.chatbot-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0;
 }
 
 .chatbot-id-detail {
-    font-size: 1.1rem;
-    color: #7F53F5;
-    margin-bottom: 4px;
-    font-weight: 600;
+    background: #7F53F5;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 4px 16px;
+    margin-bottom: 10px;
+    align-self: flex-start;
 }
 
 .chatbot-name {
-    font-size: 2.1rem;
+    font-size: 2.2rem;
     font-weight: 800;
-    color: #5B6DF6;
-    margin: 0 0 8px 0;
+    color: #6a6af6;
+    margin: 0 0 10px 0;
+    text-align: center;
 }
 
 .manager-info {
-    font-size: 1.05rem;
+    font-size: 1.08rem;
     color: #444;
-    margin-top: 4px;
+    margin-top: 2px;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .manager-label {
     font-weight: 600;
-    margin-right: 6px;
+    margin-right: 4px;
 }
 
 .manager-email {
-    color: #1976d2;
-    font-weight: 500;
+    color: #7F53F5;
+    font-weight: 600;
+    background: #ece6ff;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-left: 2px;
 }
 
 .chatbot-main-stats {
     display: flex;
-    gap: 18px;
+    justify-content: center;
     margin-bottom: 18px;
 }
 
 .main-stat-card {
     background: #f5f7ff;
-    border-radius: 12px;
-    padding: 18px 28px;
+    border-radius: 16px;
+    padding: 22px 0 18px 0;
     font-size: 1.2rem;
     font-weight: 600;
     color: #333;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     box-shadow: 0 1px 6px rgba(123, 83, 245, 0.07);
+    width: 100%;
 }
 
 .main-stat-label {
     color: #7F53F5;
-    font-size: 1.1rem;
-    margin-bottom: 6px;
+    font-size: 1.18rem;
+    margin-bottom: 8px;
+    font-weight: 700;
 }
 
 .main-stat-value {
-    font-size: 2.1rem;
-    color: #222;
+    font-size: 2.5rem;
+    color: #6a6af6;
     font-weight: 800;
 }
 
@@ -101,50 +137,58 @@
     display: flex;
     gap: 18px;
     margin-bottom: 24px;
+    justify-content: center;
 }
 
 .secondary-stat-card {
     background: #f8f8fa;
-    border-radius: 10px;
-    padding: 14px 22px;
+    border-radius: 12px;
+    padding: 16px 24px;
     font-size: 1.1rem;
     color: #444;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     box-shadow: 0 1px 4px rgba(123, 83, 245, 0.05);
+    min-width: 120px;
 }
 
 .secondary-stat-label {
     color: #888;
-    font-size: 1rem;
-    margin-bottom: 4px;
+    font-size: 1.08rem;
+    margin-bottom: 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .secondary-stat-value {
-    font-size: 1.3rem;
-    color: #5B6DF6;
-    font-weight: 700;
+    font-size: 1.5rem;
+    color: #6a6af6;
+    font-weight: 800;
 }
 
 .action-buttons {
     display: flex;
-    gap: 16px;
+    gap: 18px;
     margin-top: 18px;
+    justify-content: center;
 }
 
 .action-btn {
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 1.08rem;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 1.13rem;
     font-weight: 700;
     border: none;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
+    margin-top: 0;
 }
 
 .action-btn.primary {
-    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
+    background: #6a6af6;
     color: #fff;
 }
 
@@ -155,7 +199,7 @@
 }
 
 .action-btn.primary:hover {
-    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
+    background: #7F53F5;
 }
 
 .action-btn.secondary:hover {

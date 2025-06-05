@@ -19,12 +19,10 @@ const ChatbotDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Recupera i dettagli del chatbot tramite API
     const fetchData = async () => {
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots/storyline/${storyline_key}`);
         const chatbot = await res.json();
-        // Simulazione dati statistici (da adattare se disponibili via API)
         setData({
           id: chatbot.id,
           name: chatbot.name,
@@ -43,60 +41,58 @@ const ChatbotDetail: React.FC = () => {
     fetchData();
   }, [storyline_key]);
 
-  if (loading) return <div className="chatbot-detail-main">Caricamento...</div>;
-  if (!data) return <div className="chatbot-detail-main">Chatbot non trovato.</div>;
+  if (loading) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Caricamento...</div></div>;
+  if (!data) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Chatbot non trovato.</div></div>;
 
   return (
-    <main className="chatbot-detail-main">
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Chatbots</span> &gt; 
-        <span className="current">{data.name}</span>
-      </div>
-
-      {/* Header chatbot */}
-      <div className="chatbot-header">
-        <div className="chatbot-info">
-          <div className="chatbot-id-detail">ID: {data.storyline_key}</div>
-          <h1 className="chatbot-name">🤖 {data.name}</h1>
-          <div className="manager-info">
-            <span className="manager-label">👤 Manager référent :</span>
-            <span className="manager-email">{data.manager_email}</span>
+    <div className="chatbot-detail-bg">
+      <main className="chatbot-detail-main">
+        {/* Breadcrumb */}
+        <div className="breadcrumb">
+          <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt; 
+          <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Chatbots</span> &gt; 
+          <span className="current">{data.name}</span>
+        </div>
+        {/* Card principale */}
+        <div className="chatbot-card">
+          <div className="chatbot-header">
+            <div className="chatbot-id-detail">ID: {data.storyline_key}</div>
+            <h1 className="chatbot-name">🤖 {data.name}</h1>
+            <div className="manager-info">
+              <span className="manager-label">👤 Manager référent :</span>
+              <span className="manager-email">{data.manager_email}</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Statistiche principali */}
-      <div className="chatbot-main-stats">
-        <div className="main-stat-card">
-          <span className="main-stat-label">🎯 Simulations réalisées :</span>
-          <span className="main-stat-value">{data.simulations}</span>
+        {/* Statistiche principali */}
+        <div className="chatbot-main-stats">
+          <div className="main-stat-card">
+            <span className="main-stat-label">🎯 Simulations réalisées :</span>
+            <span className="main-stat-value">{data.simulations}</span>
+          </div>
         </div>
-      </div>
-
-      {/* Statistiche secondarie */}
-      <div className="chatbot-secondary-stats">
-        <div className="secondary-stat-card">
-          <span className="secondary-stat-label">⭐ Score moyen :</span>
-          <span className="secondary-stat-value">{data.avg_score}</span>
+        {/* Statistiche secondarie */}
+        <div className="chatbot-secondary-stats">
+          <div className="secondary-stat-card">
+            <span className="secondary-stat-label">⭐ Score moyen :</span>
+            <span className="secondary-stat-value">{data.avg_score}</span>
+          </div>
+          <div className="secondary-stat-card">
+            <span className="secondary-stat-label">👥 Learners :</span>
+            <span className="secondary-stat-value">{data.learners}</span>
+          </div>
         </div>
-        <div className="secondary-stat-card">
-          <span className="secondary-stat-label">👥 Learners :</span>
-          <span className="secondary-stat-value">{data.learners}</span>
+        {/* Bottoni azione */}
+        <div className="action-buttons">
+          <button className="action-btn primary" onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(data.storyline_key)}`)}>
+            Voir la liste des learners
+          </button>
+          <button className="action-btn secondary" onClick={() => alert('Funzionalità in arrivo!')}>
+            Voir la liste des simulations
+          </button>
         </div>
-      </div>
-
-      {/* Bottoni azione */}
-      <div className="action-buttons">
-        <button className="action-btn primary" onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(data.storyline_key)}`)}>
-          Voir la liste des learners
-        </button>
-        <button className="action-btn secondary" onClick={() => alert('Funzionalità in arrivo!')}>
-          Voir la liste des simulations
-        </button>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 };
 
