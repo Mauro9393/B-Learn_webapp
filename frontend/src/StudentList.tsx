@@ -33,7 +33,7 @@ const StudentList: React.FC = () => {
   }, [storyline_key]);
 
   return (
-    <div className="student-list-bg">
+    <div className="">
       <main className="student-list-main">
         {/* Breadcrumb */}
         <div className="breadcrumb">
