@@ -142,7 +142,7 @@
 }
 
 tr:not(:last-child) td {
-    border: none !important;
+    border-bottom: solid 1px #eee;
 }
 
 .simulations-table tr:last-child td {
