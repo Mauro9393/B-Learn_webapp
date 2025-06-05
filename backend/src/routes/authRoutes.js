@@ -311,4 +311,22 @@ router.get('/learners-list', async(req, res) => {
     }
 });
 
+router.get('/learner-detail', async(req, res) => {
+    const { storyline_key, email } = req.query;
+    if (!storyline_key || !email) {
+        return res.status(400).json({ message: 'Parametri mancanti' });
+    }
+    try {
+        const result = await pool.query(`
+            SELECT *
+            FROM userlist
+            WHERE chatbot_name = $1 AND user_email = $2
+            ORDER BY created_at DESC
+        `, [storyline_key, email]);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

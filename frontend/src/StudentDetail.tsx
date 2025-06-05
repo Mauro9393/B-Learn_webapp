@@ -4,11 +4,13 @@ import './assets/css/studentDetail.css';
 
 interface Simulation {
   id: number;
-  simulation: string;
-  date: string;
+  user_email: string;
+  chatbot_name: string;
   score: number;
   chat_history: string;
   chat_analysis: string;
+  created_at: string;
+  name: string;
 }
 
 interface StudentStats {
@@ -24,20 +26,17 @@ interface StudentStats {
 const StudentDetail: React.FC = () => {
   const { storyline_key, email } = useParams<{ storyline_key: string; email: string }>();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<StudentStats | null>(null);
+  const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Email param:", email);
-        const url = `${import.meta.env.VITE_API_URL}/api/learner-detail?storyline_key=${storyline_key}&email=${email}`;
-        console.log("Chiamata API:", url);
-        const res = await fetch(url);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/learner-detail?storyline_key=${storyline_key}&email=${email}`);
         const data = await res.json();
-        setStats(data);
+        setSimulations(data);
       } catch (e) {
-        setStats(null);
+        setSimulations([]);
       } finally {
         setLoading(false);
       }
@@ -46,7 +45,9 @@ const StudentDetail: React.FC = () => {
   }, [storyline_key, email]);
 
   if (loading) return <div className="student-detail-main">Caricamento...</div>;
-  if (!stats) return <div className="student-detail-main">Learner non trovato.</div>;
+  if (!simulations.length) return <div className="student-detail-main">Learner non trovato.</div>;
+
+  const learner = simulations[0];
 
   return (
     <main className="student-detail-main">
@@ -54,33 +55,14 @@ const StudentDetail: React.FC = () => {
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate(-1)}>Liste des learners</span> &gt; 
         <span className="breadcrumb-link" onClick={() => navigate(-1)}>Learners</span> &gt; 
-        <span className="current">{stats.name}</span>
+        <span className="current">{learner.name}</span>
       </div>
       {/* Profilo */}
       <div className="student-profile">
         <div className="profile-content">
-          <div className="profile-avatar">
-            <div className="avatar-circle">{stats.avatar}</div>
-          </div>
-          <h1 className="student-name">{stats.name}</h1>
-        </div>
-      </div>
-      {/* Statistiche */}
-      <div className="student-stats">
-        <div className="stat-card">
-          <span className="stat-icon">🎯</span>
-          <span className="stat-label">Simulations :</span>
-          <span className="stat-value">{stats.simulations}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon">🏆</span>
-          <span className="stat-label">Meilleur score :</span>
-          <span className="stat-value best-score">{stats.best_score}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon">📊</span>
-          <span className="stat-label">Score moyen :</span>
-          <span className="stat-value average-score">{stats.avg_score}</span>
+          <h1 className="student-name">{learner.name}</h1>
+          <p>Email: {learner.user_email}</p>
+          <p>Numero simulazioni: {simulations.length}</p>
         </div>
       </div>
       {/* Storico simulazioni */}
@@ -88,19 +70,28 @@ const StudentDetail: React.FC = () => {
         <table className="simulations-table">
           <thead>
             <tr>
-              <th>Simulation</th>
-              <th>Date simulation</th>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Chatbot</th>
               <th>Score</th>
-              <th>Historique conversation</th>
-              <th>Analyse conversation</th>
+              <th>Chat history</th>
+              <th>Chat analysis</th>
+              <th>Data</th>
             </tr>
           </thead>
           <tbody>
-            {stats.simulationHistory.map(sim => (
+            {simulations.map(sim => (
               <tr key={sim.id}>
-                <td>{sim.simulation}</td>
-                <td>{sim.date}</td>
-                <td><span className={`score-badge ${sim.score >= 90 ? 'score-high' : sim.score >= 75 ? 'score-medium' : 'score-low'}`}>Score : {sim.score}</span></td>
+                <td>{sim.id}</td>
+                <td>{sim.name}</td>
+                <td>{sim.user_email}</td>
+                <td>{sim.chatbot_name}</td>
+                <td>
+                  <span className={`score-badge ${sim.score >= 90 ? 'score-high' : sim.score >= 75 ? 'score-medium' : 'score-low'}`}>
+                    {sim.score}
+                  </span>
+                </td>
                 <td>
                   <button className="btn-small btn-view" title="Visualiser" onClick={() => alert(sim.chat_history)}>
                     Visualiser
@@ -111,6 +102,7 @@ const StudentDetail: React.FC = () => {
                     Visualiser
                   </button>
                 </td>
+                <td>{sim.created_at}</td>
               </tr>
             ))}
           </tbody>
