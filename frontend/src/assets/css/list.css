@@ -130,9 +130,21 @@ h1 {
     color: #fff;
 }
 
-.btn-view:hover {
-    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
+.btn-download {
+    background: linear-gradient(90deg, #4a90e2 0%, #87ceeb 100%);
+    color: #fff;
+}
+
+.btn-view:hover,
+.btn-download:hover {
+    background: inherit;
+    color: #fff;
     transform: scale(1.05);
+}
+
+.btn-view svg,
+.btn-download svg {
+    stroke: white;
 }
 
 
