@@ -18,7 +18,6 @@
     padding: 1rem;
     background: #f8f9ff;
     border-radius: 8px;
-    border-left: 4px solid #7F53F5;
 }
 
 .breadcrumb-link {
@@ -315,4 +314,30 @@
     line-height: 1.6;
     font-style: italic;
     text-align: left;
+}
+
+.btn-small {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%) !important;
+    color: #fff;
+}
+
+.btn-secondary {
+    background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%) !important;
+    color: #fff;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+    transform: scale(1.05);
 }
