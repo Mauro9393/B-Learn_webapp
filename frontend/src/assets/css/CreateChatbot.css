@@ -1,55 +1,141 @@
-/* Stile base per CreateChatbot */
+/* Stili per la pagina di creazione chatbot, adattati da style.css e create-chatbot.html */
 
-.create-chatbot-container {
-    max-width: 400px;
-    margin: 40px auto;
+main {
+    max-width: 1100px;
+    margin: 2rem auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(91, 109, 246, 0.10);
+    padding: 2rem 2rem 2rem 2rem;
+    margin-top: 1.5rem;
+}
+
+h1 {
+    font-weight: 800;
+    color: #5B6DF6;
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    letter-spacing: -1px;
+}
+
+.manager-form-container {
+    max-width: 600px;
+    margin: 0 auto;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    padding: 32px 24px;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(127, 83, 245, 0.10);
+    padding: 2.5rem;
+    border: 1.5px solid #f0f0f0;
+    margin-top: 48px;
+}
+
+.manager-form {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 1.5rem;
 }
 
-.create-chatbot-container h1 {
-    margin-bottom: 24px;
-    color: #1976d2;
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.create-chatbot-container form {
+.form-group label {
+    color: #5B6DF6;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+}
+
+.manager-form input,
+.manager-form select,
+.manager-form textarea {
     width: 100%;
+    padding: 1rem 1.2rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: #f8f9ff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
 }
 
-.create-chatbot-container input[type="text"],
-.create-chatbot-container textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+.manager-form input:focus,
+.manager-form select:focus,
+.manager-form textarea:focus {
+    outline: none;
+    border-color: #7F53F5;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
+    background: #fff;
 }
 
-.create-chatbot-container button {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    background: #43a047;
-    color: #fff;
+.manager-form select {
     cursor: pointer;
-    transition: background 0.2s;
 }
 
-.create-chatbot-container button:disabled {
-    background: #bdbdbd;
-    cursor: not-allowed;
+.btn-manager {
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 1.2rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(127, 83, 245, 0.3);
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 1rem;
 }
 
-.create-chatbot-container p {
-    margin-top: 10px;
-    font-size: 15px;
+.btn-manager:hover {
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(127, 83, 245, 0.4);
+}
+
+.btn-manager .btn-icon {
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+
+
+/* Messaggi di errore/successo */
+
+.create-chatbot-message {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+}
+
+.create-chatbot-message.error {
+    color: #e74c3c;
+}
+
+.create-chatbot-message.success {
+    color: #27ae60;
+}
+
+@media (max-width: 768px) {
+    .manager-form-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    .manager-form input,
+    .manager-form select,
+    .manager-form textarea {
+        padding: 0.8rem 1rem;
+        font-size: 0.95rem;
+    }
+    .btn-manager {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
 }
