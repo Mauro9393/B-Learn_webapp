@@ -349,7 +349,12 @@
     color: #fff;
 }
 
-.btn-primary:hover,
+.btn-primary:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%) !important;
+}
+
 .btn-secondary:hover {
     transform: scale(1.05);
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%) !important;
 }
