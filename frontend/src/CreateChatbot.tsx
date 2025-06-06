@@ -104,7 +104,7 @@ const CreateChatbot = () => {
               <input
                 type="text"
                 id="chatbot-name"
-                placeholder="Inserisci il nome del chatbot"
+                placeholder="Entrez le nom du chatbot"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
@@ -114,7 +114,7 @@ const CreateChatbot = () => {
               <label htmlFor="chatbot-description">Description</label>
               <textarea
                 id="chatbot-description"
-                placeholder="Inserisci una descrizione del chatbot"
+                placeholder="Entrez une description du chatbot"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 required
@@ -129,7 +129,7 @@ const CreateChatbot = () => {
                 onChange={e => setSelectedTenantId(e.target.value)}
                 required
               >
-                <option value="">Scoisissez le client</option>
+                <option value="">Sélectionnez un client</option>
                 {tenants.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
@@ -138,7 +138,7 @@ const CreateChatbot = () => {
             <div className="form-group">
               <label htmlFor="chatbot-manager">Manager</label>
               <select id="chatbot-manager" disabled>
-                <option value="">Scoisissez le manager</option>
+                <option value="">Sélectionnez un manager</option>
                 {MANAGER_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
