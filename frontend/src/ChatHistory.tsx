@@ -70,11 +70,11 @@ const ChatHistory: React.FC = () => {
     doc.text(`Date: ${date ? new Date(date).toLocaleDateString('fr-FR') : ''}`, 10, 36);
     doc.text(`Score: ${score ? `${score}/100` : '-'}`, 10, 44);
     let y = 54;
-    messages.forEach((msg, idx) => {
+    messages.forEach((msg) => {
       if (y > 270) { doc.addPage(); y = 20; }
-      doc.setFont(undefined, 'bold');
+      doc.setFont('helvetica', 'bold');
       doc.text(`${msg.sender || (msg.type === 'student' ? name : 'Assistant')}:`, 10, y);
-      doc.setFont(undefined, 'normal');
+      doc.setFont('helvetica', 'normal');
       const lines = doc.splitTextToSize(msg.content, 180);
       doc.text(lines, 20, y + 6);
       y += 6 + lines.length * 7;
