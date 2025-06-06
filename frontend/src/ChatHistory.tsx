@@ -1,6 +1,8 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './assets/css/chatHistory.css';
+// @ts-ignore
+import jsPDF from 'jspdf';
 
 // Funzione di parsing: supponiamo che ogni messaggio inizi con "Assistant:" o con il nome dello studente (es: "Baptiste:")
 function parseMessages(chat_history: string, studentName: string) {
@@ -39,14 +41,55 @@ const ChatHistory: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as any;
+  const messagesRef = React.useRef<HTMLDivElement>(null);
   if (!state) return <div>Contenuto non trovato.</div>;
 
   const { name, date, score, chat_history } = state;
   const messages = parseMessages(chat_history, name);
 
+  // Funzione per schermo intero
+  const handleFullscreen = () => {
+    if (messagesRef.current) {
+      if (messagesRef.current.requestFullscreen) {
+        messagesRef.current.requestFullscreen();
+      } else if ((messagesRef.current as any).webkitRequestFullscreen) {
+        (messagesRef.current as any).webkitRequestFullscreen();
+      } else if ((messagesRef.current as any).msRequestFullscreen) {
+        (messagesRef.current as any).msRequestFullscreen();
+      }
+    }
+  };
+
+  // Funzione per scaricare PDF
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Historique de Conversation', 10, 18);
+    doc.setFontSize(12);
+    doc.text(`Nom: ${name}`, 10, 28);
+    doc.text(`Date: ${date ? new Date(date).toLocaleDateString('fr-FR') : ''}`, 10, 36);
+    doc.text(`Score: ${score ? `${score}/100` : '-'}`, 10, 44);
+    let y = 54;
+    messages.forEach((msg, idx) => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.setFont(undefined, 'bold');
+      doc.text(`${msg.sender || (msg.type === 'student' ? name : 'Assistant')}:`, 10, y);
+      doc.setFont(undefined, 'normal');
+      const lines = doc.splitTextToSize(msg.content, 180);
+      doc.text(lines, 20, y + 6);
+      y += 6 + lines.length * 7;
+    });
+    doc.save(`historique_${name}.pdf`);
+  };
+
   return (
     <main className="student-detail-main">
-      
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Simulations</span> &gt; 
+        <span className="current">{name}</span>
+      </div>
       {/* Header info */}
       <div className="chat-header">
         <div className="chat-info">
@@ -69,20 +112,29 @@ const ChatHistory: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-3)}>Dashboard</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Liste des simulations</span> &gt; 
-        <span className="current">Historique de chat -{name}</span>
-      </div>
       {/* Contenuto principale */}
       <div className="pdf-container">
         <div className="pdf-viewer">
-          <div className="pdf-header">
-            <h3>Historique de Conversation</h3>
+          <div className="pdf-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <h3 style={{margin: 0}}>Historique de Conversation</h3>
+            <div style={{display: 'flex', gap: '0.5rem'}}>
+              <button className="btn-small btn-secondary" title="Plein écran" onClick={handleFullscreen}>
+                {/* Icona fullscreen */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+              </button>
+              <button className="btn-small btn-primary" title="Télécharger PDF" onClick={handleDownloadPDF}>
+                {/* Icona download */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </button>
+            </div>
           </div>
-          <div className="pdf-content">
+          <div className="pdf-content" ref={messagesRef}>
             <div className="pdf-page">
               <div className="pdf-document">
                 <div className="pdf-title">HISTORIQUE DE CONVERSATION</div>
