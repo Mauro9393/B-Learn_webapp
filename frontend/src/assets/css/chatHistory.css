@@ -323,9 +323,9 @@
 }
 
 .btn-small {
-    padding: 0.4rem 0.8rem;
+    padding: 0.8rem 1.6rem;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
