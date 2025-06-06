@@ -114,39 +114,6 @@ h1 {
     font-size: 0.85rem;
 }
 
-.btn-small {
-    padding: 0.4rem 0.8rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'Montserrat', Arial, sans-serif;
-}
-
-.btn-view {
-    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
-    color: #fff;
-}
-
-.btn-download {
-    background: linear-gradient(90deg, #4a90e2 0%, #87ceeb 100%);
-    color: #fff;
-}
-
-.btn-view:hover,
-.btn-download:hover {
-    background: inherit;
-    color: #fff;
-    transform: scale(1.05);
-}
-
-.btn-view svg,
-.btn-download svg {
-    stroke: white;
-}
-
 
 /* Modal come prima */
 
@@ -232,4 +199,37 @@ h1 {
 
 .sortable-header:hover .sort-arrow {
     opacity: 1;
+}
+
+.btn-small {
+    padding: 0.5rem 0.10rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.btn-view {
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
+    color: #fff;
+}
+
+.btn-download {
+    background: linear-gradient(90deg, #4a90e2 0%, #87ceeb 100%);
+    color: #fff;
+}
+
+.btn-view:hover,
+.btn-download:hover {
+    background: inherit;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.btn-view svg,
+.btn-download svg {
+    stroke: white;
 }

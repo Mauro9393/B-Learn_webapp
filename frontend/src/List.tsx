@@ -1,6 +1,6 @@
 import './assets/css/list.css';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 // @ts-ignore
 import jsPDF from 'jspdf';
 
@@ -37,6 +37,7 @@ function List() {
   // Stato per ordinamento
   const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score'>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -164,6 +165,13 @@ function List() {
   return (
     <div className="list-container">
       <h1>Liste des Simulations</h1>
+      <br />
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Chatbot</span> &gt; 
+        <span className='current'>Liste simulations</span> &gt; 
+      </div>
       {/* Filtri come in simulations-list.html */}
       <div className="filters">
         <input
