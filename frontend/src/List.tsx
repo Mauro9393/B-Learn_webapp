@@ -1,6 +1,8 @@
 import './assets/css/list.css';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+// @ts-ignore
+import jsPDF from 'jspdf';
 
 // Definisci un'interfaccia per i dati
 interface DataItem {
@@ -135,6 +137,30 @@ function List() {
     return <span className="sort-arrow">{sortDirection === 'asc' ? UP_ARROW : DOWN_ARROW}</span>;
   };
 
+  // Funzione per scaricare PDF
+  const downloadPDF = (title: string, content: string, filename: string) => {
+    if (!content) return;
+    try {
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text(title, 10, 18);
+      doc.setFontSize(12);
+      // Gestione testo multilinea
+      const lines = doc.splitTextToSize(content, 180);
+      doc.text(lines, 10, 30);
+      doc.save(filename);
+    } catch (e) {
+      // Fallback: scarica come txt
+      const blob = new Blob([content], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename.replace(/\.pdf$/, '.txt');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div className="list-container">
       <h1>Liste des Simulations</h1>
@@ -183,6 +209,14 @@ function List() {
                 <td><span className={`score-badge ${item.score >= 90 ? 'score-high' : item.score >= 80 ? 'score-medium' : 'score-low'}`}>{item.score}</span></td>
                 <td>
                   <button
+                    className="btn-small btn-download"
+                    title="Télécharger"
+                    onClick={() => downloadPDF('Historique chat', item.chat_history, `historique_${item.name}.pdf`)}
+                    disabled={!item.chat_history}
+                  >
+                    Télécharger
+                  </button>
+                  <button
                     className="btn-small btn-view"
                     title="Visualiser"
                     onClick={() => openModal('Historique', item.chat_history)}
@@ -192,6 +226,14 @@ function List() {
                   </button>
                 </td>
                 <td>
+                  <button
+                    className="btn-small btn-download"
+                    title="Télécharger"
+                    onClick={() => downloadPDF('Rapport', item.chat_analysis, `rapport_${item.name}.pdf`)}
+                    disabled={!item.chat_analysis}
+                  >
+                    Télécharger
+                  </button>
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
