@@ -213,12 +213,12 @@ h1 {
 }
 
 .btn-view {
-    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%) !important;
     color: #fff;
 }
 
 .btn-download {
-    background: linear-gradient(90deg, #4a90e2 0%, #87ceeb 100%);
+    background: linear-gradient(90deg, #4a90e2 0%, #87ceeb 100%) !important;
     color: #fff;
 }
 
