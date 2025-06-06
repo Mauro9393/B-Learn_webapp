@@ -95,12 +95,12 @@ const CreateChatbot = () => {
 
   return (
     <main>
-      <h1>Crea un Chatbot</h1>
+      <h1>Créer un Chatbot</h1>
       {!showSummary ? (
         <div className="manager-form-container">
           <form className="manager-form" onSubmit={handleSave}>
             <div className="form-group">
-              <label htmlFor="chatbot-name">Nome del Chatbot</label>
+              <label htmlFor="chatbot-name">Nom du Chatbot</label>
               <input
                 type="text"
                 id="chatbot-name"
@@ -111,7 +111,7 @@ const CreateChatbot = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="chatbot-description">Descrizione</label>
+              <label htmlFor="chatbot-description">Description</label>
               <textarea
                 id="chatbot-description"
                 placeholder="Inserisci una descrizione del chatbot"
@@ -122,14 +122,14 @@ const CreateChatbot = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="chatbot-client">Cliente</label>
+              <label htmlFor="chatbot-client">Client</label>
               <select
                 id="chatbot-client"
                 value={selectedTenantId}
                 onChange={e => setSelectedTenantId(e.target.value)}
                 required
               >
-                <option value="">Seleziona cliente</option>
+                <option value="">Scoisissez le client</option>
                 {tenants.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
@@ -138,7 +138,7 @@ const CreateChatbot = () => {
             <div className="form-group">
               <label htmlFor="chatbot-manager">Manager</label>
               <select id="chatbot-manager" disabled>
-                <option value="">Seleziona manager</option>
+                <option value="">Scoisissez le manager</option>
                 {MANAGER_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
@@ -159,14 +159,14 @@ const CreateChatbot = () => {
         </div>
       ) : (
         <div id="chatbot-summary" style={{ padding: '2rem', textAlign: 'center', background: '#f8f9ff', borderRadius: '12px', border: '2px solid #e8ebff', maxWidth: 500, margin: '0 auto' }}>
-          <div style={{ fontSize: '1.4rem', color: '#5B6DF6', fontWeight: 700, marginBottom: '1.5rem' }}>🤖 Chatbot creato con successo!</div>
+          <div style={{ fontSize: '1.4rem', color: '#5B6DF6', fontWeight: 700, marginBottom: '1.5rem' }}>🤖 Chatbot crée avec succés!</div>
           <div style={{ display: 'grid', gap: '1rem', maxWidth: '400px', margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem', background: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <span style={{ fontWeight: 600, color: '#666' }}>Nome:</span>
+              <span style={{ fontWeight: 600, color: '#666' }}>Nom:</span>
               <span style={{ color: '#5B6DF6', fontWeight: 700 }}>{name}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem', background: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <span style={{ fontWeight: 600, color: '#666' }}>Cliente:</span>
+              <span style={{ fontWeight: 600, color: '#666' }}>Client:</span>
               <span style={{ color: '#7F53F5', fontWeight: 700 }}>{selectedTenant ? selectedTenant.name : ''}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem', background: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
