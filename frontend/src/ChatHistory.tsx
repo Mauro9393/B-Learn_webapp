@@ -112,6 +112,30 @@ const ChatHistory: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* Résumé de la conversation */}
+      <div className="progress-comparison">
+        <h3>📊 Résumé de la Simulation</h3>
+        <div className="progress-chart">
+          <div className="chart-info">
+            <div className="current-score">
+              <span className="score-label">Score Final</span>
+              <span className="score-value">{score ? `${score}/100` : '-'}</span>
+            </div>
+            {/* Placeholder durata e numero messaggi */}
+            <div className="progress-indicator">
+              <span className="progress-label">Durée</span>
+              <span className="progress-value score-style">-</span>
+            </div>
+            <div className="progress-indicator">
+              <span className="progress-label">Messages</span>
+              <span className="progress-value score-style">{messages.length} échanges</span>
+            </div>
+          </div>
+          <div className="comparison-text">
+            Simulation complète avec un score de {score ? `${score}/100` : '-'} et {messages.length} échanges.
+          </div>
+        </div>
+      </div>
     </main>
   );
 };
