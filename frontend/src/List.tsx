@@ -165,7 +165,6 @@ function List() {
   return (
     <div className="list-container">
       <h1>Liste des Simulations</h1>
-      <br />
       {/* Breadcrumb */}
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
