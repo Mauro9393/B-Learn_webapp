@@ -99,6 +99,12 @@
     margin-top: 0.2rem;
 }
 
+.score-high {
+    border: solid 1px #32cd32;
+    background-color: #90ee90;
+    color: #1e8f1e;
+}
+
 .score-badge {
     font-weight: 700;
     padding: 0.3rem 0.8rem;
