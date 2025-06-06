@@ -7,14 +7,6 @@ interface Tenant {
   name: string;
 }
 
-function generateChatbotId(name: string) {
-  // Genera un id alfanumerico unico basato sul nome e un random
-  const random = Math.random().toString(36).substring(2, 8);
-  return (
-    name.trim().toLowerCase().replace(/\s+/g, '-') + '-' + random
-  );
-}
-
 const MANAGER_OPTIONS = [
   { value: 'jean-dupont', label: 'Jean Dupont' },
   { value: 'marie-martin', label: 'Marie Martin' },
@@ -23,6 +15,13 @@ const MANAGER_OPTIONS = [
   { value: 'lucas-moreau', label: 'Lucas Moreau' },
   { value: 'emma-petit', label: 'Emma Petit' },
 ];
+
+function generateChatbotId(name: string) {
+  const random = Math.random().toString(36).substring(2, 8);
+  return (
+    name.trim().toLowerCase().replace(/\s+/g, '-') + '-' + random
+  );
+}
 
 const CreateChatbot = () => {
   const [name, setName] = useState('');
@@ -46,25 +45,17 @@ const CreateChatbot = () => {
   // Manager selezionato (finto, sempre il primo)
   const selectedManager = MANAGER_OPTIONS[0];
 
-  const handleGenerateId = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name) {
-      setError('Inserisci il nome del chatbot');
-      return;
-    }
-    setChatbotId(generateChatbotId(name));
-    setError('');
-  };
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    if (!name || !description || !chatbotId) {
-      setError("Compila tutti i campi e genera l'ID");
+    if (!name || !description || !selectedTenantId) {
+      setError("Compila tutti i campi");
       return;
     }
     setLoading(true);
+    const generatedId = generateChatbotId(name);
+    setChatbotId(generatedId);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`, {
         method: 'POST',
@@ -72,17 +63,15 @@ const CreateChatbot = () => {
         body: JSON.stringify({
           name,
           description,
-          storyline_key: chatbotId,
+          storyline_key: generatedId,
           tenant_id: selectedTenantId
         })
       });
       const result = await response.json();
       if (result.success) {
-        // Recupera la mappa esistente o crea una nuova
         const namesMap = JSON.parse(localStorage.getItem('chatbotNamesMap') || '{}');
-        namesMap[chatbotId] = name;
+        namesMap[generatedId] = name;
         localStorage.setItem('chatbotNamesMap', JSON.stringify(namesMap));
-
         setSuccess('Chatbot creato con successo!');
         setShowSummary(true);
       } else {
@@ -109,7 +98,7 @@ const CreateChatbot = () => {
       <h1>Crea un Chatbot</h1>
       {!showSummary ? (
         <div className="manager-form-container">
-          <form className="manager-form" onSubmit={chatbotId ? handleSave : handleGenerateId}>
+          <form className="manager-form" onSubmit={handleSave}>
             <div className="form-group">
               <label htmlFor="chatbot-name">Nome del Chatbot</label>
               <input
@@ -155,26 +144,14 @@ const CreateChatbot = () => {
                 ))}
               </select>
             </div>
-            {chatbotId && (
-              <div className="form-group">
-                <label htmlFor="chatbot-id">ID Chatbot</label>
-                <input
-                  type="text"
-                  id="chatbot-id"
-                  value={chatbotId}
-                  readOnly
-                  style={{ fontWeight: 'bold', background: '#f5f5f5' }}
-                />
-              </div>
-            )}
             <button
               type="submit"
               className="btn-manager"
               style={{ marginTop: '10px' }}
-              disabled={chatbotId ? loading : false}
+              disabled={loading}
             >
               <span className="btn-icon">🤖</span>
-              {!chatbotId ? 'Genera ID Chatbot' : loading ? 'Attendi...' : 'Crea il Chatbot'}
+              {loading ? 'Attendi...' : 'Créer le Chatbot'}
             </button>
           </form>
           {error && <p className="create-chatbot-message error">{error}</p>}
