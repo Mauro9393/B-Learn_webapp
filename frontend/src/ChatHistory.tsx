@@ -5,22 +5,34 @@ import './assets/css/chatHistory.css';
 // Funzione di parsing: supponiamo che ogni messaggio inizi con "Assistant:" o con il nome dello studente (es: "Baptiste:")
 function parseMessages(chat_history: string, studentName: string) {
   if (!chat_history) return [];
-  // Split per riga o doppio a capo
   const lines = chat_history.split(/\n+/).filter(Boolean);
-  // Riconosci mittente e messaggio
-  return lines.map(line => {
+  const messages: { sender: string, content: string, type: 'assistant' | 'student' }[] = [];
+  let currentSender = '';
+  let currentType: 'assistant' | 'student' = 'assistant';
+  let currentContent = '';
+
+  lines.forEach(line => {
     const match = line.match(/^(.*?):\s*(.*)$/);
     if (match) {
-      const sender = match[1].trim();
-      const content = match[2].trim();
-      let type: 'assistant' | 'student' = 'assistant';
-      if (sender.toLowerCase() === studentName.toLowerCase()) type = 'student';
-      else if (sender.toLowerCase().includes('assistant')) type = 'assistant';
-      return { sender, content, type };
+      // Salva il messaggio precedente
+      if (currentSender && currentContent) {
+        messages.push({ sender: currentSender, content: currentContent.trim(), type: currentType });
+      }
+      // Nuovo messaggio
+      currentSender = match[1].trim();
+      currentType = (currentSender.toLowerCase() === studentName.toLowerCase()) ? 'student'
+                  : (currentSender.toLowerCase().includes('assistant') ? 'assistant' : 'assistant');
+      currentContent = match[2].trim();
+    } else {
+      // Riga di continuazione: aggiungi al messaggio corrente
+      currentContent += '\n' + line.trim();
     }
-    // fallback: tutto come messaggio generico
-    return { sender: '', content: line, type: 'assistant' };
   });
+  // Salva l'ultimo messaggio
+  if (currentSender && currentContent) {
+    messages.push({ sender: currentSender, content: currentContent.trim(), type: currentType });
+  }
+  return messages;
 }
 
 const ChatHistory: React.FC = () => {
