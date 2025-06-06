@@ -121,19 +121,19 @@ const ChatHistory: React.FC = () => {
             <div style={{display: 'flex', gap: '0.5rem'}}>
               <button className="btn-small btn-secondary" title="Plein écran" onClick={handleFullscreen}>
                 {/* Icona fullscreen */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
                 </svg>
-                <span style={{ marginLeft: '0.5em' }}>Plein écran</span>
+                <span className='btn-text'>Plein écran</span>
               </button>
               <button className="btn-small btn-primary" title="Télécharger PDF" onClick={handleDownloadPDF}>
                 {/* Icona download */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                   <polyline points="7 10 12 15 17 10"/>
                   <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                <span style={{ marginLeft: '0.5em' }}>Télécharger PDF</span>
+                <span className='btn-text'>Télécharger PDF</span>
               </button>
             </div>
           </div>

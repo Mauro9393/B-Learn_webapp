@@ -333,6 +333,12 @@
     font-family: 'Montserrat', Arial, sans-serif;
 }
 
+.btn-text {
+    margin-left: 0.5em;
+    color: white;
+    font-size: 1rem;
+}
+
 .btn-primary {
     background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%) !important;
     color: #fff;
