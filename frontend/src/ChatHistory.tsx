@@ -34,12 +34,6 @@ const ChatHistory: React.FC = () => {
 
   return (
     <main className="student-detail-main">
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Simulations</span> &gt; 
-        <span className="current">{name}</span>
-      </div>
       {/* Header info */}
       <div className="chat-header">
         <div className="chat-info">
@@ -61,6 +55,13 @@ const ChatHistory: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <span className="breadcrumb-link" onClick={() => navigate(-3)}>Dashboard</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Liste des simulations</span> &gt; 
+        <span className="current">{name}</span>
       </div>
       {/* Contenuto principale */}
       <div className="pdf-container">

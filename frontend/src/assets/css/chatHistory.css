@@ -229,7 +229,7 @@
 }
 
 .pdf-message.student {
-    background: #f8fff8;
+    background: linear-gradient(135deg, #e6f7e6, #f8fff8);
     border-left-color: #5B6DF6;
 }
 
