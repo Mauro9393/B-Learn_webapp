@@ -23,7 +23,7 @@ const StudentList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/learners-list?storyline_key=${storyline_key}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/learners-list-maxscore?storyline_key=${storyline_key}`);
         const data = await res.json();
         setStudents(data);
       } catch (e) {
