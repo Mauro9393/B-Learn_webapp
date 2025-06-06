@@ -109,7 +109,8 @@ const ChatHistory: React.FC = () => {
       </div>
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-3)}>Dashboard</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt; 
         <span className="breadcrumb-link" onClick={() => navigate(-1)}>Simulations</span> &gt; 
         <span className="current">{name}</span>
       </div>
