@@ -14,25 +14,8 @@ function parseMessages(chat_history: string, studentName: string) {
       const sender = match[1].trim();
       const content = match[2].trim();
       let type: 'assistant' | 'student' = 'assistant';
-      const senderNorm = sender.toLowerCase().replace(/\s+/g, '');
-      const studentNorm = studentName.toLowerCase().replace(/\s+/g, '');
-
-      // Se il mittente è "moi", "me", o contiene il nome dello studente
-      if (
-        senderNorm === studentNorm ||
-        senderNorm === 'moi' ||
-        senderNorm === 'me' ||
-        senderNorm.includes(studentNorm)
-      ) {
-        type = 'student';
-      }
-      // Se il mittente contiene "assistant" o "christophe"
-      else if (
-        senderNorm.includes('assistant') ||
-        senderNorm.includes('christophe')
-      ) {
-        type = 'assistant';
-      }
+      if (sender.toLowerCase() === studentName.toLowerCase()) type = 'student';
+      else if (sender.toLowerCase().includes('assistant')) type = 'assistant';
       return { sender, content, type };
     }
     // fallback: tutto come messaggio generico
