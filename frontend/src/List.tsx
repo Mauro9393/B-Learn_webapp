@@ -11,6 +11,7 @@ interface DataItem {
   score: number;
   chat_history: string;
   chat_analysis: string;
+  created_at?: string; // aggiunta per la data
 }
 
 function useQuery() {
@@ -24,19 +25,18 @@ function List() {
   const query = useQuery();
   const chatbotName = query.get('chatbot_name');
   const [filter, setFilter] = useState('');
+  const [scoreFilter, setScoreFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
 
   useEffect(() => {
-    console.log("chatbotName in useEffect:", chatbotName);
     const fetchData = async () => {
       let url = `${import.meta.env.VITE_API_URL}/api/userlist`;
       if (chatbotName) {
         url += `?chatbot_name=${encodeURIComponent(chatbotName)}`;
       }
-      console.log("URL richiesta:", url);
       const response = await fetch(url);
       const data = await response.json();
-      console.log("Risposta dal backend:", data);
       setData(data || []);
       setFilteredData(data || []);
     };
@@ -46,18 +46,19 @@ function List() {
   useEffect(() => {
     setFilteredData(
       data.filter(item => {
-        const search = filter.toLowerCase();
-        return (
-          item.name.toLowerCase().includes(search) ||
-          String(item.score).toLowerCase().includes(search) ||
-          item.chatbot_name.toLowerCase().includes(search) ||
-          item.user_email.toLowerCase().includes(search) ||
-          (item.chat_history && item.chat_history.toLowerCase().includes(search)) ||
-          (item.chat_analysis && item.chat_analysis.toLowerCase().includes(search))
-        );
+        // Filtro per nome
+        const matchesName = item.name.toLowerCase().includes(filter.toLowerCase());
+        // Filtro per score
+        const matchesScore = scoreFilter ? item.score >= parseInt(scoreFilter) : true;
+        // Filtro per data (YYYY-MM-DD)
+        let matchesDate = true;
+        if (dateFilter && item.created_at) {
+          matchesDate = item.created_at.includes(dateFilter);
+        }
+        return matchesName && matchesScore && matchesDate;
       })
     );
-  }, [filter, data]);
+  }, [filter, scoreFilter, dateFilter, data]);
 
   const openModal = (title: string, content: string) => {
     setModalTitle(title);
@@ -84,82 +85,85 @@ function List() {
     return <div style={{ whiteSpace: 'pre-wrap', textAlign: 'left' }}>{modalContent}</div>;
   };
 
+  // Funzione per formattare la data (YYYY-MM-DD -> DD/MM/YYYY)
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return dateString;
+    return d.toLocaleDateString('fr-FR');
+  };
+
   return (
     <div className="list-container">
-      <h1>List</h1>
-      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+      <h1>Liste des Simulations</h1>
+      {/* Filtri come in simulations-list.html */}
+      <div className="filters">
         <input
           type="text"
-          placeholder="Trier par mots clés..."
+          id="student-filter"
+          placeholder="Rechercher un apprenant..."
           value={filter}
           onChange={e => setFilter(e.target.value)}
-          style={{ padding: '6px 10px', borderRadius: '4px', border: '1.5px solid #bbb', minWidth: 0, flex: 3 }}
         />
-        <button
-          onClick={() => setFilter('')}
-          style={{ padding: '6px 8px', borderRadius: '4px', border: '1.5px solid #bbb', background: '#eee', cursor: 'pointer', flex: '0 0 60px', minWidth: '60px' }}
-        >
-          Reset
-        </button>
+        <select id="score-filter" value={scoreFilter} onChange={e => setScoreFilter(e.target.value)}>
+          <option value="">Tous les scores</option>
+          <option value="90">Score ≥ 90</option>
+          <option value="80">Score ≥ 80</option>
+          <option value="70">Score ≥ 70</option>
+        </select>
+        <select id="date-filter" value={dateFilter} onChange={e => setDateFilter(e.target.value)}>
+          <option value="">Toutes les dates</option>
+          {/* Opzioni dinamiche per gli anni trovati nei dati */}
+          {[...new Set(data.map(item => item.created_at ? item.created_at.substring(0,4) : ''))]
+            .filter(y => y)
+            .sort((a, b) => b.localeCompare(a))
+            .map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+        </select>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Score</th>
-            <th>Client Name</th>
-            <th>User ID</th>
-            <th>Historique</th>
-            <th>Rapport</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredData.map(item => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.name}</td>
-              <td>{item.score}</td>
-              <td>{item.chatbot_name}</td>
-              <td>{item.user_email}</td>
-              <td>
-                <button
-                  onClick={() => openModal('Historique', item.chat_history)}
-                  disabled={!item.chat_history}
-                  style={{
-                    backgroundColor: !item.chat_history ? '#ccc' : undefined,
-                    color: !item.chat_history ? '#666' : undefined,
-                    cursor: !item.chat_history ? 'not-allowed' : 'pointer',
-                    padding: '2px 8px',
-                    fontSize: '0.85em',
-                    borderRadius: '4px',
-                    border: '1px solid #bbb',
-                  }}
-                >
-                  View
-                </button>
-              </td>
-              <td>
-                <button
-                  onClick={() => openModal('Rapport', item.chat_analysis)}
-                  disabled={!item.chat_analysis}
-                  style={{
-                    backgroundColor: !item.chat_analysis ? '#ccc' : undefined,
-                    color: !item.chat_analysis ? '#666' : undefined,
-                    cursor: !item.chat_analysis ? 'not-allowed' : 'pointer',
-                    padding: '2px 8px',
-                    fontSize: '0.85em',
-                    borderRadius: '4px',
-                    border: '1px solid #bbb',
-                  }}
-                >
-                  View
-                </button>
-              </td>
+      <div className="simulations-container">
+        <table className="simulations-table" id="simulations-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Date simulation</th>
+              <th>Score</th>
+              <th>Historique chat</th>
+              <th>Analyse chat</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody id="simulationTableBody">
+            {filteredData.map(item => (
+              <tr key={item.id} data-student={item.name} data-date={item.created_at || ''} data-score={item.score}>
+                <td>{item.name}</td>
+                <td className="date-cell">{formatDate(item.created_at)}</td>
+                <td><span className={`score-badge ${item.score >= 90 ? 'score-high' : item.score >= 80 ? 'score-medium' : 'score-low'}`}>{item.score}</span></td>
+                <td>
+                  <button
+                    className="btn-small btn-view"
+                    title="Visualiser"
+                    onClick={() => openModal('Historique', item.chat_history)}
+                    disabled={!item.chat_history}
+                  >
+                    Visualiser
+                  </button>
+                </td>
+                <td>
+                  <button
+                    className="btn-small btn-view"
+                    title="Visualiser"
+                    onClick={() => openModal('Rapport', item.chat_analysis)}
+                    disabled={!item.chat_analysis}
+                  >
+                    Visualiser
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {modalContent !== null && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>

@@ -94,7 +94,7 @@ const StudentList: React.FC = () => {
                 <th className="th-name">Nom <span className="sort-arrow">⇅</span></th>
                 <th className="th-group">Groupe <span className="sort-arrow">⇅</span></th>
                 <th className="th-simulations">Simulations</th>
-                <th className="th-score">Score <span className="sort-arrow">⇅</span></th>
+                <th className="th-score">Score max<span className="sort-arrow">⇅</span></th>
                 <th className="th-date">Dernière simulation <span className="sort-arrow">⇅</span></th>
                 <th className="th-details">Détails</th>
               </tr>

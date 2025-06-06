@@ -1,4 +1,4 @@
-/* Stili per il componente List */
+/* Stili per il componente List - ora ereditano da style.css per simulazioni */
 
 .list-container {
     padding: 20px;
@@ -10,43 +10,133 @@
 h1 {
     font-size: 24px;
     margin-bottom: 20px;
+    color: #5B6DF6;
+    text-align: center;
 }
 
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+
+/* Filtri come simulations-list.html/style.css */
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-thead {
-    background-color: #e0e0e0;
+.filters input,
+.filters select {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 1rem;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: #f7f8fa;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-th,
-td {
-    border: 2px solid #444;
-    padding: 8px 12px;
+.filters input:focus,
+.filters select:focus {
+    outline: none;
+    border-color: #7F53F5;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
+}
+
+.simulations-container {
     background: #fff;
-    text-align: left;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 1rem;
 }
 
-th {
-    background: #f0f0f0;
-    font-weight: bold;
+.simulations-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(127, 83, 245, 0.10);
+    table-layout: fixed;
+    position: relative;
+    z-index: 1;
 }
 
-tr:not(:last-child) td {
-    border-bottom: 2.5px solid #222;
+.simulations-table th {
+    background: #f7f8fa;
+    color: #5B6DF6;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 1rem 0.8rem;
+    text-align: center;
+    border-bottom: 2px solid #e0e0e0;
 }
 
-td:not(:last-child),
-th:not(:last-child) {
-    border-right: 2px solid #bbb;
+.simulations-table td {
+    padding: 1rem 0.8rem;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+    font-size: 0.85rem;
+    vertical-align: middle;
 }
 
-tr:hover td {
-    background: #f9f9f9;
+.simulations-table tr:hover {
+    background: #f3f6ff;
 }
+
+.score-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #fff;
+    display: inline-block;
+}
+
+.score-badge.score-high {
+    background: linear-gradient(135deg, #32cd32, #90ee90);
+}
+
+.score-badge.score-medium {
+    background: linear-gradient(135deg, #f9a826, #ffeaa7);
+    color: #333;
+}
+
+.score-badge.score-low {
+    background: linear-gradient(135deg, #e74c3c, #f8d7da);
+}
+
+.date-cell {
+    font-weight: 600;
+    color: #5B6DF6;
+    white-space: nowrap;
+    font-size: 0.85rem;
+}
+
+.btn-small {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.btn-view {
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
+    color: #fff;
+}
+
+.btn-view:hover {
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
+    transform: scale(1.05);
+}
+
+
+/* Modal come prima */
 
 .modal-overlay {
     position: fixed;
@@ -55,7 +145,6 @@ tr:hover td {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    /* sfondo scuro trasparente */
     display: flex;
     align-items: center;
     justify-content: center;
