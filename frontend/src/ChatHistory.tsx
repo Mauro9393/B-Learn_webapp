@@ -14,7 +14,7 @@ function parseMessages(chat_history: string, studentName: string) {
       const sender = match[1].trim();
       const content = match[2].trim();
       let type: 'assistant' | 'student' = 'assistant';
-      if (sender.toLowerCase() === studentName.toLowerCase()) type = 'student';
+      if (sender.toLowerCase() === studentName.toLowerCase()) type = 'Moi';
       else if (sender.toLowerCase().includes('assistant')) type = 'assistant';
       return { sender, content, type };
     }
