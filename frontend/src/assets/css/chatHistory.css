@@ -18,6 +18,7 @@
     padding: 1rem;
     background: #f8f9ff;
     border-radius: 8px;
+    border-left: 4px solid #7F53F5;
 }
 
 .breadcrumb-link {
@@ -228,7 +229,7 @@
 }
 
 .pdf-message.student {
-    background: #e6f7e6;
+    background: #f8fff8;
     border-left-color: #5B6DF6;
 }
 
