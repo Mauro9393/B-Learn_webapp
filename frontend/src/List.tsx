@@ -228,8 +228,8 @@ function List() {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => openModal('Historique', item.chat_history)}
-                    disabled={!item.chat_history}
+                    onClick={() => navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis' } })}
+                    disabled={!item.chat_analysis}
                   >
                     {/* Icona occhio */}
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>

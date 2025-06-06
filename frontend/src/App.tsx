@@ -9,6 +9,7 @@ import CreateChatbot from './CreateChatbot';
 import ChatbotDetail from './ChatbotDetail';
 import StudentDetail from './StudentDetail';
 import StudentList from './StudentList';
+import ChatHistory from './ChatHistory';
 import './App.css'
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/chatbot/:storyline_key" element={<ChatbotDetail />} />
         <Route path="/chatbot/:storyline_key/learners/:email" element={<StudentDetail />} />
         <Route path="/chatbot/:storyline_key/learners" element={<StudentList />} />
+        <Route path="/chat-history" element={<ChatHistory />} />
       </Routes>
     </Router>
   )
