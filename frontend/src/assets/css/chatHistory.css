@@ -215,3 +215,37 @@
     color: #666;
     font-style: italic;
 }
+
+.pdf-message {
+    margin: 1rem 0;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border-left: 4px solid #ddd;
+}
+
+.pdf-message.assistant {
+    background: #f8f9ff;
+    border-left-color: #7F53F5;
+}
+
+.pdf-message.student {
+    background: #f8fff8;
+    border-left-color: #5B6DF6;
+}
+
+.pdf-message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.pdf-sender {
+    font-weight: bold;
+    color: #333;
+}
+
+.pdf-message-content {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
