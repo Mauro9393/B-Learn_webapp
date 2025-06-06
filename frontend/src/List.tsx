@@ -18,6 +18,10 @@ function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
+// Frecce unicode
+const UP_ARROW = '↑';
+const DOWN_ARROW = '↓';
+
 function List() {
   const [data, setData] = useState<DataItem[]>([]);
   const [modalContent, setModalContent] = useState<string | null>(null);
@@ -28,6 +32,9 @@ function List() {
   const [scoreFilter, setScoreFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
+  // Stato per ordinamento
+  const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score'>('created_at');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +67,23 @@ function List() {
     );
   }, [filter, scoreFilter, dateFilter, data]);
 
+  // Ordina i dati filtrati in base a sortColumn e sortDirection
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (sortColumn === 'name') {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) return sortDirection === 'asc' ? -1 : 1;
+      if (a.name.toLowerCase() > b.name.toLowerCase()) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    } else if (sortColumn === 'created_at') {
+      // Più recente = data maggiore
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+    } else if (sortColumn === 'score') {
+      return sortDirection === 'asc' ? a.score - b.score : b.score - a.score;
+    }
+    return 0;
+  });
+
   const openModal = (title: string, content: string) => {
     setModalTitle(title);
     setModalContent(content);
@@ -91,6 +115,24 @@ function List() {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
     return d.toLocaleDateString('fr-FR');
+  };
+
+  // Gestione click sulle colonne
+  const handleSort = (column: 'name' | 'created_at' | 'score') => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      // Default: name = asc, created_at = desc, score = desc
+      if (column === 'name') setSortDirection('asc');
+      else setSortDirection('desc');
+    }
+  };
+
+  // Freccia da mostrare accanto alla colonna ordinata
+  const getArrow = (column: 'name' | 'created_at' | 'score') => {
+    if (sortColumn !== column) return <span className="sort-arrow">⇅</span>;
+    return <span className="sort-arrow">{sortDirection === 'asc' ? UP_ARROW : DOWN_ARROW}</span>;
   };
 
   return (
@@ -126,15 +168,15 @@ function List() {
         <table className="simulations-table" id="simulations-table">
           <thead>
             <tr>
-              <th>Nom</th>
-              <th>Date simulation</th>
-              <th>Score</th>
+              <th className="sortable-header" onClick={() => handleSort('name')}>Nom {getArrow('name')}</th>
+              <th className="sortable-header" onClick={() => handleSort('created_at')}>Date simulation {getArrow('created_at')}</th>
+              <th className="sortable-header" onClick={() => handleSort('score')}>Score {getArrow('score')}</th>
               <th>Historique chat</th>
               <th>Analyse chat</th>
             </tr>
           </thead>
           <tbody id="simulationTableBody">
-            {filteredData.map(item => (
+            {sortedData.map(item => (
               <tr key={item.id} data-student={item.name} data-date={item.created_at || ''} data-score={item.score}>
                 <td>{item.name}</td>
                 <td className="date-cell">{formatDate(item.created_at)}</td>

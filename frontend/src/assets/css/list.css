@@ -194,3 +194,30 @@ h1 {
     margin-top: 48px;
     text-align: left;
 }
+
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.sortable-header:hover {
+    background: #e8ebf7 !important;
+}
+
+.sort-arrow {
+    margin-left: 0.3rem;
+    font-size: 0.8rem;
+    color: #7F53F5;
+    font-weight: normal;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.sortable-header:hover .sort-arrow {
+    opacity: 1;
+}
