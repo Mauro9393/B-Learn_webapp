@@ -253,6 +253,8 @@ function Dashboard() {
         )}
       </section>
 
+      <div className="section-divider"></div>
+
       {/* NUOVA SEZIONE HEADER E FILTRI */}
       <div className="dashboard-section-header-new">
         <div className="dashboard-pages-left">
@@ -260,17 +262,21 @@ function Dashboard() {
         </div>
         <div className="dashboard-filters-center">
           <div className="dashboard-filters-fields">
-            <input
-              type="text"
-              placeholder="Rechercher par nom de chatbot"
-              value={filter}
-              onChange={e => setFilter(e.target.value)}
-              style={{marginRight: userRole === '1' ? '10px' : 0, minWidth: 220}}
-            />
+            <div className="input-icon-wrapper">
+              <span className="input-search-icon" role="img" aria-label="search">🔍</span>
+              <input
+                type="text"
+                placeholder="Rechercher un chatbot..."
+                value={filter}
+                onChange={e => setFilter(e.target.value)}
+                style={{minWidth: 220}}
+              />
+            </div>
             {userRole === '1' && (
               <select
                 value={selectedClient}
                 onChange={e => setSelectedClient(e.target.value)}
+                className="select-client"
                 style={{ minWidth: 180 }}
               >
                 <option value="">Tous les clients</option>
@@ -280,7 +286,7 @@ function Dashboard() {
               </select>
             )}
           </div>
-          <div className="dashboard-chatbots-count" style={{marginTop:'1.1rem', textAlign:'center', color:'#7F53F5', fontWeight:700, fontSize:'1.08rem'}}>
+          <div className="dashboard-chatbots-count-badge">
             {filteredChatbots.length} chatbots trouvés
           </div>
         </div>
