@@ -23,11 +23,11 @@ const HeaderMenu: React.FC = () => {
   const isAdmin = userRole === '2';
 
   return (
-    <header className="header-menu" style={{width: '100vw', left: 0, top: 0, position: 'fixed', zIndex: 1000}}>
-      <div className="header-menu-container" style={{maxWidth: '100vw', padding: 0}}>
+    <header className="header-menu">
+      <div className="header-menu-container">
         <div className="logo">
           <Link to="/dashboard">
-            <img src={require('./assets/logo-blearn.png')} alt="B-Learn Logo" className="logo-image" />
+            <img src="/assets/logo-blearn.png" alt="B-Learn Logo" className="logo-image" />
           </Link>
         </div>
         <nav className="nav-menu">

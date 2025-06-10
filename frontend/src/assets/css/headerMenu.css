@@ -2,20 +2,18 @@
 
 .header-menu {
     background: #fff;
-    position: fixed;
+    padding: 1rem 0;
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 100vw;
     z-index: 1000;
     border-bottom: 1px solid #e4e4e7;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .header-menu-container {
-    width: 100vw;
-    max-width: 100vw;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0;
+    padding: 0 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
