@@ -830,3 +830,54 @@ button:hover,
     padding: 2px 4px;
     font-weight: 600;
 }
+
+.dashboard-section-header-new {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 2.2rem;
+    width: 100%;
+}
+
+.dashboard-pages-left {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 1.2rem;
+}
+
+.dashboard-filters-center {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dashboard-filters-fields {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-chatbots-count {
+    margin-top: 1.1rem;
+    text-align: center;
+    color: #7F53F5;
+    font-weight: 700;
+    font-size: 1.08rem;
+}
+
+@media (max-width: 700px) {
+    .dashboard-section-header-new {
+        align-items: center;
+    }
+    .dashboard-pages-left {
+        text-align: center;
+    }
+    .dashboard-filters-fields {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+}

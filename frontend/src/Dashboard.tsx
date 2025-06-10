@@ -253,37 +253,39 @@ function Dashboard() {
         )}
       </section>
 
-      {/* SEZIONE TITOLO E CONTEGGIO */}
-      <div className="section-header-dashboard">
-        <span style={{fontWeight:800,fontSize:'1.3rem',color:'#5B6DF6'}}>Tous les Chatbots</span>
-        <span className="riquadro-chatbots-trouves">{filteredChatbots.length} chatbots trouvés</span>
-      </div>
-      {/* SEZIONE FILTRI E PAGINAZIONE INLINE */}
-      <div className="filters-section">
-        <div className="dashboard-filters-left">
-          <input
-            type="text"
-            placeholder="Rechercher par nom de chatbot"
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-          />
-          {userRole === '1' && (
-            <select
-              value={selectedClient}
-              onChange={e => setSelectedClient(e.target.value)}
-              style={{ marginLeft: '10px' }}
-            >
-              <option value="">Tous les clients</option>
-              {tenants.map(tenant => (
-                <option key={tenant.id} value={tenant.id}>{tenant.name}</option>
-              ))}
-            </select>
-          )}
-        </div>
-        <div className="dashboard-filters-right">
+      {/* NUOVA SEZIONE HEADER E FILTRI */}
+      <div className="dashboard-section-header-new">
+        <div className="dashboard-pages-left">
           <span style={{color:'#7F53F5',fontWeight:600,fontSize:'0.95rem'}}>Page {currentPage}/{totalPages}</span>
         </div>
+        <div className="dashboard-filters-center">
+          <div className="dashboard-filters-fields">
+            <input
+              type="text"
+              placeholder="Rechercher par nom de chatbot"
+              value={filter}
+              onChange={e => setFilter(e.target.value)}
+              style={{marginRight: userRole === '1' ? '10px' : 0, minWidth: 220}}
+            />
+            {userRole === '1' && (
+              <select
+                value={selectedClient}
+                onChange={e => setSelectedClient(e.target.value)}
+                style={{ minWidth: 180 }}
+              >
+                <option value="">Tous les clients</option>
+                {tenants.map(tenant => (
+                  <option key={tenant.id} value={tenant.id}>{tenant.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+          <div className="dashboard-chatbots-count" style={{marginTop:'1.1rem', textAlign:'center', color:'#7F53F5', fontWeight:700, fontSize:'1.08rem'}}>
+            {filteredChatbots.length} chatbots trouvés
+          </div>
+        </div>
       </div>
+
       <div className="content-grid paginated-grid">
         {paginatedChatbots.map(bot => {
           const tenant = tenants.find(t => String(t.id) === String(bot.tenant_id));
