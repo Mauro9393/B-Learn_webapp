@@ -3,11 +3,19 @@
 .header-menu {
     background: #fff;
     padding: 1rem 0;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
     z-index: 1000;
     border-bottom: 1px solid #e4e4e7;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+body {
+    padding-top: 80px !important;
+    /* altezza header, regola se necessario */
 }
 
 .header-menu-container {
