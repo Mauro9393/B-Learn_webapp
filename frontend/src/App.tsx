@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
 import Login from './Login'
 import Dashboard from './Dashboard'
 import List from './List';
@@ -10,11 +10,16 @@ import ChatbotDetail from './ChatbotDetail';
 import StudentDetail from './StudentDetail';
 import StudentList from './StudentList';
 import ChatHistory from './ChatHistory';
+import HeaderMenu from './HeaderMenu';
 import './App.css'
 
-function App() {
+function AppLayout() {
+  const location = useLocation();
+  // Nascondi header su login e inscription
+  const hideHeader = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/inscription';
   return (
-    <Router>
+    <>
+      {!hideHeader && <HeaderMenu />}
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/inscription" element={<Inscription />} />
@@ -27,8 +32,17 @@ function App() {
         <Route path="/chatbot/:storyline_key" element={<ChatbotDetail />} />
         <Route path="/chatbot/:storyline_key/learners/:email" element={<StudentDetail />} />
         <Route path="/chatbot/:storyline_key/learners" element={<StudentList />} />
+        <Route path="/student-list" element={<StudentList />} />
         <Route path="/chat-history" element={<ChatHistory />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppLayout />
     </Router>
   )
 }
