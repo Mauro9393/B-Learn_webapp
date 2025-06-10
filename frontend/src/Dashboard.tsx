@@ -142,7 +142,9 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      
+      <header className="dashboard-header">
+        <h1>Dashboard</h1>
+      </header>
 
       {/* MINI DASHBOARD CARDS + BOTTONE GAMIFICATO + SEZIONE DETTAGLIATA */}
       <section className="summary-section">

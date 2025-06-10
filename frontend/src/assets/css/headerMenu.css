@@ -260,3 +260,80 @@ body {
         justify-content: space-between;
     }
 }
+
+.profile-dropdown-menu {
+    position: absolute;
+    top: 48px;
+    right: 0;
+    min-width: 240px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 12px 32px 0 rgba(91, 109, 246, 0.18), 0 1.5px 6px 0 rgba(0, 0, 0, 0.08);
+    padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+    z-index: 10002;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.2s;
+}
+
+.profile-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    width: 100%;
+}
+
+.profile-avatar-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7F53F5 0%, #5B6DF6 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    box-shadow: 0 2px 8px rgba(127, 83, 245, 0.10);
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-role {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #5B6DF6;
+    margin-bottom: 0.1rem;
+}
+
+.profile-email {
+    font-size: 0.98rem;
+    color: #888;
+    font-weight: 500;
+}
+
+.profile-logout-btn {
+    margin-top: 0.8rem;
+    width: 100%;
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(127, 83, 245, 0.10);
+}
+
+.profile-logout-btn:hover {
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
+    transform: scale(1.04);
+}

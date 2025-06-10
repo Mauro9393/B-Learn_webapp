@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './assets/css/headerMenu.css';
 
 const HeaderMenu: React.FC = () => {
+  const [profileDropdown, setProfileDropdown] = useState(false);
   const navigate = useNavigate();
   const userRole = localStorage.getItem('userRole');
   const userEmail = localStorage.getItem('userEmail') || '';
@@ -16,6 +17,14 @@ const HeaderMenu: React.FC = () => {
 
   const isSuperAdmin = userRole === '1';
   const isAdmin = userRole === '2';
+
+  // Ruolo testuale
+  let roleLabel = 'User';
+  if (isSuperAdmin) roleLabel = 'Super Admin';
+  else if (isAdmin) roleLabel = 'Admin';
+
+  // Iniziali
+  const initials = userEmail ? userEmail.slice(0, 2).toUpperCase() : 'US';
 
   return (
     <header className="header-menu">
@@ -42,18 +51,27 @@ const HeaderMenu: React.FC = () => {
           )}
         </nav>
         {/* User info dropdown */}
-        <div className="user-info">
-          <div
-            className="user-initials-container"
-            style={{ position: 'relative', cursor: 'pointer' }}
-          >
-            <div className="user-initials" id="user-initials">
-              {userEmail ? userEmail.slice(0, 2).toUpperCase() : 'US'}
-            </div>
-            <div className="dropdown-menu" id="dropdown-menu" style={{ display: 'block' }}>
-              <span className="dropdown-item" onClick={handleLogout} style={{ cursor: 'pointer' }}>Déconnexion</span>
-            </div>
+        <div
+          className="user-initials-container"
+          style={{ position: 'relative', cursor: 'pointer' }}
+          onMouseEnter={() => setProfileDropdown(true)}
+          onMouseLeave={() => setProfileDropdown(false)}
+        >
+          <div className="user-initials" id="user-initials">
+            {initials}
           </div>
+          {profileDropdown && (
+            <div className="profile-dropdown-menu">
+              <div className="profile-dropdown-header">
+                <div className="profile-avatar-circle">{initials}</div>
+                <div className="profile-info">
+                  <div className="profile-role">{roleLabel}</div>
+                  <div className="profile-email">{userEmail}</div>
+                </div>
+              </div>
+              <button className="profile-logout-btn" onClick={handleLogout}>Déconnexion</button>
+            </div>
+          )}
         </div>
       </div>
     </header>
