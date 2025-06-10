@@ -27,11 +27,11 @@ const HeaderMenu: React.FC = () => {
       <div className="header-menu-container">
         <div className="logo">
           <Link to="/dashboard">
-            <img src="/assets/logo-blearn.png" alt="B-Learn Logo" className="logo-image" />
+            <img src="./assets/logo-blearn.png" alt="B-Learn Logo" className="logo-image" />
           </Link>
         </div>
         <nav className="nav-menu">
-          <Link to="/dashboard" className="nav-item">🏠 Dashboard</Link>
+          <Link to="/dashboard" className="nav-link">🏠 Dashboard</Link>
 
           {/* Chatbots solo per super admin */}
           {isSuperAdmin && (
