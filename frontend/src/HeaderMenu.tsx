@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import './assets/css/headerMenu.css';
 
 const HeaderMenu: React.FC = () => {
-  const [userDropdown, setUserDropdown] = useState(false);
   const [chatbotDropdown, setChatbotDropdown] = useState(false);
   const [userDropdownMenu, setUserDropdownMenu] = useState(false);
   const [utilisateursDropdown, setUtilisateursDropdown] = useState(false);
@@ -22,7 +21,6 @@ const HeaderMenu: React.FC = () => {
   // Visibilità menu
   const isSuperAdmin = userRole === '1';
   const isAdmin = userRole === '2';
-  const isUser = !isSuperAdmin && !isAdmin;
 
   return (
     <header className="header-menu">
