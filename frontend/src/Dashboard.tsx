@@ -121,12 +121,6 @@ function Dashboard() {
   };
   useEffect(() => { setCurrentPage(1); }, [filter, selectedClient, filteredChatbots.length]);
 
-  // Funzione di logout
-  const handleLogout = () => {
-    localStorage.removeItem('userEmail');
-    navigate('/login');
-  };
-
   // Helpers per learners/simulations per chatbot
   const getLearnersForChatbot = (storyline_key: string) => {
     const emails = new Set(
