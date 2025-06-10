@@ -148,38 +148,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1>Dashboard</h1>
-        <div className="user-icon">👤</div>
-        {userRole === '1' && (
-          <>
-            <button
-              style={{ marginLeft: '20px', padding: '8px 16px', borderRadius: '4px', background: '#1976d2', color: '#fff', border: 'none', cursor: 'pointer' }}
-              onClick={() => navigate('/admin')}
-            >
-              Ajouter un utilisateur
-            </button>
-            <button
-              style={{ marginLeft: '10px', padding: '8px 16px', borderRadius: '4px', background: '#43a047', color: '#fff', border: 'none', cursor: 'pointer' }}
-              onClick={() => navigate('/create-chatbot')}
-            >
-              Ajouter un chatbot
-            </button>
-          </>
-        )}
-        <button
-          style={{ marginLeft: '10px', padding: '8px 16px', borderRadius: '4px', background: '#ff9800', color: '#fff', border: 'none', cursor: 'pointer' }}
-          onClick={() => navigate('/add-partner')}
-        >
-          Ajouter un partenaire
-        </button>
-        <button
-          style={{ marginLeft: '20px', padding: '8px 16px', borderRadius: '4px', background: '#e53935', color: '#fff', border: 'none', cursor: 'pointer' }}
-          onClick={handleLogout}
-        >
-          Déconnexion
-        </button>
-      </header>
+      
 
       {/* MINI DASHBOARD CARDS + BOTTONE GAMIFICATO + SEZIONE DETTAGLIATA */}
       <section className="summary-section">
