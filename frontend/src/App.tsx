@@ -11,6 +11,7 @@ import StudentDetail from './StudentDetail';
 import StudentList from './StudentList';
 import ChatHistory from './ChatHistory';
 import HeaderMenu from './HeaderMenu';
+import AllStudentList from './AllStudentList';
 import './App.css'
 
 function AppLayout() {
@@ -34,6 +35,7 @@ function AppLayout() {
         <Route path="/chatbot/:storyline_key/learners" element={<StudentList />} />
         <Route path="/student-list" element={<StudentList />} />
         <Route path="/chat-history" element={<ChatHistory />} />
+        <Route path="/all-student-list" element={<AllStudentList />} />
       </Routes>
     </>
   );
