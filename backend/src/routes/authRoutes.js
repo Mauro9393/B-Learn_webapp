@@ -355,4 +355,38 @@ router.get('/learner-detail', async(req, res) => {
     }
 });
 
+// Rotta per ottenere tutti gli utenti unici di tutti i chatbot (per super admin)
+router.get('/all-users', async(req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                MIN(id) AS id,
+                user_email AS email,
+                MAX(name) AS name,
+                chatbot_name,
+                '' AS group,
+                COUNT(*) AS simulations,
+                COALESCE(MAX(score),0) AS score,
+                TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
+            FROM userlist
+            GROUP BY user_email, chatbot_name
+            ORDER BY last_date DESC
+        `);
+        // Adatto i dati per il frontend (aggiungo id, email, name, chatbot_name, group, simulations, score, last_date)
+        const users = result.rows.map(row => ({
+            id: row.id,
+            email: row.email,
+            name: row.name,
+            chatbot_name: row.chatbot_name,
+            group: row.group,
+            simulations: Number(row.simulations),
+            score: Number(row.score),
+            last_date: row.last_date
+        }));
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;
