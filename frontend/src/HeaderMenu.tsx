@@ -41,7 +41,9 @@ const HeaderMenu: React.FC = () => {
             <Link to="/create-chatbot" className="nav-link">🤖 Chatbots</Link>
           )}
           {/* Utilisateurs */}
-          <Link to="/student-list" className="nav-link">👥 Utilisateurs</Link>
+          {isSuperAdmin && (
+            <Link to="/all-student-list" className="nav-link">👥 Utilisateurs</Link>
+          )}
           {/* Ajouter un Admin solo per super admin */}
           {isSuperAdmin &&(
             <Link to="/admin" className="nav-link">➕ Ajouter un Admin</Link>
