@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './assets/css/studentDetail.css';
+// @ts-ignore
+import jsPDF from 'jspdf';
 
 interface Simulation {
   id: number;
@@ -101,6 +103,28 @@ const StudentDetail: React.FC = () => {
     return <span className="sort-arrow">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
   };
 
+  // Funzione per scaricare PDF (presa da List.tsx)
+  const downloadPDF = (title: string, content: string, filename: string) => {
+    if (!content) return;
+    try {
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text(title, 10, 18);
+      doc.setFontSize(12);
+      const lines = doc.splitTextToSize(content, 180);
+      doc.text(lines, 10, 30);
+      doc.save(filename);
+    } catch (e) {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename.replace(/\.pdf$/, '.txt');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <main className="student-detail-main">
       {/* Profilo */}
@@ -159,13 +183,49 @@ const StudentDetail: React.FC = () => {
                 <td>{formatDate(sim.created_at)}</td>
                 <td>{sim.id}</td>
                 <td>
-                  <button className="btn-small btn-view" title="Visualiser" onClick={() => alert(sim.chat_history)}>
-                    Visualiser
+                  {/* Pulsante download PDF storico chat */}
+                  <button
+                    className="btn-small btn-download"
+                    title="Télécharger"
+                    onClick={() => downloadPDF('Historique chat', sim.chat_history, `historique_${sim.name}.pdf`)}
+                    disabled={!sim.chat_history}
+                    style={{ marginRight: 4 }}
+                  >
+                    {/* Icona download */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </button>
+                  {/* Pulsante visualizza chat history */}
+                  <button
+                    className="btn-small btn-view"
+                    title="Visualiser"
+                    onClick={() => navigate('/chat-history', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_history: sim.chat_history, chat_analysis: sim.chat_analysis, show: 'analysis' } })}
+                    disabled={!sim.chat_history}
+                  >
+                    {/* Icona occhio */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                 </td>
                 <td>
-                  <button className="btn-small btn-view" title="Visualiser" onClick={() => alert(sim.chat_analysis)}>
-                    Visualiser
+                  {/* Pulsante download PDF analisi chat */}
+                  <button
+                    className="btn-small btn-download"
+                    title="Télécharger"
+                    onClick={() => downloadPDF('Rapport', sim.chat_analysis, `rapport_${sim.name}.pdf`)}
+                    disabled={!sim.chat_analysis}
+                    style={{ marginRight: 4 }}
+                  >
+                    {/* Icona download */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </button>
+                  {/* Pulsante visualizzazione analisi (non collegato) */}
+                  <button
+                    className="btn-small btn-view"
+                    title="Visualiser"
+                    onClick={() => {}}
+                    disabled={!sim.chat_analysis}
+                  >
+                    {/* Icona occhio */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                 </td>
                 <td>
