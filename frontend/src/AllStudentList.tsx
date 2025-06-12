@@ -110,7 +110,7 @@ const AllStudentList: React.FC = () => {
               {loading ? (
                 <tr><td colSpan={7}>Caricamento...</td></tr>
               ) : filteredStudents.length === 0 ? (
-                <tr><td colSpan={7}>Nessun learner trovato.</td></tr>
+                <tr><td colSpan={7}>Vide.</td></tr>
               ) : (
                 filteredStudents.map(stu => (
                   <tr key={stu.id}>
