@@ -2,98 +2,94 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/AddPartner.css';
 
-const MAX_EMAILS = 5;
-
 const AddPartner = () => {
-  const [emails, setEmails] = useState(['', '', '']);
-  const [success, setSuccess] = useState('');
+  const [managerName, setManagerName] = useState('');
+  const [managerEmail, setManagerEmail] = useState('');
   const [error, setError] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
-
-  const handleEmailChange = (index: number, value: string) => {
-    const newEmails = [...emails];
-    newEmails[index] = value;
-    setEmails(newEmails);
-  };
-
-  const handleAddField = () => {
-    if (emails.length < MAX_EMAILS) {
-      setEmails([...emails, '']);
-    }
-  };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
-    const validEmails = emails.filter(email => email.trim() !== '');
-    if (validEmails.length === 0) {
-      setError('Inserisci almeno una email.');
-      return;
-    }
-
-    // Recupera il nome del tenant da localStorage
     const tenantName = localStorage.getItem('tenantName');
     if (!tenantName) {
-      setError('Tenant non trovato. Riprova dopo aver effettuato il login.');
+      setError('Tenant introuvable. Veuillez réessayer après connexion.');
       return;
     }
-
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/invite-partner`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          emails: validEmails,
-          tenantName: tenantName
+          emails: [managerEmail],
+          tenantName: tenantName,
+          managerName: managerName
         })
       });
       const result = await response.json();
-      console.log(result);
       if (result.success) {
-        setSuccess('Inviti inviati con successo!');
-        setEmails(['', '', '']);
-        setTimeout(() => navigate('/dashboard'), 2000);
+        setManagerName('');
+        setManagerEmail('');
+        setShowPopup(true);
       } else {
-        setError(result.message || 'Errore durante l\'invio degli inviti.');
+        setError(result.message || 'Erreur lors de l\'envoi de l\'invitation.');
       }
     } catch (err) {
-      setError('Errore di connessione con il server.');
+      setError('Erreur de connexion au serveur.');
     }
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    navigate('/dashboard');
   };
 
   return (
     <div className="add-partner-container">
-      <h1>Invita Partner</h1>
+      <h1>Ajouter un manager</h1>
       <form onSubmit={handleSend}>
-        <button
-          type="button"
-          onClick={handleAddField}
-          disabled={emails.length >= MAX_EMAILS}
-          style={{ marginBottom: '10px', background: '#1976d2', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
-        >
-          + Aggiungi campo email
-        </button>
-        {emails.map((email, idx) => (
+        <div className="form-group">
+          <label htmlFor="manager-name">Nom du manager</label>
           <input
-            key={idx}
-            type="email"
-            placeholder={`Email partner ${idx + 1}`}
-            value={email}
-            onChange={e => handleEmailChange(idx, e.target.value)}
-            required={idx === 0}
-            style={{ display: 'block', marginBottom: '8px' }}
+            id="manager-name"
+            type="text"
+            placeholder="Entrez le nom du manager"
+            value={managerName}
+            onChange={e => setManagerName(e.target.value)}
+            required
           />
-        ))}
-        <button
-          type="submit"
-          style={{ marginTop: '10px', background: '#43a047', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
-        >
-          Send to partner
+        </div>
+        <div className="form-group">
+          <label htmlFor="manager-email">Email du manager</label>
+          <input
+            id="manager-email"
+            type="email"
+            placeholder="Entrez l'email du manager"
+            value={managerEmail}
+            onChange={e => setManagerEmail(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" className="btn-manager">
+          <span className="btn-icon">👤</span>
+          Ajouter le manager
         </button>
       </form>
       {error && <p style={{color: 'red'}}>{error}</p>}
-      {success && <p style={{color: 'green'}}>{success}</p>}
+      {/* Popup de confirmation */}
+      {showPopup && (
+        <div className="popup-overlay show">
+          <div className="popup-content">
+            <div className="popup-icon">📧</div>
+            <h3 className="popup-title">Email envoyé !</h3>
+            <p className="popup-message">
+              Un email vient d'être envoyé à <b>{managerEmail}</b> pour inviter <b>{managerName}</b> à rejoindre la plateforme B-Learn.
+            </p>
+            <button className="popup-button" onClick={closePopup}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

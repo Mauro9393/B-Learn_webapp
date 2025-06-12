@@ -142,7 +142,7 @@ const transporter = nodemailer.createTransport({
 router.post('/invite-partner', async(req, res) => {
     try {
         console.log("Ricevuta richiesta:", req.body);
-        const { emails, tenantName } = req.body; // emails: array di email, tenantName: nome azienda
+        const { emails, tenantName, managerName } = req.body; // emails: array di email, tenantName: nome azienda
         if (!emails || !Array.isArray(emails) || emails.length === 0) {
             return res.status(400).json({ success: false, message: 'Nessuna email fornita.' });
         }
@@ -166,12 +166,15 @@ router.post('/invite-partner', async(req, res) => {
             );
             // Invia email
             const link = `http://163.172.159.116:3001/inscription?token=${token}`;
+            const salutation = managerName ? `Bonjour ${managerName},` : 'Bonjour,';
             await transporter.sendMail({
                 from: 'noreplyblearn@gmail.com',
                 to: email,
-                subject: 'Invitation à vous inscrire sur B-Lear',
-                html: `<p>Vous avez été invité à vous inscrire sur B-Learn. <br>
-                       Cliquez ici pour compléter votre inscription : <a href="${link}">${link}</a></p>`
+                subject: 'Invitation à vous inscrire sur B-Learn',
+                html: `<p>${salutation}<br><br>
+            Vous avez été invité à vous inscrire sur B-Learn.<br>
+            Cliquez ici pour compléter votre inscription : <br> <br>
+             <a href="${link}">${link}</a></p>`
             });
         }
 
