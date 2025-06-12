@@ -116,6 +116,29 @@ const Analysis: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* Résumé de la conversation */}
+      <div className="progress-comparison">
+        <h3>📊 Résumé de la Simulation</h3>
+        <div className="progress-chart">
+          <div className="chart-info">
+            <div className="current-score">
+              <span className="score-label">Score Final</span>
+              <span className="score-value">{score ? `${score}/100` : '-'}</span>
+            </div>
+            <div className="progress-indicator">
+              <span className="progress-label">Durée</span>
+              <span className="progress-value score-style">-</span>
+            </div>
+            <div className="progress-indicator">
+              <span className="progress-label">Messages</span>
+              <span className="progress-value score-style">{(chat_analysis && chat_analysis.match(/Question/g)?.length) || 1} échanges</span>
+            </div>
+          </div>
+          <div className="comparison-text">
+            Simulation complète avec un score de {score ? `${score}/100` : '-'} et {(chat_analysis && chat_analysis.match(/Question/g)?.length) || 1} échanges.
+          </div>
+        </div>
+      </div>
     </main>
   );
 };
