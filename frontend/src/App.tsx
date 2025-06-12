@@ -12,6 +12,7 @@ import StudentList from './StudentList';
 import ChatHistory from './ChatHistory';
 import HeaderMenu from './HeaderMenu';
 import AllStudentList from './AllStudentList';
+import Analysis from './Analysis';
 import './App.css'
 
 function AppLayout() {
@@ -36,6 +37,7 @@ function AppLayout() {
         <Route path="/student-list" element={<StudentList />} />
         <Route path="/chat-history" element={<ChatHistory />} />
         <Route path="/all-student-list" element={<AllStudentList />} />
+        <Route path="/analysis" element={<Analysis />} />
       </Routes>
     </>
   );

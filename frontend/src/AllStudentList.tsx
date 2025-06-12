@@ -11,6 +11,7 @@ interface StudentRow {
   score: number;
   last_date: string;
   chatbot_name: string;
+  chat_analysis?: string;
 }
 
 const AllStudentList: React.FC = () => {
@@ -125,6 +126,15 @@ const AllStudentList: React.FC = () => {
                     </td>
                     <td className="td-details">
                       <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`)}>Voir</button>
+                      <button
+                        className="btn-small btn-view"
+                        title="Visualiser"
+                        onClick={() => navigate('/analysis', { state: { name: stu.name, date: stu.last_date, score: stu.score, chat_analysis: stu.chat_analysis } })}
+                        disabled={!stu.chat_analysis}
+                      >
+                        {/* Icona occhio */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
                     </td>
                   </tr>
                 ))
