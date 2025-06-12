@@ -165,7 +165,7 @@ function List() {
       {/* Breadcrumb */}
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
-        <span className="breadcrumb-link" onClick={() => navigate('/chatbot/:storyline_key')}>Chatbot</span> &gt;
+        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Chatbot</span> &gt;
         <span className='current'>Liste des simulations</span>
       </div>
       {/* Filtri come in simulations-list.html */}
