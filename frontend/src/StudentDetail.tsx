@@ -221,7 +221,7 @@ const StudentDetail: React.FC = () => {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => {}}
+                    onClick={() => navigate('/analysis', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_analysis: sim.chat_analysis } })}
                     disabled={!sim.chat_analysis}
                   >
                     {/* Icona occhio */}
