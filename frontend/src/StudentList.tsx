@@ -37,7 +37,7 @@ const StudentList: React.FC = () => {
   }, [storyline_key]);
 
   const filteredStudents = students.filter(stu => {
-    // Filtro per ricerca testo (nome o email)
+    // Filtre pour la recherche de texte (nom ou email)
     const matchesSearch =
       stu.name.toLowerCase().includes(search.toLowerCase()) ||
       stu.email.toLowerCase().includes(search.toLowerCase());

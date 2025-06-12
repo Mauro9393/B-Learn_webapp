@@ -35,7 +35,7 @@ function Dashboard() {
 
   const navigate = useNavigate();
 
-  // Recupera l'email dell'utente loggato
+  // Récupère l'email de l'utilisateur connecté
   const userRole = localStorage.getItem('userRole');
   const tenantId = localStorage.getItem('tenantId');
 
@@ -131,7 +131,7 @@ function Dashboard() {
   const getSimulationsForChatbot = (storyline_key: string) =>
     userlist.filter(row => row.chatbot_name === storyline_key).length;
 
-  // Recupero il nome del chatbot top (non il tenant)
+  // Recupero il nome du chatbot top (non le tenant)
   let topChatbotName = '';
   if (stats.topChatbot.name) {
     const topChatbot = chatbots.find(bot => bot.storyline_key === stats.topChatbot.name);

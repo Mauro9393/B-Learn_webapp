@@ -14,7 +14,7 @@ function Inscription() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Estrai il token dalla query string
+  // Extrait le token de la query string
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const t = params.get('token');
@@ -26,15 +26,15 @@ function Inscription() {
     setError('');
     setSuccess('');
     if (!email || !password || !confirmPassword || !fullName) {
-      setError('Tutti i campi sono obbligatori');
+      setError('Tous les champs sont obligatoires');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Le password non coincidono');
+      setError('Les mots de passe ne correspondent pas');
       return;
     }
     if (!token) {
-      setError('Token di invito mancante o non valido.');
+      setError("Token d'invitation manquant ou invalide.");
       return;
     }
     setLoading(true);
@@ -46,51 +46,51 @@ function Inscription() {
       });
       const result = await response.json();
       if (result.success) {
-        setSuccess('Registrazione avvenuta! Controlla la tua email per confermare.');
+        setSuccess('Inscription réussie ! Vérifiez votre email pour confirmer.');
         setEmail(''); setPassword(''); setConfirmPassword(''); setFullName('');
         setTimeout(() => navigate('/login'), 3000);
       } else {
-        setError(result.message || 'Errore durante la registrazione');
+        setError(result.message || "Erreur lors de l'inscription");
       }
     } catch (err) {
-      setError('Errore di connessione');
+      setError('Erreur de connexion');
     }
     setLoading(false);
   };
 
   return (
     <div className="inscription-container">
-      <h1>Registrazione</h1>
+      <h1>Inscription</h1>
       <form onSubmit={handleSignUp}>
         <input
           type="text"
-          placeholder="Nome completo"
+          placeholder="Nom complet"
           value={fullName}
           onChange={e => setFullName(e.target.value)}
           required
         />
         <input
           type="email"
-          placeholder="e-mail"
+          placeholder="E-mail"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
         />
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Mot de passe"
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
         />
         <input
           type="password"
-          placeholder="Confirm Password"
+          placeholder="Confirmez le mot de passe"
           value={confirmPassword}
           onChange={e => setConfirmPassword(e.target.value)}
           required
         />
-        <button type="submit" disabled={loading}>{loading ? 'Attendi...' : 'Sign up'}</button>
+        <button type="submit" disabled={loading}>{loading ? 'Veuillez patienter...' : "S'inscrire"}</button>
       </form>
       {error && <p style={{color: 'red'}}>{error}</p>}
       {success && <p style={{color: 'green'}}>{success}</p>}

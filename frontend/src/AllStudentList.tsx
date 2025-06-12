@@ -42,7 +42,7 @@ const AllStudentList: React.FC = () => {
   const clientList = Array.from(new Set(students.map(stu => stu.chatbot_name))).filter(Boolean);
 
   const filteredStudents = students.filter(stu => {
-    // Filtro per ricerca testo (nome o email)
+    // Filtre pour la recherche de texte (nom ou email)
     const matchesSearch =
       stu.name.toLowerCase().includes(search.toLowerCase()) ||
       stu.email.toLowerCase().includes(search.toLowerCase());

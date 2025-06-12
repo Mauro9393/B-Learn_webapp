@@ -18,7 +18,7 @@ function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('handleLogin chiamato');
+    // console.log('handleLogin appelé');
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
         method: 'POST',
@@ -26,7 +26,7 @@ function Login() {
         body: JSON.stringify({ email, password })
       });
       const result = await response.json();
-      console.log('Risposta login:', result);
+      // console.log('Réponse login:', result);
       if (result.success) {
         localStorage.setItem('userEmail', email);
         localStorage.setItem('userRole', String(result.role));
@@ -40,11 +40,11 @@ function Login() {
           }
           navigate('/dashboard');
         });
-        console.log('Salvato in localStorage:', {
-          userEmail: localStorage.getItem('userEmail'),
-          userRole: localStorage.getItem('userRole'),
-          tenantId: localStorage.getItem('tenantId')
-        });
+        // console.log('Enregistré dans localStorage:', {
+        //   userEmail: localStorage.getItem('userEmail'),
+        //   userRole: localStorage.getItem('userRole'),
+        //   tenantId: localStorage.getItem('tenantId')
+        // });
         navigate('/dashboard');
       } else {
         setError(result.message || 'Email ou mot de passe incorrect');
@@ -82,7 +82,7 @@ function Login() {
           />
           <button type="submit">Se connecter</button>
         </form>
-        {error && <p style={{color: 'red', marginTop: '1rem'}}>{error}</p>}
+        {error && <p style={{color: 'red'}}>{error}</p>}
       </div>
     </main>
   );

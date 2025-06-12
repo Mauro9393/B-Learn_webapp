@@ -42,7 +42,7 @@ const CreateChatbot = () => {
       .then(data => setTenants(data));
   }, []);
 
-  // Manager selezionato (finto, sempre il primo)
+  // Manager sélectionné (fictif, toujours le premier)
   const selectedManager = MANAGER_OPTIONS[0];
 
   const handleSave = async (e: React.FormEvent) => {
@@ -50,7 +50,7 @@ const CreateChatbot = () => {
     setError('');
     setSuccess('');
     if (!name || !description || !selectedTenantId) {
-      setError("Compila tutti i campi");
+      setError('Veuillez remplir tous les champs');
       return;
     }
     setLoading(true);
@@ -72,13 +72,13 @@ const CreateChatbot = () => {
         const namesMap = JSON.parse(localStorage.getItem('chatbotNamesMap') || '{}');
         namesMap[generatedId] = name;
         localStorage.setItem('chatbotNamesMap', JSON.stringify(namesMap));
-        setSuccess('Chatbot creato con successo!');
+        setSuccess('Chatbot créé avec succès !');
         setShowSummary(true);
       } else {
-        setError(result.message || 'Errore durante la creazione');
+        setError(result.message || 'Erreur lors de la création');
       }
     } catch (err) {
-      setError('Errore di connessione');
+      setError('Erreur de connexion');
     }
     setLoading(false);
   };

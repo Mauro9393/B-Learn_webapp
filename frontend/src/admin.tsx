@@ -7,12 +7,12 @@ function Admin() {
   const [company, setCompany] = useState('');
   const [message, setMessage] = useState('');
 
-  // Sostituisci con la tua email admin
+  // Sostituisci avec votre email admin
   const userRole = localStorage.getItem('userRole');
   console.log('userRole', userRole);
 
   if (userRole !== '1') {
-    return <div>Accesso negato</div>;
+    return <div>Accès refusé</div>;
   }
 
   const handleCreateAccount = async (e: React.FormEvent) => {
@@ -30,52 +30,52 @@ function Admin() {
       });
       const result = await response.json();
       if (result.success) {
-        setMessage('Account admin creato con successo!');
+        setMessage("Compte admin créé avec succès !");
         setEmail('');
         setPassword('');
         setFullName('');
         setCompany('');
       } else {
-        setMessage('Errore nella creazione account: ' + (result.message || ''));
+        setMessage('Erreur lors de la création du compte : ' + (result.message || ''));
       }
     } catch (error) {
-      setMessage('Errore nella creazione account');
+      setMessage('Erreur lors de la création du compte');
     }
   };
 
   return (
     <div>
-      <h1>Admin - Crea Account Admin</h1>
+      <h1>Admin - Créer un compte admin</h1>
       <form onSubmit={handleCreateAccount}>
         <input
           type="text"
-          placeholder="Nome completo"
+          placeholder="Nom complet"
           value={fullName}
           onChange={e => setFullName(e.target.value)}
           required
         />
         <input
           type="text"
-          placeholder="Azienda"
+          placeholder="Entreprise"
           value={company}
           onChange={e => setCompany(e.target.value)}
           required
         />
         <input
           type="email"
-          placeholder="Inserisci email"
+          placeholder="Entrez l'email"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
         />
         <input
           type="password"
-          placeholder="Inserisci password"
+          placeholder="Entrez le mot de passe"
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Crea account admin</button>
+        <button type="submit">Créer le compte admin</button>
       </form>
       {message && <p>{message}</p>}
     </div>

@@ -4,7 +4,7 @@ import './assets/css/chatHistory.css';
 // @ts-ignore
 import jsPDF from 'jspdf';
 
-// Funzione di parsing: supponiamo che ogni messaggio inizi con "Assistant:" o con il nome dello studente (es: "Baptiste:")
+// Fonction de parsing : supposons que chaque message commence par "Assistant:" ou par le nom de l'étudiant (ex : "Baptiste:")
 function parseMessages(chat_history: string, studentName: string) {
   if (!chat_history) return [];
   const lines = chat_history.split(/\n+/).filter(Boolean);
@@ -26,7 +26,7 @@ function parseMessages(chat_history: string, studentName: string) {
                   : (currentSender.toLowerCase().includes('assistant') ? 'assistant' : 'assistant');
       currentContent = match[2].trim();
     } else {
-      // Riga di continuazione: aggiungi al messaggio corrente
+      // Ligne de continuation : ajoute à l'actuel message
       currentContent += '\n' + line.trim();
     }
   });

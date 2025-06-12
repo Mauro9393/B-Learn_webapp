@@ -56,7 +56,7 @@ function List() {
   useEffect(() => {
     setFilteredData(
       data.filter(item => {
-        // Filtro per nome
+        // Filtro par nom
         const matchesName = item.name.toLowerCase().includes(filter.toLowerCase());
         // Filtro per score
         const matchesScore = scoreFilter ? item.score >= parseInt(scoreFilter) : true;
@@ -77,7 +77,7 @@ function List() {
       if (a.name.toLowerCase() > b.name.toLowerCase()) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     } else if (sortColumn === 'created_at') {
-      // Più recente = data maggiore
+      // Plus récent = date plus grande
       const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
       const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
       return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
@@ -166,7 +166,7 @@ function List() {
         <span className="breadcrumb-link" onClick={() => navigate(-1)}>Chatbot</span> &gt;
         <span className='current'>Liste des simulations</span>
       </div>
-      {/* Filtri come in simulations-list.html */}
+      {/* Filtri comme in simulations-list.html */}
       <div className="filters">
         <input
           type="text"
@@ -183,7 +183,7 @@ function List() {
         </select>
         <select id="date-filter" value={dateFilter} onChange={e => setDateFilter(e.target.value)}>
           <option value="">Toutes les dates</option>
-          {/* Opzioni dinamiche per gli anni trovati nei dati */}
+          {/* Opzioni dinamiche pour les années trouvées dans les données */}
           {[...new Set(data.map(item => item.created_at ? item.created_at.substring(0,4) : ''))]
             .filter(y => y)
             .sort((a, b) => b.localeCompare(a))

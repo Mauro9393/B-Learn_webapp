@@ -38,7 +38,7 @@ const formatDate = (dateStr: string) => {
   return date.toLocaleDateString('fr-FR');
 };
 
-// Ordina le simulazioni in base a campo e direzione
+// Trie les simulations par champ et direction
 const sortSimulations = (sims: Simulation[], field: 'created_at' | 'score', direction: 'asc' | 'desc') => {
   return [...sims].sort((a, b) => {
     if (field === 'created_at') {
