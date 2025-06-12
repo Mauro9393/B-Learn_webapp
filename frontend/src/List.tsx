@@ -38,7 +38,6 @@ function List() {
   const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score'>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
