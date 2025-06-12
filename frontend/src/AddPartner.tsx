@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/AddPartner.css';
 
 const AddPartner = () => {
   const [managerName, setManagerName] = useState('');
   const [managerEmail, setManagerEmail] = useState('');
+  const [chatbots, setChatbots] = useState<{ id: number, name: string }[]>([]);
+  const [selectedChatbotId, setSelectedChatbotId] = useState('');
   const [error, setError] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Recupera i chatbot della propria azienda
+    const tenantId = localStorage.getItem('tenantId');
+    if (!tenantId) return;
+    fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`)
+      .then(res => res.json())
+      .then(data => {
+        // Filtra solo quelli del tenant
+        const filtered = data.filter((cb: any) => String(cb.tenant_id) === String(tenantId));
+        setChatbots(filtered);
+      });
+  }, []);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,6 +32,10 @@ const AddPartner = () => {
       setError('Tenant introuvable. Veuillez réessayer après connexion.');
       return;
     }
+    if (!selectedChatbotId) {
+      setError('Veuillez sélectionner un chatbot.');
+      return;
+    }
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/invite-partner`, {
         method: 'POST',
@@ -24,13 +43,15 @@ const AddPartner = () => {
         body: JSON.stringify({
           emails: [managerEmail],
           tenantName: tenantName,
-          managerName: managerName
+          managerName: managerName,
+          chatbotId: selectedChatbotId
         })
       });
       const result = await response.json();
       if (result.success) {
         setManagerName('');
         setManagerEmail('');
+        setSelectedChatbotId('');
         setShowPopup(true);
       } else {
         setError(result.message || 'Erreur lors de l\'envoi de l\'invitation.');
@@ -70,6 +91,20 @@ const AddPartner = () => {
             onChange={e => setManagerEmail(e.target.value)}
             required
           />
+        </div>
+        <div className="form-group">
+          <label htmlFor="chatbot-select">Chatbot</label>
+          <select
+            id="chatbot-select"
+            value={selectedChatbotId}
+            onChange={e => setSelectedChatbotId(e.target.value)}
+            required
+          >
+            <option value="">Sélectionnez un chatbot</option>
+            {chatbots.map(cb => (
+              <option key={cb.id} value={cb.id}>{cb.name}</option>
+            ))}
+          </select>
         </div>
         <button type="submit" className="btn-manager">
           <span className="btn-icon">👤</span>

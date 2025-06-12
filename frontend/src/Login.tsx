@@ -31,6 +31,7 @@ function Login() {
         localStorage.setItem('userEmail', email);
         localStorage.setItem('userRole', String(result.role));
         localStorage.setItem('tenantId', result.user.tenant_id);
+        localStorage.setItem('userId', String(result.user.id));
         fetch(`${import.meta.env.VITE_API_URL}/api/tenants`)
         .then(res => res.json())
         .then((tenants: { id: number|string, name: string }[]) => {

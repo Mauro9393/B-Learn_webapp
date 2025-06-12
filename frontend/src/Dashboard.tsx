@@ -41,7 +41,14 @@ function Dashboard() {
 
   useEffect(() => {
     const fetchChatbots = async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`);
+      const userId = localStorage.getItem('userId');
+      const userRole = localStorage.getItem('userRole');
+      const tenantId = localStorage.getItem('tenantId');
+      let url = `${import.meta.env.VITE_API_URL}/api/chatbots`;
+      if (userId && userRole && tenantId) {
+        url += `?user_id=${encodeURIComponent(userId)}&user_role=${encodeURIComponent(userRole)}&tenant_id=${encodeURIComponent(tenantId)}`;
+      }
+      const response = await fetch(url);
       const data = await response.json();
       setChatbots(data);
     };

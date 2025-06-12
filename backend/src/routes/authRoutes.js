@@ -21,22 +21,39 @@ router.post('/register', async(req, res) => {
         }
         const invite = inviteRes.rows[0];
 
-        // 2. Vérifie que l'email correspond
-        if (invite.email !== email) {
-            return res.status(400).json({ success: false, message: "L'email ne correspond pas à l'invitation." });
+        // 2. Vérifie si l'utilisateur existe déjà
+        let userRes = await pool.query('SELECT id FROM users WHERE user_mail = $1', [email]);
+        if (userRes.rows.length > 0) {
+            // L'utilisateur existe déjà : ajoute le nouveau droit chatbot
+            const userId = userRes.rows[0].id;
+            if (invite.chatbot_id) {
+                await pool.query(
+                    'INSERT INTO user_chatbots (user_id, chatbot_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [userId, invite.chatbot_id]
+                );
+            }
+            // Marque l'invitation comme utilisée
+            await pool.query('UPDATE invitations SET used = true WHERE id = $1', [invite.id]);
+            return res.json({ success: true, message: "Vous avez déjà un compte, l'accès à ce chatbot a été ajouté ! Connectez-vous normalement." });
         }
 
         // 3. Hash du mot de passe
         const hashedPw = await bcrypt.hash(password, 10);
 
         // 4. Crée l'utilisateur
-        const userRes = await pool.query(
+        const userInsertRes = await pool.query(
             'INSERT INTO users (user_mail, user_pw, full_name, tenant_id, role_id, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING id', [email, hashedPw, full_name, invite.tenant_id, invite.role_id]
         );
-        const userId = userRes.rows[0].id;
+        const userId = userInsertRes.rows[0].id;
 
         // 5. Marque l'invitation comme utilisée
         await pool.query('UPDATE invitations SET used = true WHERE id = $1', [invite.id]);
+
+        // 5b. Si l'invitation a un chatbot_id, relie l'utilisateur a ce chatbot
+        if (invite.chatbot_id) {
+            await pool.query(
+                'INSERT INTO user_chatbots (user_id, chatbot_id) VALUES ($1, $2)', [userId, invite.chatbot_id]
+            );
+        }
 
         // 6. (Étape 3) Génère un token de confirmation email et envoie l'email de confirmation
         const confirmationToken = uuidv4();
@@ -142,9 +159,12 @@ const transporter = nodemailer.createTransport({
 router.post('/invite-partner', async(req, res) => {
     try {
         console.log("Requête reçue:", req.body);
-        const { emails, tenantName, managerName } = req.body; // emails: array d'emails, tenantName: nom de l'entreprise
+        const { emails, tenantName, managerName, chatbotId } = req.body; // aggiunto chatbotId
         if (!emails || !Array.isArray(emails) || emails.length === 0) {
             return res.status(400).json({ success: false, message: "Aucun email fourni." });
+        }
+        if (!chatbotId) {
+            return res.status(400).json({ success: false, message: "Aucun chatbot sélectionné." });
         }
 
         // Récupère tenant_id
@@ -160,9 +180,9 @@ router.post('/invite-partner', async(req, res) => {
 
         for (const email of emails) {
             const token = uuidv4();
-            // Sauvegarde l'invitation
+            // Sauvegarde l'invitation con chatbot_id
             await pool.query(
-                'INSERT INTO invitations (email, token, tenant_id, role_id, expires_at, used, created_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL \'2 days\', false, NOW())', [email, token, tenantId, roleId]
+                'INSERT INTO invitations (email, token, tenant_id, role_id, chatbot_id, expires_at, used, created_at) VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL \'2 days\', false, NOW())', [email, token, tenantId, roleId, chatbotId]
             );
             // Envoie l'email
             const link = `http://163.172.159.116:3001/inscription?token=${token}`;
@@ -222,7 +242,29 @@ router.post('/chatbots', async(req, res) => {
 
 router.get('/chatbots', async(req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM chatbots');
+        // Recupera user id, ruolo e tenant id dai parametri query (o sessione/autenticazione reale in produzione)
+        const userId = req.query.user_id;
+        const userRole = req.query.user_role; // '1' = superadmin, '2' = admin, '3' = user
+        const tenantId = req.query.tenant_id;
+
+        let result;
+        if (userRole === '1') {
+            // Super admin: tutti i chatbot
+            result = await pool.query('SELECT * FROM chatbots');
+        } else if (userRole === '2') {
+            // Admin: solo i chatbot del proprio tenant
+            result = await pool.query('SELECT * FROM chatbots WHERE tenant_id = $1', [tenantId]);
+        } else if (userRole === '3') {
+            // User normale: solo i chatbot collegati tramite user_chatbots
+            result = await pool.query(`
+                SELECT c.* FROM chatbots c
+                JOIN user_chatbots uc ON c.id = uc.chatbot_id
+                WHERE uc.user_id = $1
+            `, [userId]);
+        } else {
+            // Default: nessun chatbot
+            result = { rows: [] };
+        }
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
