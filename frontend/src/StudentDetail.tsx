@@ -209,7 +209,7 @@ const StudentDetail: React.FC = () => {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => navigate('/chat-history', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_history: sim.chat_history, chat_analysis: sim.chat_analysis, show: 'analysis' } })}
+                    onClick={() => navigate('/chat-history', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_history: sim.chat_history, chat_analysis: sim.chat_analysis, show: 'analysis', from } })}
                     disabled={!sim.chat_history}
                   >
                     {/* Icona occhio */}
@@ -232,7 +232,7 @@ const StudentDetail: React.FC = () => {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => navigate('/analysis', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_analysis: sim.chat_analysis } })}
+                    onClick={() => navigate('/analysis', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_analysis: sim.chat_analysis, from } })}
                     disabled={!sim.chat_analysis}
                   >
                     {/* Icona occhio */}
