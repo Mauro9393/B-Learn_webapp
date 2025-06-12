@@ -225,7 +225,7 @@ function List() {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from } })}
+                    onClick={() => navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } })}
                     disabled={!item.chat_analysis}
                   >
                     {/* Icona occhio */}
@@ -246,7 +246,7 @@ function List() {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, from } })}
+                    onClick={() => navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, from: 'simulations-list', storyline_key: chatbotName } })}
                     disabled={!item.chat_analysis}
                   >
                     {/* Icona occhio */}

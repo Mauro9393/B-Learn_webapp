@@ -47,7 +47,13 @@ const Analysis: React.FC = () => {
       {/* Breadcrumb */}
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
-        {from === 'all-student-list' ? (
+        {from === 'simulations-list' ? (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${state.storyline_key}`)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(`/list?chatbot_name=${state.storyline_key}`)}>Simulations</span> &gt;
+            <span className="current">Analyse</span>
+          </>
+        ) : from === 'all-student-list' ? (
           <>
             <span className="breadcrumb-link" onClick={() => navigate('/all-student-list')}>Tous les utilisateurs</span> &gt;
             <span className="breadcrumb-link" onClick={() => navigate(-1)}>{name}</span> &gt;
