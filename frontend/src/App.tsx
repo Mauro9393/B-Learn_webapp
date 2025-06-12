@@ -13,6 +13,7 @@ import ChatHistory from './ChatHistory';
 import HeaderMenu from './HeaderMenu';
 import AllStudentList from './AllStudentList';
 import Analysis from './Analysis';
+import ChooseYourPw from './ChooseYourPw';
 import './App.css'
 
 function AppLayout() {
@@ -38,6 +39,7 @@ function AppLayout() {
         <Route path="/chat-history" element={<ChatHistory />} />
         <Route path="/all-student-list" element={<AllStudentList />} />
         <Route path="/analysis" element={<Analysis />} />
+        <Route path="/choose-password" element={<ChooseYourPw />} />
       </Routes>
     </>
   );

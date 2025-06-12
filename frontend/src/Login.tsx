@@ -32,6 +32,10 @@ function Login() {
         localStorage.setItem('userRole', String(result.role));
         localStorage.setItem('tenantId', result.user.tenant_id);
         localStorage.setItem('userId', String(result.user.id));
+        if (result.user.must_change_password) {
+          navigate('/choose-password');
+          return;
+        }
         fetch(`${import.meta.env.VITE_API_URL}/api/tenants`)
         .then(res => res.json())
         .then((tenants: { id: number|string, name: string }[]) => {

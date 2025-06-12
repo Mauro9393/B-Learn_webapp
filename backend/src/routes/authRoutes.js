@@ -80,7 +80,7 @@ router.post('/login', async(req, res) => {
     try {
         const { rows } = await pool.query(`
             SELECT u.id, u.user_mail, u.user_pw, u.active,
-                   u.role_id, r.name AS role_name, u.tenant_id
+                   u.role_id, r.name AS role_name, u.tenant_id, u.must_change_password
             FROM users u
             JOIN roles r     ON u.role_id = r.id
             WHERE u.user_mail = $1
@@ -99,7 +99,8 @@ router.post('/login', async(req, res) => {
                     id: user.id,
                     email: user.user_mail,
                     role_name: user.role_name,
-                    tenant_id: user.tenant_id
+                    tenant_id: user.tenant_id,
+                    must_change_password: user.must_change_password
                 }
             });
         } else {
@@ -136,7 +137,7 @@ router.post('/admins', async(req, res) => {
 
         // 4. Crée l'utilisateur admin
         await pool.query(
-            'INSERT INTO users (user_mail, user_pw, full_name, tenant_id, role_id, created_at) VALUES ($1, $2, $3, $4, $5, NOW())', [email, hashedPw, full_name, tenantId, roleId]
+            'INSERT INTO users (user_mail, user_pw, full_name, tenant_id, role_id, created_at, must_change_password) VALUES ($1, $2, $3, $4, $5, NOW(), true)', [email, hashedPw, full_name, tenantId, roleId]
         );
 
         // (Optionnel) envoie un mail de bienvenue
@@ -431,6 +432,22 @@ router.get('/all-users', async(req, res) => {
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+});
+
+router.post('/change-password', async(req, res) => {
+    const { userId, password } = req.body;
+    if (!userId || !password) {
+        return res.status(400).json({ success: false, message: 'Paramètres manquants.' });
+    }
+    try {
+        const hashedPw = await bcrypt.hash(password, 10);
+        await pool.query(
+            'UPDATE users SET user_pw = $1, must_change_password = false WHERE id = $2', [hashedPw, userId]
+        );
+        res.json({ success: true, message: 'Mot de passe changé avec succès.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
