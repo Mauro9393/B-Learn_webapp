@@ -89,11 +89,6 @@ function List() {
     return 0;
   });
 
-  const openModal = (title: string, content: string) => {
-    setModalTitle(title);
-    setModalContent(content);
-  };
-
   const closeModal = () => {
     setModalContent(null);
     setModalTitle('');
