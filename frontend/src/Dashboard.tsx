@@ -64,17 +64,17 @@ function Dashboard() {
       });
   }, []);
 
-  // Calcolo statistiche filtrate per ruolo (incluso totalChatbots)
+  // Calcolo statistiche filtrate per ruolo e per cliente selezionato
   useEffect(() => {
-    // Calcola le statistiche filtrate in base al ruolo
+    // Filtra i chatbot in base al ruolo e al cliente selezionato
     const tenantChatbots = userRole === '1'
-      ? chatbots
+      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
       : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
 
     const tenantStorylineKeys = tenantChatbots.map(bot => bot.storyline_key);
 
     const tenantUserlist = userRole === '1'
-      ? userlist
+      ? userlist.filter(row => tenantStorylineKeys.includes(row.chatbot_name))
       : userlist.filter(row => tenantStorylineKeys.includes(row.chatbot_name));
 
     const totalSimulations = tenantUserlist.length;
@@ -98,7 +98,7 @@ function Dashboard() {
       totalChatbots,
       topChatbot
     }));
-  }, [userlist, chatbots, userRole, tenantId]);
+  }, [userlist, chatbots, userRole, tenantId, selectedClient]);
 
   const filteredChatbots = (userRole === '1'
     ? chatbots
