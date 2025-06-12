@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import './assets/css/login.css';
+import logoBlearn from './assets/logo-blearn.png';
 
 function Admin() {
   const [email, setEmail] = useState('');
@@ -44,41 +46,50 @@ function Admin() {
   };
 
   return (
-    <div>
-      <h1>Admin - Créer un compte admin</h1>
-      <form onSubmit={handleCreateAccount}>
-        <input
-          type="text"
-          placeholder="Nom complet"
-          value={fullName}
-          onChange={e => setFullName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Entreprise"
-          value={company}
-          onChange={e => setCompany(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Entrez l'email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Entrez le mot de passe"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Créer le compte admin</button>
-      </form>
-      {message && <p>{message}</p>}
-    </div>
+    <main className="login-main-centered">
+      <div className="animated-bg">
+        {[...Array(12)].map((_, i) => (
+          <div className="sphere" key={i}></div>
+        ))}
+      </div>
+      <div className="login-container">
+        <img src={logoBlearn} alt="B-learn Logo" className="login-logo" />
+        <h1>Créer un compte admin</h1>
+        <p className="login-subtitle">Ajoutez un nouvel administrateur à votre tenant</p>
+        <form className="login-form" onSubmit={handleCreateAccount}>
+          <input
+            type="text"
+            placeholder="Nom complet"
+            value={fullName}
+            onChange={e => setFullName(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Entreprise"
+            value={company}
+            onChange={e => setCompany(e.target.value)}
+            required
+          />
+          <input
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Mot de passe provisoire"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Créer le compte admin</button>
+        </form>
+        {message && <p style={{ color: message.includes('succès') ? 'green' : 'red' }}>{message}</p>}
+      </div>
+    </main>
   );
 }
 
