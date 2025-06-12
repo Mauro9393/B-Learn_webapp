@@ -38,6 +38,8 @@ function List() {
   const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score'>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state || {};
 
   useEffect(() => {
     const fetchData = async () => {
@@ -163,7 +165,7 @@ function List() {
       {/* Breadcrumb */}
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Chatbot</span> &gt;
+        <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${state.storyline_key || ''}`)}>Chatbot</span> &gt;
         <span className='current'>Liste des simulations</span>
       </div>
       {/* Filtri comme in simulations-list.html */}
