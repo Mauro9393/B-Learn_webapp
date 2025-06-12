@@ -1,25 +1,47 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './assets/css/analysis.css';
+// @ts-ignore
+import jsPDF from 'jspdf';
 
 const Analysis: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const pdfRef = React.useRef<HTMLDivElement>(null);
   const state = location.state as any;
   if (!state) return <div>Contenuto non trovato.</div>;
 
   const { name, date, score, chat_analysis } = state;
+
+  // Funzione per schermo intero (identica a ChatHistory)
   const handleFullscreen = () => {
-    const elem = document.getElementById('analysis-pdf-viewer');
-    if (elem) {
-      if (elem.requestFullscreen) elem.requestFullscreen();
-      else if ((elem as any).webkitRequestFullscreen) (elem as any).webkitRequestFullscreen();
-      else if ((elem as any).msRequestFullscreen) (elem as any).msRequestFullscreen();
+    if (pdfRef.current) {
+      if (pdfRef.current.requestFullscreen) {
+        pdfRef.current.requestFullscreen();
+      } else if ((pdfRef.current as any).webkitRequestFullscreen) {
+        (pdfRef.current as any).webkitRequestFullscreen();
+      } else if ((pdfRef.current as any).msRequestFullscreen) {
+        (pdfRef.current as any).msRequestFullscreen();
+      }
     }
   };
+
+  // Funzione per scaricare PDF (placeholder, da implementare)
   const handleDownloadPDF = () => {
-    alert('Download PDF in sviluppo!');
+    // Esempio base, puoi migliorare come in ChatHistory
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Rapport d\'Analyse', 10, 18);
+    doc.setFontSize(12);
+    doc.text(`Nom: ${name}`, 10, 28);
+    doc.text(`Date: ${date ? new Date(date).toLocaleDateString('fr-FR') : ''}`, 10, 36);
+    doc.text(`Score: ${score ? `${score}/100` : '-'}`, 10, 44);
+    let y = 54;
+    const lines = doc.splitTextToSize(chat_analysis || '', 180);
+    doc.text(lines, 10, y);
+    doc.save(`rapport_${name}.pdf`);
   };
+
   return (
     <main className="student-detail-main">
       {/* Breadcrumb */}
@@ -53,12 +75,26 @@ const Analysis: React.FC = () => {
       </div>
       {/* Visualiseur PDF */}
       <div className="pdf-container">
-        <div className="pdf-viewer" id="analysis-pdf-viewer">
-          <div className="pdf-header">
-            <h3>📊 Rapport d'Analyse</h3>
-            <div className="pdf-controls">
-              <button className="btn-small btn-secondary" onClick={handleFullscreen}>Plein écran</button>
-              <button className="btn-small btn-primary" onClick={handleDownloadPDF}>Télécharger PDF</button>
+        <div className="pdf-viewer" ref={pdfRef} id="analysis-pdf-viewer">
+          <div className="pdf-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <h3 style={{margin: 0}}>Rapport d'Analyse</h3>
+            <div style={{display: 'flex', gap: '0.5rem'}}>
+              <button className="btn-small btn-secondary" title="Plein écran" onClick={handleFullscreen}>
+                {/* Icona fullscreen */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+                <span className='btn-text'>Plein écran</span>
+              </button>
+              <button className="btn-small btn-primary" title="Télécharger PDF" onClick={handleDownloadPDF}>
+                {/* Icona download */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span className='btn-text'>Télécharger PDF</span>
+              </button>
             </div>
           </div>
           <div className="pdf-content">

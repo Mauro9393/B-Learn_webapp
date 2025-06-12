@@ -133,9 +133,9 @@
 }
 
 .btn-small {
-    padding: 0.4rem 0.8rem;
+    padding: 0.8rem 1.6rem;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
@@ -143,18 +143,30 @@
     font-family: 'Montserrat', Arial, sans-serif;
 }
 
-.btn-secondary {
-    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
-    color: #fff;
+.btn-text {
+    margin-left: 0.5em;
+    color: white;
+    font-size: 1.4rem;
 }
 
 .btn-primary {
-    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%) !important;
     color: #fff;
 }
 
-.btn-small:hover {
-    opacity: 0.9;
+.btn-secondary {
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%) !important;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%) !important;
+}
+
+.btn-secondary:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%) !important;
 }
 
 .pdf-content {
