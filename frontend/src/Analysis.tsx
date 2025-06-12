@@ -50,18 +50,21 @@ const Analysis: React.FC = () => {
         {from === 'all-student-list' ? (
           <>
             <span className="breadcrumb-link" onClick={() => navigate('/all-student-list')}>Tous les utilisateurs</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-1)}>{name}</span> &gt;
             <span className="current">Analyse</span>
           </>
         ) : from === 'student-list' ? (
           <>
-            <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt;
-            <span className="breadcrumb-link" onClick={() => navigate(-1)}>Learners</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-3)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-2)}>Learners</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-1)}>{name}</span> &gt;
             <span className="current">Analyse</span>
           </>
         ) : (
           <>
-            <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt;
-            <span className="breadcrumb-link" onClick={() => navigate(-1)}>Simulations</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-3)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-2)}>Simulations</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-1)}>{name}</span> &gt;
             <span className="current">Analyse</span>
           </>
         )}
