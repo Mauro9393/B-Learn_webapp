@@ -7,21 +7,21 @@ import jsPDF from 'jspdf';
 const Analysis: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const pdfRef = React.useRef<HTMLDivElement>(null);
+  const pdfContentRef = React.useRef<HTMLDivElement>(null);
   const state = location.state as any;
   if (!state) return <div>Contenuto non trovato.</div>;
 
   const { name, date, score, chat_analysis } = state;
 
-  // Funzione per schermo intero (identica a ChatHistory)
+  // Funzione per schermo intero (identica a ChatHistory, ref su pdf-content)
   const handleFullscreen = () => {
-    if (pdfRef.current) {
-      if (pdfRef.current.requestFullscreen) {
-        pdfRef.current.requestFullscreen();
-      } else if ((pdfRef.current as any).webkitRequestFullscreen) {
-        (pdfRef.current as any).webkitRequestFullscreen();
-      } else if ((pdfRef.current as any).msRequestFullscreen) {
-        (pdfRef.current as any).msRequestFullscreen();
+    if (pdfContentRef.current) {
+      if (pdfContentRef.current.requestFullscreen) {
+        pdfContentRef.current.requestFullscreen();
+      } else if ((pdfContentRef.current as any).webkitRequestFullscreen) {
+        (pdfContentRef.current as any).webkitRequestFullscreen();
+      } else if ((pdfContentRef.current as any).msRequestFullscreen) {
+        (pdfContentRef.current as any).msRequestFullscreen();
       }
     }
   };
@@ -74,7 +74,7 @@ const Analysis: React.FC = () => {
       </div>
       {/* Visualiseur PDF */}
       <div className="pdf-container">
-        <div className="pdf-viewer" ref={pdfRef}>
+        <div className="pdf-viewer">
           <div className="pdf-header">
             <h3>Rapport d'Analyse</h3>
             <div className="pdf-controls">
@@ -96,7 +96,7 @@ const Analysis: React.FC = () => {
               </button>
             </div>
           </div>
-          <div className="pdf-content">
+          <div className="pdf-content" ref={pdfContentRef}>
             <div className="pdf-page">
               <div className="pdf-document">
                 <div className="pdf-title">RAPPORT D'ANALYSE DE PERFORMANCE</div>
