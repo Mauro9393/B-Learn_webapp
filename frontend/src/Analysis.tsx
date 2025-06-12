@@ -26,9 +26,8 @@ const Analysis: React.FC = () => {
     }
   };
 
-  // Funzione per scaricare PDF (placeholder, da implementare)
+  // Funzione per scaricare PDF
   const handleDownloadPDF = () => {
-    // Esempio base, puoi migliorare come in ChatHistory
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Rapport d\'Analyse', 10, 18);
@@ -75,10 +74,10 @@ const Analysis: React.FC = () => {
       </div>
       {/* Visualiseur PDF */}
       <div className="pdf-container">
-        <div className="pdf-viewer" ref={pdfRef} id="analysis-pdf-viewer">
-          <div className="pdf-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-            <h3 style={{margin: 0}}>Rapport d'Analyse</h3>
-            <div style={{display: 'flex', gap: '0.5rem'}}>
+        <div className="pdf-viewer" ref={pdfRef}>
+          <div className="pdf-header">
+            <h3>Rapport d'Analyse</h3>
+            <div className="pdf-controls">
               <button className="btn-small btn-secondary" title="Plein écran" onClick={handleFullscreen}>
                 {/* Icona fullscreen */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
