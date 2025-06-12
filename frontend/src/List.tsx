@@ -39,7 +39,7 @@ function List() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state || {};
+  const state = location.state as any;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,7 +167,7 @@ function List() {
         <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
         <span
           className="breadcrumb-link"
-          onClick={() => navigate(`/chatbot/${state.storyline_key || ''}`, { state })}
+          onClick={() => navigate(`/chatbot/${chatbotName || ''}`)}
         >
           Chatbot
         </span> &gt;
