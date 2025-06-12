@@ -13,14 +13,14 @@ const AddPartner = () => {
 
   useEffect(() => {
     // Recupera i chatbot della propria azienda
+    const userId = localStorage.getItem('userId');
+    const userRole = localStorage.getItem('userRole');
     const tenantId = localStorage.getItem('tenantId');
-    if (!tenantId) return;
-    fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`)
+    if (!tenantId || !userId || !userRole) return;
+    fetch(`${import.meta.env.VITE_API_URL}/api/chatbots?user_id=${userId}&user_role=${userRole}&tenant_id=${tenantId}`)
       .then(res => res.json())
       .then(data => {
-        // Filtra solo quelli del tenant
-        const filtered = data.filter((cb: any) => String(cb.tenant_id) === String(tenantId));
-        setChatbots(filtered);
+        setChatbots(data);
       });
   }, []);
 
