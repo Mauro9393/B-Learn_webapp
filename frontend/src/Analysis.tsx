@@ -104,7 +104,7 @@ const Analysis: React.FC = () => {
                 <div className="pdf-date">Date : {date ? new Date(date).toLocaleDateString('fr-FR') : ''}</div>
                 <div className="pdf-section">
                   <div className="pdf-section-title">💬 Analyse</div>
-                  <div className="pdf-list" style={{whiteSpace: 'pre-wrap'}}>{chat_analysis}</div>
+                  <div className="pdf-list" style={{whiteSpace: 'pre-wrap', textAlign: 'left'}}>{chat_analysis}</div>
                 </div>
                 <div className="pdf-footer">
                   <div className="pdf-footer-text">
