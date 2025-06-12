@@ -251,7 +251,7 @@ function List() {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => openModal('Rapport', item.chat_analysis)}
+                    onClick={() => navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, from } })}
                     disabled={!item.chat_analysis}
                   >
                     {/* Icona occhio */}
