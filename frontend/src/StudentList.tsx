@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './assets/css/studentList.css';
 
 interface StudentRow {
@@ -15,8 +15,6 @@ interface StudentRow {
 const StudentList: React.FC = () => {
   const { storyline_key } = useParams<{ storyline_key: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from;
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
