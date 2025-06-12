@@ -38,6 +38,8 @@ function List() {
   const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score'>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,9 +169,9 @@ function List() {
       <h1>Liste des Simulations</h1>
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Chatbot</span> &gt; 
-        <span className='current'>Liste simulations</span> &gt; 
+        <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
+        <span className="breadcrumb-link" onClick={() => navigate('/list')}>Liste simulations</span> &gt;
+        <span className='current'>Simulations</span>
       </div>
       {/* Filtri come in simulations-list.html */}
       <div className="filters">
@@ -228,7 +230,7 @@ function List() {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis' } })}
+                    onClick={() => navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from } })}
                     disabled={!item.chat_analysis}
                   >
                     {/* Icona occhio */}

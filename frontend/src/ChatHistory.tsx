@@ -42,6 +42,7 @@ const ChatHistory: React.FC = () => {
   const navigate = useNavigate();
   const state = location.state as any;
   const messagesRef = React.useRef<HTMLDivElement>(null);
+  const from = state?.from;
   if (!state) return <div>Contenuto non trovato.</div>;
 
   const { name, date, score, chat_history } = state;
@@ -109,10 +110,25 @@ const ChatHistory: React.FC = () => {
       </div>
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-3)}>Dashboard</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Simulations</span> &gt; 
-        <span className="current">{name}</span>
+        <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
+        {from === 'all-student-list' ? (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate('/all-student-list')}>Tous les utilisateurs</span> &gt;
+            <span className="current">{name}</span>
+          </>
+        ) : from === 'student-list' ? (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-1)}>Learners</span> &gt;
+            <span className="current">{name}</span>
+          </>
+        ) : (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-1)}>Simulations</span> &gt;
+            <span className="current">{name}</span>
+          </>
+        )}
       </div>
       {/* Contenuto principale */}
       <div className="pdf-container">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './assets/css/studentList.css';
 
 interface StudentRow {
@@ -16,6 +16,8 @@ interface StudentRow {
 
 const AllStudentList: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -64,7 +66,7 @@ const AllStudentList: React.FC = () => {
         </div>
         {/* Breadcrumb */}
         <div className="breadcrumb">
-          <span className="breadcrumb-link" onClick={() => navigate(-1)}>Dashboard</span> &gt; 
+          <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
           <span className="current">Tous les utilisateurs</span>
         </div>
         {/* Filtri */}
@@ -125,7 +127,7 @@ const AllStudentList: React.FC = () => {
                       <span className="date-badge">{stu.last_date}</span>
                     </td>
                     <td className="td-details">
-                      <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`)}>Voir</button>
+                      <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'all-student-list' } })}>Voir</button>
                     </td>
                   </tr>
                 ))

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import './assets/css/studentDetail.css';
 // @ts-ignore
 import jsPDF from 'jspdf';
@@ -55,10 +55,12 @@ const sortSimulations = (sims: Simulation[], field: 'created_at' | 'score', dire
 const StudentDetail: React.FC = () => {
   const { storyline_key, email } = useParams<{ storyline_key: string; email: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortField, setSortField] = useState<'created_at' | 'score'>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const from = location.state?.from;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -138,10 +140,19 @@ const StudentDetail: React.FC = () => {
       </div>
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-3)}>Dashboard</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Learners</span> &gt; 
-        <span className="current">{learner.name}</span>
+        <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
+        {from === 'all-student-list' ? (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate('/all-student-list')}>Tous les utilisateurs</span> &gt;
+            <span className="current">{learner.name}</span>
+          </>
+        ) : (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${storyline_key}`)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${storyline_key}/learners`)}>Learners</span> &gt;
+            <span className="current">{learner.name}</span>
+          </>
+        )}
       </div>
       {/* Statistiche */}
       <div className="student-stats">

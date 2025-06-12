@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import './assets/css/studentList.css';
 
 interface StudentRow {
@@ -15,6 +15,8 @@ interface StudentRow {
 const StudentList: React.FC = () => {
   const { storyline_key } = useParams<{ storyline_key: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -60,8 +62,8 @@ const StudentList: React.FC = () => {
         </div>
         {/* Breadcrumb */}
         <div className="breadcrumb">
-          <span className="breadcrumb-link" onClick={() => navigate(-2)}>Dashboard</span> &gt; 
-          <span className="breadcrumb-link" onClick={() => navigate(-1)}>Chatbots</span> &gt; 
+          <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
+          <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${storyline_key}`)}>Chatbot</span> &gt;
           <span className="current">Liste des learners</span>
         </div>
         {/* Statistiche generali learners (placeholder, puoi aggiungere dati reali) */}
@@ -118,7 +120,7 @@ const StudentList: React.FC = () => {
                       <span className="date-badge">{stu.last_date}</span>
                     </td>
                     <td className="td-details">
-                      <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`)}>Voir</button>
+                      <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'student-list' } })}>Voir</button>
                     </td>
                   </tr>
                 ))

@@ -12,6 +12,7 @@ const Analysis: React.FC = () => {
   if (!state) return <div>Contenuto non trovato.</div>;
 
   const { name, date, score, chat_analysis } = state;
+  const from = state?.from;
 
   // Funzione per schermo intero (identica a ChatHistory, ref su pdf-content)
   const handleFullscreen = () => {
@@ -45,10 +46,25 @@ const Analysis: React.FC = () => {
     <main className="student-detail-main">
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <span className="breadcrumb-link" onClick={() => navigate(-3)}>Dashboard</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbots</span> &gt; 
-        <span className="breadcrumb-link" onClick={() => navigate(-1)}>Simulations</span> &gt; 
-        <span className="current">Analyse</span>
+        <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
+        {from === 'all-student-list' ? (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate('/all-student-list')}>Tous les utilisateurs</span> &gt;
+            <span className="current">Analyse</span>
+          </>
+        ) : from === 'student-list' ? (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-1)}>Learners</span> &gt;
+            <span className="current">Analyse</span>
+          </>
+        ) : (
+          <>
+            <span className="breadcrumb-link" onClick={() => navigate(-2)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(-1)}>Simulations</span> &gt;
+            <span className="current">Analyse</span>
+          </>
+        )}
       </div>
       {/* Header info */}
       <div className="analysis-header">
