@@ -39,7 +39,6 @@ function List() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state as any;
 
   useEffect(() => {
     const fetchData = async () => {
