@@ -324,3 +324,245 @@
         border-top: 1px solid #e0e0e0 !important;
     }
 }
+
+.student-list-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.student-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.student-list-title {
+    font-size: 1.8rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.student-list-filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #666;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    border-color: #5B6DF6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(91, 109, 246, 0.1);
+}
+
+.search-input {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #666;
+    background: white;
+    width: 250px;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: #5B6DF6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(91, 109, 246, 0.1);
+}
+
+.student-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.student-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.student-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.student-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.student-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.student-details {
+    flex: 1;
+}
+
+.student-name {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.student-email {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.student-meta {
+    display: flex;
+    gap: 1.5rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.student-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.action-button {
+    padding: 0.5rem;
+    flex: 1;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-button {
+    background: #5B6DF6;
+    color: white;
+}
+
+.view-button:hover {
+    background: #4a5ad5;
+}
+
+.edit-button {
+    background: #f8f9ff;
+    color: #5B6DF6;
+}
+
+.edit-button:hover {
+    background: #e8ebf7;
+}
+
+
+/* Tablet */
+
+@media (max-width: 768px) {
+    .student-list-container {
+        padding: 0 1.5rem;
+        margin: 1.5rem auto;
+    }
+    .student-list-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    .student-list-title {
+        font-size: 1.5rem;
+    }
+    .student-filters {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .student-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+    .student-card {
+        padding: 1.2rem;
+    }
+    .student-avatar {
+        width: 50px;
+        height: 50px;
+    }
+    .student-name {
+        font-size: 1rem;
+    }
+}
+
+
+/* Mobile */
+
+@media (max-width: 480px) {
+    .student-list-container {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+    .student-list-title {
+        font-size: 1.3rem;
+    }
+    .student-grid {
+        grid-template-columns: 1fr;
+    }
+    .student-card {
+        padding: 1rem;
+    }
+    .student-header {
+        gap: 0.8rem;
+    }
+    .student-avatar {
+        width: 45px;
+        height: 45px;
+    }
+    .student-name {
+        font-size: 0.95rem;
+    }
+    .student-email {
+        font-size: 0.85rem;
+    }
+    .student-stats {
+        gap: 0.8rem;
+    }
+    .stat-box {
+        padding: 0.6rem;
+    }
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    .stat-value {
+        font-size: 1rem;
+    }
+    .action-button {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+}

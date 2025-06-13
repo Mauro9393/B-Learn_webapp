@@ -1,8 +1,10 @@
 .confirmation-page {
-    min-height: 50vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: linear-gradient(135deg, #1a237e 0%, #4a148c 100%);
+    padding: 20px;
 }
 
 .confirmation-container {
@@ -48,11 +50,42 @@
     background: #0056b3;
 }
 
-@media (max-width: 480px) {
+
+/* Tablet */
+
+@media (max-width: 768px) {
     .confirmation-container {
         padding: 1.5rem;
+        max-width: 90%;
     }
     .confirmation-title {
         font-size: 1.3rem;
+    }
+    .confirmation-message {
+        font-size: 0.95rem;
+    }
+}
+
+
+/* Mobile */
+
+@media (max-width: 480px) {
+    .confirmation-container {
+        padding: 1.2rem;
+        width: 95%;
+    }
+    .confirmation-icon {
+        font-size: 2.5rem;
+    }
+    .confirmation-title {
+        font-size: 1.2rem;
+    }
+    .confirmation-message {
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+    }
+    .confirmation-button {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.95rem;
     }
 }
