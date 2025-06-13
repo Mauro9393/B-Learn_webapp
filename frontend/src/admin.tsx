@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './assets/css/login.css';
+import './assets/css/admin.css';
 import logoBlearn from './assets/logo-blearn.png';
 
 function Admin() {
@@ -8,8 +8,9 @@ function Admin() {
   const [fullName, setFullName] = useState('');
   const [company, setCompany] = useState('');
   const [message, setMessage] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
 
-  // Sostituisci avec votre email admin
+  // Sostituisci con il tuo email admin
   const userRole = localStorage.getItem('userRole');
   console.log('userRole', userRole);
 
@@ -37,6 +38,7 @@ function Admin() {
         setPassword('');
         setFullName('');
         setCompany('');
+        setShowPopup(true);
       } else {
         setMessage('Erreur lors de la création du compte : ' + (result.message || ''));
       }
@@ -45,51 +47,80 @@ function Admin() {
     }
   };
 
+  const closePopup = () => {
+    setShowPopup(false);
+  };
+
   return (
-    <main className="login-main-centered">
-      <div className="animated-bg">
-        {[...Array(12)].map((_, i) => (
-          <div className="sphere" key={i}></div>
-        ))}
-      </div>
-      <div className="login-container">
-        <img src={logoBlearn} alt="B-learn Logo" className="login-logo" />
-        <h1>Créer un compte admin</h1>
-        <p className="login-subtitle">Ajoutez un nouvel administrateur à votre tenant</p>
-        <form className="login-form" onSubmit={handleCreateAccount}>
+    <div className="manager-form-container">
+      <h1>Créer un compte admin</h1>
+      <p className="login-subtitle">Ajoutez un nouvel administrateur à votre tenant</p>
+      <form className="manager-form" onSubmit={handleCreateAccount}>
+        <div className="form-group">
+          <label htmlFor="full-name">Nom complet</label>
           <input
+            id="full-name"
             type="text"
-            placeholder="Nom complet"
+            placeholder="Entrez le nom complet"
             value={fullName}
             onChange={e => setFullName(e.target.value)}
             required
           />
+        </div>
+        <div className="form-group">
+          <label htmlFor="company">Entreprise</label>
           <input
+            id="company"
             type="text"
-            placeholder="Entreprise"
+            placeholder="Entrez le nom de l'entreprise"
             value={company}
             onChange={e => setCompany(e.target.value)}
             required
           />
+        </div>
+        <div className="form-group">
+          <label htmlFor="email">E-mail</label>
           <input
+            id="email"
             type="email"
-            placeholder="E-mail"
+            placeholder="Entrez l'email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
           />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Mot de passe provisoire</label>
           <input
+            id="password"
             type="password"
-            placeholder="Mot de passe provisoire"
+            placeholder="Entrez le mot de passe"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
           />
-          <button type="submit">Créer le compte admin</button>
-        </form>
-        {message && <p style={{ color: message.includes('succès') ? 'green' : 'red' }}>{message}</p>}
-      </div>
-    </main>
+        </div>
+        <button type="submit" className="btn-manager">
+          <span className="btn-icon">👨‍💼</span>
+          Créer le compte admin
+        </button>
+      </form>
+      {message && <p style={{ color: message.includes('succès') ? 'green' : 'red' }}>{message}</p>}
+      
+      {/* Popup di conferma */}
+      {showPopup && (
+        <div className="popup-overlay show">
+          <div className="popup-content">
+            <div className="popup-icon">📧</div>
+            <h3 className="popup-title">Compte créé !</h3>
+            <p className="popup-message">
+              Un email vient d'être envoyé à <b>{email}</b> pour inviter <b>{fullName}</b> à rejoindre la plateforme B-Learn.
+            </p>
+            <button className="popup-button" onClick={closePopup}>OK</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
