@@ -2,216 +2,111 @@
 
 .add-partner-container {
     max-width: 600px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(127, 83, 245, 0.10);
+    padding: 2.5rem;
+    border: 1.5px solid #f0f0f0;
+    margin-top: 48px;
 }
 
 .add-partner-container h1 {
+    font-weight: 800;
+    color: #5B6DF6;
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
     text-align: center;
-    color: #333;
-    margin-bottom: 2rem;
+    letter-spacing: -1px;
+}
+
+.add-partner-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #555;
-    font-weight: 500;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    color: #5B6DF6;
+    font-weight: 600;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    margin-bottom: 0.3rem;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-    border-color: #007bff;
+.add-partner-container input,
+.add-partner-container select {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: #f8f9ff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.add-partner-container input:focus,
+.add-partner-container select:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #7F53F5;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
+    background: #fff;
 }
 
 .btn-manager {
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 1.2rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(127, 83, 245, 0.3);
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', Arial, sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.75rem;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    gap: 0.8rem;
+    margin-top: 1rem;
 }
 
 .btn-manager:hover {
-    background: #0056b3;
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(127, 83, 245, 0.4);
 }
 
 .btn-manager .btn-icon {
     font-size: 1.2rem;
+    font-weight: normal;
 }
 
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+.add-partner-container p {
+    margin-top: 10px;
+    font-size: 15px;
 }
-
-.popup-overlay.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.popup-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
-}
-
-.popup-overlay.show .popup-content {
-    transform: translateY(0);
-}
-
-.popup-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-.popup-title {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 1rem;
-}
-
-.popup-message {
-    color: #666;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-}
-
-.popup-button {
-    padding: 0.75rem 2rem;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.popup-button:hover {
-    background: #0056b3;
-}
-
-
-/* Tablet */
 
 @media (max-width: 768px) {
     .add-partner-container {
-        margin: 1.5rem;
-        padding: 1.5rem;
-    }
-    .add-partner-container h1 {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .form-group {
-        margin-bottom: 1.2rem;
-    }
-    .form-group input,
-    .form-group select {
-        padding: 0.6rem;
-    }
-    .btn-manager {
-        padding: 0.6rem;
-    }
-    .popup-content {
-        padding: 1.5rem;
-        max-width: 90%;
-    }
-    .popup-title {
-        font-size: 1.3rem;
-    }
-    .popup-message {
-        font-size: 0.95rem;
-    }
-}
-
-
-/* Mobile */
-
-@media (max-width: 480px) {
-    .add-partner-container {
         margin: 1rem;
-        padding: 1.2rem;
+        padding: 1.5rem;
     }
-    .add-partner-container h1 {
-        font-size: 1.3rem;
-        margin-bottom: 1.2rem;
-    }
-    .form-group {
-        margin-bottom: 1rem;
-    }
-    .form-group label {
-        font-size: 0.9rem;
-    }
-    .form-group input,
-    .form-group select {
-        padding: 0.5rem;
+    .add-partner-container input,
+    .add-partner-container select {
+        padding: 0.8rem 1rem;
         font-size: 0.95rem;
     }
     .btn-manager {
-        padding: 0.5rem;
-        font-size: 0.95rem;
-    }
-    .popup-content {
-        padding: 1.2rem;
-        width: 95%;
-    }
-    .popup-icon {
-        font-size: 2rem;
-    }
-    .popup-title {
-        font-size: 1.2rem;
-    }
-    .popup-message {
-        font-size: 0.9rem;
-        margin-bottom: 1.2rem;
-    }
-    .popup-button {
-        padding: 0.6rem 1.5rem;
-        font-size: 0.95rem;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
     }
 }
