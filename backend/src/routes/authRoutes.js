@@ -223,8 +223,8 @@ router.get('/confirm', async(req, res) => {
     await pool.query('UPDATE users SET active = true WHERE id = $1', [confirmation.user_id]);
     // Segna il token come usato
     await pool.query('UPDATE email_confirmations SET used = true WHERE id = $1', [confirmation.id]);
-    // Mostra messaggio di successo
-    res.send('Compte confirmé ! Vous pouvez maintenant vous connecter.');
+    // Reindirizza alla pagina di conferma del frontend
+    res.redirect(`${process.env.FRONTEND_URL}/confirmation`);
 });
 
 console.log("Sto per registrare la route /chatbots");
