@@ -412,12 +412,38 @@
     .student-list-main {
         max-width: 100%;
         margin: 30px auto;
-        padding: 1.5rem 1.5rem 1rem 1.5rem;
+        padding: 1.5rem 1rem 1rem 1rem;
         border-radius: 16px;
+        overflow-x: hidden;
     }
-    .breadcrumb {
+    .student-list-table-card {
+        margin: 0 -1rem;
+        padding: 1.5rem 0 1rem 0;
+        border-radius: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .student-table {
+        min-width: 800px;
+        margin: 0;
+        border-radius: 0;
+    }
+    .student-table th,
+    .student-table td {
+        padding: 0.6rem 0.4rem;
         font-size: 0.95rem;
-        margin-bottom: 14px;
+        white-space: nowrap;
+    }
+    .filters {
+        flex-direction: column;
+        gap: 0.6rem;
+        margin: 1rem;
+    }
+    .filters input,
+    .filters select {
+        width: 100%;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.9rem;
     }
     .student-list-title-card {
         padding: 1.5rem 1.5rem 1rem 1.5rem;
@@ -430,17 +456,6 @@
     .student-list-table-card {
         padding: 1.5rem 1rem 1rem 1rem;
         border-radius: 14px;
-    }
-    .filters {
-        flex-direction: column;
-        gap: 0.6rem;
-        margin-bottom: 1rem;
-    }
-    .filters input,
-    .filters select {
-        width: 100%;
-        padding: 0.5rem 0.8rem;
-        font-size: 0.9rem;
     }
     .student-table {
         display: block;
@@ -500,12 +515,18 @@
 @media (max-width: 480px) {
     .student-list-main {
         margin: 20px auto;
-        padding: 1rem 1rem 0.8rem 1rem;
-        border-radius: 12px;
+        padding: 1rem 0.8rem 0.8rem 0.8rem;
     }
-    .breadcrumb {
+    .student-list-table-card {
+        margin: 0 -0.8rem;
+    }
+    .student-table {
+        min-width: 700px;
+    }
+    .student-table th,
+    .student-table td {
+        padding: 0.5rem 0.3rem;
         font-size: 0.9rem;
-        margin-bottom: 12px;
     }
     .student-list-title-card {
         padding: 1.2rem 1.2rem 0.8rem 1.2rem;
@@ -531,11 +552,6 @@
     .student-table th {
         font-size: 0.95rem;
         height: 2.5rem;
-    }
-    .student-table th,
-    .student-table td {
-        padding: 0.5rem 0.3rem;
-        font-size: 0.9rem;
     }
     .th-name,
     .td-name {

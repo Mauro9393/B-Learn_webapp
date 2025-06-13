@@ -257,8 +257,37 @@ tr:not(:last-child) td {
     .student-detail-main {
         max-width: 100%;
         margin: 20px auto 0 auto;
-        padding: 20px 20px 16px 20px;
+        padding: 20px 1rem 16px 1rem;
         border-radius: 12px;
+        overflow-x: hidden;
+    }
+    .simulations-history {
+        margin: 24px -1rem 0;
+    }
+    .simulations-table {
+        min-width: 800px;
+        margin: 0;
+        border-radius: 0;
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .simulations-table th,
+    .simulations-table td {
+        padding: 8px 6px;
+        font-size: 0.95rem;
+        white-space: nowrap;
+    }
+    .student-stats {
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 0 0 18px 0;
+    }
+    .stat-card {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        min-width: calc(50% - 6px);
+        flex: 1 1 calc(50% - 6px);
     }
     .breadcrumb {
         font-size: 0.95rem;
@@ -273,45 +302,6 @@ tr:not(:last-child) td {
         height: 52px;
         font-size: 1.7rem;
     }
-    .student-stats {
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 18px;
-    }
-    .stat-card {
-        padding: 12px 16px;
-        font-size: 0.95rem;
-        min-width: calc(50% - 6px);
-    }
-    .stat-icon {
-        font-size: 1.3rem;
-    }
-    .stat-label {
-        font-size: 0.95rem;
-    }
-    .stat-value {
-        font-size: 1.3rem;
-    }
-    .simulations-table {
-        display: block;
-        overflow-x: auto;
-    }
-    .simulations-table th {
-        font-size: 0.95rem;
-    }
-    .simulations-table th,
-    .simulations-table td {
-        padding: 8px 6px;
-        font-size: 0.95rem;
-    }
-    .score-badge {
-        padding: 2px 8px;
-        font-size: 0.9rem;
-    }
-    .btn-small {
-        padding: 2px 6px;
-        font-size: 0.85rem;
-    }
 }
 
 
@@ -320,8 +310,22 @@ tr:not(:last-child) td {
 @media (max-width: 480px) {
     .student-detail-main {
         margin: 15px auto 0 auto;
-        padding: 16px 16px 12px 16px;
-        border-radius: 10px;
+        padding: 16px 0.8rem 12px 0.8rem;
+    }
+    .simulations-history {
+        margin: 16px -0.8rem 0;
+    }
+    .simulations-table {
+        min-width: 700px;
+    }
+    .simulations-table th,
+    .simulations-table td {
+        padding: 6px 4px;
+        font-size: 0.9rem;
+    }
+    .stat-card {
+        min-width: 100%;
+        flex: 1 1 100%;
     }
     .breadcrumb {
         font-size: 0.9rem;
@@ -340,11 +344,6 @@ tr:not(:last-child) td {
         gap: 10px;
         margin-bottom: 16px;
     }
-    .stat-card {
-        padding: 10px 12px;
-        font-size: 0.9rem;
-        min-width: 100%;
-    }
     .stat-icon {
         font-size: 1.2rem;
     }
@@ -353,14 +352,6 @@ tr:not(:last-child) td {
     }
     .stat-value {
         font-size: 1.2rem;
-    }
-    .simulations-table th {
-        font-size: 0.9rem;
-    }
-    .simulations-table th,
-    .simulations-table td {
-        padding: 6px 4px;
-        font-size: 0.9rem;
     }
     .score-badge {
         padding: 2px 6px;
