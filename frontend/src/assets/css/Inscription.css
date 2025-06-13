@@ -54,3 +54,102 @@
     margin-top: 10px;
     font-size: 15px;
 }
+
+
+/* Tablet (iPad) */
+
+@media (max-width: 1024px) {
+    .inscription-container {
+        max-width: 380px;
+        margin: 36px auto;
+        padding: 28px 20px;
+    }
+    .inscription-container h1 {
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+    }
+    .inscription-container input[type="text"],
+    .inscription-container input[type="email"],
+    .inscription-container input[type="password"] {
+        padding: 9px;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+    .inscription-container button {
+        padding: 9px;
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+    .inscription-container p {
+        margin-top: 8px;
+        font-size: 14px;
+    }
+}
+
+
+/* Smartphone */
+
+@media (max-width: 768px) {
+    .inscription-container {
+        max-width: 340px;
+        margin: 32px auto;
+        padding: 24px 16px;
+        border-radius: 6px;
+    }
+    .inscription-container h1 {
+        margin-bottom: 18px;
+        font-size: 1.6rem;
+    }
+    .inscription-container input[type="text"],
+    .inscription-container input[type="email"],
+    .inscription-container input[type="password"] {
+        padding: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        border-radius: 3px;
+    }
+    .inscription-container button {
+        padding: 8px;
+        margin-bottom: 6px;
+        font-size: 14px;
+        border-radius: 3px;
+    }
+    .inscription-container p {
+        margin-top: 6px;
+        font-size: 13px;
+    }
+}
+
+
+/* Smartphone piccolo */
+
+@media (max-width: 480px) {
+    .inscription-container {
+        max-width: 300px;
+        margin: 24px auto;
+        padding: 20px 14px;
+        border-radius: 4px;
+    }
+    .inscription-container h1 {
+        margin-bottom: 16px;
+        font-size: 1.4rem;
+    }
+    .inscription-container input[type="text"],
+    .inscription-container input[type="email"],
+    .inscription-container input[type="password"] {
+        padding: 7px;
+        margin-bottom: 6px;
+        font-size: 13px;
+        border-radius: 3px;
+    }
+    .inscription-container button {
+        padding: 7px;
+        margin-bottom: 4px;
+        font-size: 13px;
+        border-radius: 3px;
+    }
+    .inscription-container p {
+        margin-top: 4px;
+        font-size: 12px;
+    }
+}

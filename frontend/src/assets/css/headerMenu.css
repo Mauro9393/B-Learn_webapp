@@ -338,3 +338,158 @@ body {
     background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
     transform: scale(1.04);
 }
+
+
+/* Tablet (iPad) */
+
+@media (max-width: 1024px) {
+    .header-menu-container {
+        max-width: 900px;
+        padding: 0 1.8rem;
+    }
+    .nav-menu {
+        gap: 24px;
+    }
+    .nav-item,
+    .nav-link {
+        padding: 16px 24px;
+        font-size: 13px;
+    }
+    .logo-image {
+        height: 36px;
+    }
+    .user-initials {
+        width: 38px;
+        height: 38px;
+        font-size: 0.85rem;
+    }
+    .nav-dropdown-menu {
+        min-width: 160px;
+    }
+    .nav-dropdown-menu .dropdown-item {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+    .profile-dropdown-menu {
+        min-width: 160px;
+    }
+    .profile-avatar-circle {
+        width: 34px;
+        height: 34px;
+        font-size: 0.9rem;
+    }
+    .profile-role {
+        font-size: 0.9rem;
+    }
+    .profile-email {
+        font-size: 0.85rem;
+    }
+    .profile-logout-btn {
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+}
+
+
+/* Smartphone */
+
+@media (max-width: 768px) {
+    .header-menu-container {
+        padding: 0 1.2rem;
+    }
+    .nav-menu {
+        gap: 12px;
+    }
+    .nav-item,
+    .nav-link {
+        padding: 12px 18px;
+        font-size: 12px;
+        border-radius: 20px;
+    }
+    .logo-image {
+        height: 32px;
+    }
+    .user-initials {
+        width: 36px;
+        height: 36px;
+        font-size: 0.8rem;
+    }
+    .nav-dropdown-menu {
+        min-width: 140px;
+    }
+    .nav-dropdown-menu .dropdown-item {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+    .profile-dropdown-menu {
+        min-width: 140px;
+        padding: 0.6rem;
+    }
+    .profile-avatar-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+    .profile-role {
+        font-size: 0.85rem;
+    }
+    .profile-email {
+        font-size: 0.8rem;
+    }
+    .profile-logout-btn {
+        padding: 0.5rem 0;
+        font-size: 0.85rem;
+    }
+}
+
+
+/* Smartphone piccolo */
+
+@media (max-width: 480px) {
+    .header-menu-container {
+        padding: 0 1rem;
+    }
+    .nav-menu {
+        gap: 8px;
+    }
+    .nav-item,
+    .nav-link {
+        padding: 10px 14px;
+        font-size: 11px;
+        border-radius: 16px;
+    }
+    .logo-image {
+        height: 28px;
+    }
+    .user-initials {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+    .nav-dropdown-menu {
+        min-width: 120px;
+    }
+    .nav-dropdown-menu .dropdown-item {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+    .profile-dropdown-menu {
+        min-width: 120px;
+        padding: 0.5rem;
+    }
+    .profile-avatar-circle {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+    .profile-role {
+        font-size: 0.8rem;
+    }
+    .profile-email {
+        font-size: 0.75rem;
+    }
+    .profile-logout-btn {
+        padding: 0.4rem 0;
+        font-size: 0.8rem;
+    }
+}

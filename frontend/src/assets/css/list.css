@@ -234,3 +234,162 @@ h1 {
 .btn-download svg {
     stroke: white;
 }
+
+
+/* Tablet (iPad) */
+
+@media (max-width: 1024px) {
+    .list-container {
+        padding: 16px;
+    }
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 16px;
+    }
+    .filters {
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
+    }
+    .filters input,
+    .filters select {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.95rem;
+    }
+    .simulations-table th {
+        font-size: 0.8rem;
+        padding: 0.9rem 0.7rem;
+    }
+    .simulations-table td {
+        padding: 0.9rem 0.7rem;
+        font-size: 0.8rem;
+    }
+    .score-badge {
+        padding: 0.25rem 0.7rem;
+        font-size: 0.7rem;
+    }
+    .date-cell {
+        font-size: 0.8rem;
+    }
+    .modal-content {
+        padding: 1.8rem 1.8rem 1.3rem 1.8rem;
+        max-width: 450px;
+    }
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        font-size: 1.3rem;
+    }
+    .btn-small {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.7rem;
+    }
+}
+
+
+/* Smartphone */
+
+@media (max-width: 768px) {
+    .list-container {
+        padding: 12px;
+    }
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: 14px;
+    }
+    .filters {
+        flex-direction: column;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+    }
+    .filters input,
+    .filters select {
+        width: 100%;
+        padding: 0.5rem 0.7rem;
+        font-size: 0.9rem;
+    }
+    .simulations-table {
+        display: block;
+        overflow-x: auto;
+    }
+    .simulations-table th {
+        font-size: 0.75rem;
+        padding: 0.8rem 0.6rem;
+        white-space: nowrap;
+    }
+    .simulations-table td {
+        padding: 0.8rem 0.6rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+    .score-badge {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.65rem;
+    }
+    .date-cell {
+        font-size: 0.75rem;
+    }
+    .modal-content {
+        padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+        max-width: 400px;
+        width: 95%;
+    }
+    .modal-close {
+        width: 30px;
+        height: 30px;
+        font-size: 1.2rem;
+    }
+    .btn-small {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.65rem;
+    }
+}
+
+
+/* Smartphone piccolo */
+
+@media (max-width: 480px) {
+    .list-container {
+        padding: 10px;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 12px;
+    }
+    .filters {
+        gap: 0.5rem;
+        margin-bottom: 0.8rem;
+    }
+    .filters input,
+    .filters select {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    .simulations-table th {
+        font-size: 0.7rem;
+        padding: 0.7rem 0.5rem;
+    }
+    .simulations-table td {
+        padding: 0.7rem 0.5rem;
+        font-size: 0.7rem;
+    }
+    .score-badge {
+        padding: 0.15rem 0.5rem;
+        font-size: 0.6rem;
+    }
+    .date-cell {
+        font-size: 0.7rem;
+    }
+    .modal-content {
+        padding: 1.2rem 1.2rem 1rem 1.2rem;
+        max-width: 350px;
+    }
+    .modal-close {
+        width: 28px;
+        height: 28px;
+        font-size: 1.1rem;
+    }
+    .btn-small {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.6rem;
+    }
+}

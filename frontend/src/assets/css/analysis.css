@@ -251,3 +251,164 @@
     color: #666;
     font-style: italic;
 }
+
+
+/* Tablet (iPad) */
+
+@media (max-width: 1024px) {
+    .analysis-header {
+        padding: 1.3rem;
+        margin-bottom: 1.8rem;
+        border-radius: 14px;
+    }
+    .analysis-info h1 {
+        font-size: 1.6rem;
+    }
+    .student-avatar .avatar-circle {
+        width: 55px;
+        height: 55px;
+        font-size: 1.6rem;
+    }
+    .student-name {
+        font-size: 1.3rem;
+    }
+    .pdf-viewer {
+        min-height: 500px;
+    }
+    .pdf-content {
+        min-height: 500px;
+        max-height: 600px;
+        padding: 1.3rem;
+    }
+    .pdf-document {
+        padding: 1.8rem;
+    }
+    .pdf-title {
+        font-size: 1.6rem;
+    }
+    .pdf-subtitle {
+        font-size: 1.1rem;
+    }
+    .pdf-section-title {
+        font-size: 1rem;
+    }
+}
+
+
+/* Smartphone */
+
+@media (max-width: 768px) {
+    .analysis-header {
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+    }
+    .analysis-info h1 {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+    .simulation-meta {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    .student-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    .student-avatar .avatar-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 1.4rem;
+    }
+    .student-name {
+        font-size: 1.2rem;
+    }
+    .pdf-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    .pdf-controls {
+        justify-content: center;
+    }
+    .btn-small {
+        padding: 0.7rem 1.4rem;
+        font-size: 0.7rem;
+    }
+    .pdf-viewer {
+        min-height: 400px;
+    }
+    .pdf-content {
+        min-height: 400px;
+        max-height: 500px;
+        padding: 1rem;
+    }
+    .pdf-document {
+        padding: 1.5rem;
+    }
+    .pdf-title {
+        font-size: 1.4rem;
+    }
+    .pdf-subtitle {
+        font-size: 1rem;
+    }
+    .pdf-section-title {
+        font-size: 0.95rem;
+    }
+    .pdf-list {
+        font-size: 0.85rem;
+    }
+}
+
+
+/* Smartphone piccolo */
+
+@media (max-width: 480px) {
+    .analysis-header {
+        padding: 1rem;
+        margin-bottom: 1.2rem;
+        border-radius: 10px;
+    }
+    .analysis-info h1 {
+        font-size: 1.3rem;
+    }
+    .student-avatar .avatar-circle {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+    .student-name {
+        font-size: 1.1rem;
+    }
+    .simulation-date {
+        font-size: 0.8rem;
+    }
+    .btn-small {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.65rem;
+    }
+    .pdf-viewer {
+        min-height: 350px;
+    }
+    .pdf-content {
+        min-height: 350px;
+        max-height: 450px;
+        padding: 0.8rem;
+    }
+    .pdf-document {
+        padding: 1.2rem;
+    }
+    .pdf-title {
+        font-size: 1.3rem;
+    }
+    .pdf-subtitle {
+        font-size: 0.95rem;
+    }
+    .pdf-section-title {
+        font-size: 0.9rem;
+    }
+    .pdf-list {
+        font-size: 0.8rem;
+    }
+}

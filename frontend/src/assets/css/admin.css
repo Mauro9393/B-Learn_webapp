@@ -132,16 +132,145 @@
     background: #0056b3;
 }
 
+
+/* Tablet (iPad) */
+
+@media (max-width: 1024px) {
+    .manager-form-container {
+        max-width: 500px;
+        margin: 1.5rem auto;
+        padding: 1.8rem;
+    }
+    .manager-form {
+        gap: 1.3rem;
+    }
+    .form-group label {
+        font-size: 0.85rem;
+    }
+    .manager-form input,
+    .manager-form select {
+        padding: 0.7rem;
+        font-size: 0.95rem;
+    }
+    .btn-manager {
+        padding: 0.7rem 1.4rem;
+        font-size: 0.95rem;
+    }
+    .popup-content {
+        padding: 1.8rem;
+        max-width: 350px;
+    }
+    .popup-icon {
+        font-size: 2.2rem;
+    }
+    .popup-title {
+        font-size: 1.3rem;
+    }
+    .popup-message {
+        font-size: 0.95rem;
+    }
+    .popup-button {
+        padding: 0.7rem 1.8rem;
+        font-size: 0.95rem;
+    }
+}
+
+
+/* Smartphone */
+
 @media (max-width: 768px) {
     .manager-form-container {
         margin: 1rem;
         padding: 1.5rem;
+        border-radius: 8px;
+    }
+    .manager-form {
+        gap: 1.2rem;
+    }
+    .form-group label {
+        font-size: 0.8rem;
     }
     .manager-form input,
     .manager-form select {
         padding: 0.6rem;
+        font-size: 0.9rem;
+        border-radius: 4px;
     }
     .btn-manager {
         padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        border-radius: 4px;
+    }
+    .btn-manager .btn-icon {
+        font-size: 1.1rem;
+    }
+    .popup-content {
+        padding: 1.5rem;
+        max-width: 300px;
+        border-radius: 8px;
+    }
+    .popup-icon {
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+    }
+    .popup-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    .popup-message {
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+    }
+    .popup-button {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+        border-radius: 4px;
+    }
+}
+
+
+/* Smartphone piccolo */
+
+@media (max-width: 480px) {
+    .manager-form-container {
+        margin: 0.8rem;
+        padding: 1.2rem;
+        border-radius: 6px;
+    }
+    .manager-form {
+        gap: 1rem;
+    }
+    .form-group label {
+        font-size: 0.75rem;
+    }
+    .manager-form input,
+    .manager-form select {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+    .btn-manager {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    .popup-content {
+        padding: 1.2rem;
+        max-width: 280px;
+        border-radius: 6px;
+    }
+    .popup-icon {
+        font-size: 1.8rem;
+        margin-bottom: 0.6rem;
+    }
+    .popup-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.6rem;
+    }
+    .popup-message {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+    .popup-button {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.85rem;
     }
 }

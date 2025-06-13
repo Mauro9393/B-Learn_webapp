@@ -95,18 +95,91 @@
     font-size: 15px;
 }
 
+
+/* Tablet (iPad) */
+
+@media (max-width: 1024px) {
+    .add-partner-container {
+        max-width: 500px;
+        margin-top: 40px;
+        padding: 2rem;
+    }
+    .add-partner-container h1 {
+        font-size: 2rem;
+    }
+    .add-partner-container input,
+    .add-partner-container select {
+        padding: 0.9rem 1.1rem;
+    }
+    .btn-manager {
+        padding: 1.1rem 1.8rem;
+        font-size: 1.05rem;
+    }
+}
+
+
+/* Smartphone */
+
 @media (max-width: 768px) {
     .add-partner-container {
         margin: 1rem;
         padding: 1.5rem;
+        border-radius: 14px;
+    }
+    .add-partner-container h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.8rem;
+    }
+    .add-partner-container form {
+        gap: 1.2rem;
+    }
+    .form-group label {
+        font-size: 0.95rem;
     }
     .add-partner-container input,
     .add-partner-container select {
         padding: 0.8rem 1rem;
         font-size: 0.95rem;
+        border-radius: 10px;
     }
     .btn-manager {
         padding: 1rem 1.5rem;
         font-size: 1rem;
+        border-radius: 10px;
+    }
+    .btn-manager .btn-icon {
+        font-size: 1.1rem;
+    }
+    .add-partner-container p {
+        font-size: 14px;
+    }
+}
+
+
+/* Smartphone piccolo */
+
+@media (max-width: 480px) {
+    .add-partner-container {
+        margin: 0.8rem;
+        padding: 1.2rem;
+        border-radius: 12px;
+    }
+    .add-partner-container h1 {
+        font-size: 1.6rem;
+    }
+    .add-partner-container form {
+        gap: 1rem;
+    }
+    .form-group label {
+        font-size: 0.9rem;
+    }
+    .add-partner-container input,
+    .add-partner-container select {
+        padding: 0.7rem 0.9rem;
+        font-size: 0.9rem;
+    }
+    .btn-manager {
+        padding: 0.9rem 1.3rem;
+        font-size: 0.95rem;
     }
 }

@@ -124,19 +124,130 @@ h1 {
     color: #27ae60;
 }
 
+
+/* Tablet (iPad) */
+
+@media (max-width: 1024px) {
+    main {
+        max-width: 900px;
+        margin: 1.8rem auto;
+        padding: 1.8rem;
+        border-radius: 20px;
+    }
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 0.9rem;
+    }
+    .manager-form-container {
+        max-width: 550px;
+        padding: 2.2rem;
+        margin-top: 40px;
+    }
+    .manager-form {
+        gap: 1.3rem;
+    }
+    .form-group label {
+        font-size: 0.95rem;
+    }
+    .manager-form input,
+    .manager-form select,
+    .manager-form textarea {
+        padding: 0.9rem 1.1rem;
+        font-size: 0.95rem;
+    }
+    .btn-manager {
+        padding: 1.1rem 1.8rem;
+        font-size: 1.05rem;
+    }
+    .create-chatbot-message {
+        font-size: 1rem;
+    }
+}
+
+
+/* Smartphone */
+
 @media (max-width: 768px) {
+    main {
+        margin: 1rem;
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.8rem;
+    }
     .manager-form-container {
         margin: 1rem;
         padding: 1.5rem;
+        border-radius: 14px;
+    }
+    .manager-form {
+        gap: 1.2rem;
+    }
+    .form-group label {
+        font-size: 0.9rem;
     }
     .manager-form input,
     .manager-form select,
     .manager-form textarea {
         padding: 0.8rem 1rem;
         font-size: 0.95rem;
+        border-radius: 10px;
     }
     .btn-manager {
         padding: 1rem 1.5rem;
         font-size: 1rem;
+        border-radius: 10px;
+    }
+    .btn-manager .btn-icon {
+        font-size: 1.1rem;
+    }
+    .create-chatbot-message {
+        font-size: 0.95rem;
+    }
+}
+
+
+/* Smartphone piccolo */
+
+@media (max-width: 480px) {
+    main {
+        margin: 0.8rem;
+        padding: 1.2rem;
+        border-radius: 14px;
+    }
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.7rem;
+    }
+    .manager-form-container {
+        margin: 0.8rem;
+        padding: 1.2rem;
+        border-radius: 12px;
+    }
+    .manager-form {
+        gap: 1rem;
+    }
+    .form-group label {
+        font-size: 0.85rem;
+    }
+    .manager-form input,
+    .manager-form select,
+    .manager-form textarea {
+        padding: 0.7rem 0.9rem;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+    .btn-manager {
+        padding: 0.9rem 1.3rem;
+        font-size: 0.95rem;
+        border-radius: 8px;
+    }
+    .btn-manager .btn-icon {
+        font-size: 1rem;
+    }
+    .create-chatbot-message {
+        font-size: 0.9rem;
     }
 }
