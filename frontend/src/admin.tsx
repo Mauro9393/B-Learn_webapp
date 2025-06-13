@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './assets/css/admin.css';
-import logoBlearn from './assets/logo-blearn.png';
 
 function Admin() {
   const [email, setEmail] = useState('');
