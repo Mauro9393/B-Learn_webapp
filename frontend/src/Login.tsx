@@ -67,27 +67,41 @@ function Login() {
         ))}
       </div>
       <div className="login-container">
-        <img src={logoBlearn} alt="B-learn Logo" className="login-logo" />
-        <h1>Connexion</h1>
-        <p className="login-subtitle">Accédez à votre espace B-learn</p>
-        <form className="login-form" onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit">Se connecter</button>
-        </form>
-        {error && <p style={{color: 'red'}}>{error}</p>}
+        <div className="login-card">
+          <div className="login-header">
+            <img src={logoBlearn} alt="B-learn Logo" className="login-logo" />
+            <h1 className="login-title">Connexion</h1>
+            <p className="login-subtitle">Accédez à votre espace B-learn</p>
+          </div>
+          <form className="login-form" onSubmit={handleLogin} autoComplete="off">
+            <div className="form-group">
+              <label htmlFor="email">E-mail</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="E-mail"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                autoComplete="username"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Mot de passe</label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Mot de passe"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+            </div>
+            <button type="submit" className="login-button">Se connecter</button>
+          </form>
+          {error && <p style={{color: 'red', marginTop: '1rem'}}>{error}</p>}
+        </div>
       </div>
     </main>
   );

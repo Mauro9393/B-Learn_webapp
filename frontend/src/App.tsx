@@ -52,7 +52,7 @@ function AppLayout() {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/">
       <AppLayout />
     </Router>
   )
