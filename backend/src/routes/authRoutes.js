@@ -76,8 +76,10 @@ router.post('/register', async(req, res) => {
 });
 
 router.post('/login', async(req, res) => {
+    console.log('Login request received:', { email: req.body.email, hasPassword: !!req.body.password });
     const { email, password } = req.body;
     try {
+        console.log('Attempting database query for user:', email);
         const { rows } = await pool.query(`
             SELECT u.id, u.user_mail, u.user_pw, u.active,
                    u.role_id, r.name AS role_name, u.tenant_id, u.must_change_password
@@ -85,13 +87,18 @@ router.post('/login', async(req, res) => {
             JOIN roles r     ON u.role_id = r.id
             WHERE u.user_mail = $1
         `, [email]);
+        console.log('Database query completed, rows found:', rows.length);
+
         const user = rows[0];
         if (user && await bcrypt.compare(password, user.user_pw)) {
+            console.log('Password verification successful for user:', email);
             // Si c'est un user, il doit être actif
             if (user.role_name === 'user' && !user.active) {
+                console.log('User not active:', email);
                 return res.json({ success: false, message: "Vous devez confirmer votre email avant de vous connecter." });
             }
             // Connexion réussie pour admin/superadmin même si non actifs
+            console.log('Login successful for user:', email, 'role:', user.role_name);
             return res.json({
                 success: true,
                 role: user.role_id,
@@ -105,9 +112,11 @@ router.post('/login', async(req, res) => {
             });
         } else {
             // Connexion échouée
+            console.log('Login failed - invalid credentials for:', email);
             res.json({ success: false, message: "Email ou mot de passe incorrect." });
         }
     } catch (err) {
+        console.error('Login error:', err);
         res.status(500).json({ success: false, error: err.message });
     }
 });
