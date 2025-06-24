@@ -7,7 +7,6 @@ function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [popupData, setPopupData] = useState({
     title: '',
