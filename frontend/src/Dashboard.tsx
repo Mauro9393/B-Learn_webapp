@@ -15,6 +15,8 @@ interface Chatbot {
 interface UserlistRow {
   user_email: string;
   chatbot_name: string;
+  created_at: string;
+  score: number;
 }
 
 function Dashboard() {
@@ -27,7 +29,14 @@ function Dashboard() {
     totalChatbots: 0,
     totalLearners: 0,
     totalSimulations: 0,
-    topChatbot: { name: '', count: 0 }
+    topChatbot: { name: '', count: 0 },
+    chatbotsThisMonth: 0,
+    newLearnersThisMonth: 0,
+    simulationsThisMonth: 0,
+    topChatbotsThisMonth: [] as { name: string; storylineKey: string; count: number; rank: number }[],
+    newSimulationsThisMonth: 0,
+    newLearnersThisMonthStats: 0,
+    averageScoreThisMonth: 0
   });
   const [showSummaryDetails, setShowSummaryDetails] = useState(false);
 
@@ -38,6 +47,187 @@ function Dashboard() {
   // Récupère l'email de l'utilisateur connecté
   const userRole = localStorage.getItem('userRole');
   const tenantId = localStorage.getItem('tenantId');
+
+  // Funzione per calcolare i chatbot creati nel mese corrente
+  const calculateChatbotsThisMonth = (chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Filtra i chatbot in base al ruolo e al cliente selezionato
+    const filteredChatbots = userRole === '1'
+      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
+      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
+    
+    // Conta quanti chatbot sono stati creati nel mese corrente
+    const chatbotsThisMonth = filteredChatbots.filter(bot => {
+      const createdDate = new Date(bot.created_at);
+      return createdDate.getMonth() === currentMonth && createdDate.getFullYear() === currentYear;
+    }).length;
+    
+    return chatbotsThisMonth;
+  };
+
+  // Funzione per calcolare i nuovi learners del mese corrente
+  const calculateNewLearnersThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Filtra i chatbot in base al ruolo e al cliente selezionato
+    const filteredChatbots = userRole === '1'
+      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
+      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
+    
+    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
+    
+    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato
+    const tenantUserlist = userlist.filter(row => tenantStorylineKeys.includes(row.chatbot_name));
+    
+    // Raggruppa le simulazioni per learner e trova la prima simulazione di ciascuno
+    const learnerFirstSimulation: Record<string, Date> = {};
+    
+    tenantUserlist.forEach(row => {
+      const simulationDate = new Date(row.created_at);
+      
+      if (!learnerFirstSimulation[row.user_email] || simulationDate < learnerFirstSimulation[row.user_email]) {
+        learnerFirstSimulation[row.user_email] = simulationDate;
+      }
+    });
+    
+    // Conta quanti learners hanno fatto la prima simulazione nel mese corrente
+    const newLearnersThisMonth = Object.values(learnerFirstSimulation).filter(date => {
+      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    }).length;
+    
+    return newLearnersThisMonth;
+  };
+
+  // Funzione per calcolare le simulazioni del mese corrente
+  const calculateSimulationsThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Filtra i chatbot in base al ruolo e al cliente selezionato
+    const filteredChatbots = userRole === '1'
+      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
+      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
+    
+    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
+    
+    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato
+    const tenantUserlist = userlist.filter(row => tenantStorylineKeys.includes(row.chatbot_name));
+    
+    // Conta le simulazioni fatte nel mese corrente basandosi su created_at
+    const simulationsThisMonth = tenantUserlist.filter(row => {
+      const simulationDate = new Date(row.created_at);
+      return simulationDate.getMonth() === currentMonth && simulationDate.getFullYear() === currentYear;
+    }).length;
+    
+    return simulationsThisMonth;
+  };
+
+  // Funzione per calcolare i top chatbot del mese corrente
+  const calculateTopChatbotsThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Filtra i chatbot in base al ruolo e al cliente selezionato
+    const filteredChatbots = userRole === '1'
+      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
+      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
+    
+    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
+    
+    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato e del mese corrente
+    const tenantUserlist = userlist.filter(row => {
+      const simulationDate = new Date(row.created_at);
+      return tenantStorylineKeys.includes(row.chatbot_name) && 
+             simulationDate.getMonth() === currentMonth && 
+             simulationDate.getFullYear() === currentYear;
+    });
+    
+    // Conta le simulazioni per ogni chatbot
+    const chatbotCount: Record<string, number> = {};
+    tenantUserlist.forEach(row => {
+      chatbotCount[row.chatbot_name] = (chatbotCount[row.chatbot_name] || 0) + 1;
+    });
+    
+    // Ordina i chatbot per numero di simulazioni (decrescente) e prendi i top 5
+    const topChatbots = Object.entries(chatbotCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 5)
+      .map(([storylineKey, count], index) => {
+        const chatbot = chatbots.find(bot => bot.storyline_key === storylineKey);
+        return {
+          name: chatbot?.name || storylineKey,
+          storylineKey,
+          count,
+          rank: index + 1
+        };
+      });
+    
+    return topChatbots;
+  };
+
+  // Funzione per calcolare le nuove simulazioni del mese corrente
+  const calculateNewSimulationsThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Filtra i chatbot in base al ruolo e al cliente selezionato
+    const filteredChatbots = userRole === '1'
+      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
+      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
+    
+    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
+    
+    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato e del mese corrente
+    const simulationsThisMonth = userlist.filter(row => {
+      const simulationDate = new Date(row.created_at);
+      return tenantStorylineKeys.includes(row.chatbot_name) && 
+             simulationDate.getMonth() === currentMonth && 
+             simulationDate.getFullYear() === currentYear;
+    }).length;
+    
+    return simulationsThisMonth;
+  };
+
+  // Funzione per calcolare il punteggio medio del mese corrente
+  const calculateAverageScoreThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Filtra i chatbot in base al ruolo e al cliente selezionato
+    const filteredChatbots = userRole === '1'
+      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
+      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
+    
+    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
+    
+    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato e del mese corrente
+    const simulationsThisMonth = userlist.filter(row => {
+      const simulationDate = new Date(row.created_at);
+      return tenantStorylineKeys.includes(row.chatbot_name) && 
+             simulationDate.getMonth() === currentMonth && 
+             simulationDate.getFullYear() === currentYear;
+    });
+    
+    // Calcola il punteggio medio (assumendo che il campo score esista)
+    if (simulationsThisMonth.length === 0) return 0;
+    
+    const totalScore = simulationsThisMonth.reduce((sum, row) => {
+      // Assumendo che il campo score sia numerico, altrimenti usa 0
+      const score = typeof row.score === 'number' ? row.score : 0;
+      return sum + score;
+    }, 0);
+    
+    return Math.round(totalScore / simulationsThisMonth.length); // Arrotonda all'intero più vicino
+  };
 
   useEffect(() => {
     const fetchChatbots = async () => {
@@ -98,12 +288,37 @@ function Dashboard() {
       if (count > topChatbot.count) topChatbot = { name, count };
     }
 
+    // Calcola i chatbot creati nel mese corrente
+    const chatbotsThisMonth = calculateChatbotsThisMonth(chatbots, userRole || '', tenantId || '', selectedClient);
+
+    // Calcola i nuovi learners del mese corrente
+    const newLearnersThisMonth = calculateNewLearnersThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+
+    // Calcola le simulazioni del mese corrente
+    const simulationsThisMonth = calculateSimulationsThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+
+    // Calcola i top chatbot del mese corrente
+    const topChatbotsThisMonth = calculateTopChatbotsThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+
+    // Calcola le nuove simulazioni del mese corrente
+    const newSimulationsThisMonth = calculateNewSimulationsThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+
+    // Calcola il punteggio medio del mese corrente
+    const averageScoreThisMonth = calculateAverageScoreThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+
     setStats(s => ({
       ...s,
       totalSimulations,
       totalLearners: uniqueLearners,
       totalChatbots,
-      topChatbot
+      topChatbot,
+      chatbotsThisMonth,
+      newLearnersThisMonth,
+      simulationsThisMonth,
+      topChatbotsThisMonth,
+      newSimulationsThisMonth,
+      newLearnersThisMonthStats: newLearnersThisMonth,
+      averageScoreThisMonth
     }));
   }, [userlist, chatbots, userRole, tenantId, selectedClient]);
 
@@ -160,19 +375,19 @@ function Dashboard() {
             <div className="card-emoji">🤖</div>
             <h3>Chatbots</h3>
             <div className="mini-value">{stats.totalChatbots}</div>
-            <div className="card-badge positive">+2 ce mois-ci</div>
+            <div className="card-badge positive">+{stats.chatbotsThisMonth} ce mois-ci</div>
           </div>
           <div className="mini-dashboard-card">
             <div className="card-emoji">👥</div>
             <h3>Learners</h3>
             <div className="mini-value">{stats.totalLearners}</div>
-            <div className="card-badge positive">+12 learners</div>
+            <div className="card-badge positive">+{stats.newLearnersThisMonth} learners</div>
           </div>
           <div className="mini-dashboard-card">
             <div className="card-emoji">🎯</div>
             <h3>Simulations</h3>
             <div className="mini-value">{stats.totalSimulations}</div>
-            <div className="card-badge positive">+56 simulations</div>
+            <div className="card-badge positive">+{stats.simulationsThisMonth} simulations</div>
           </div>
           <div className="mini-dashboard-card">
             <div className="card-emoji">⭐</div>
@@ -201,58 +416,54 @@ function Dashboard() {
         {/* Sezione dettagliata (espandibile) */}
         {showSummaryDetails && (
           <div className="summary-details" id="summaryDetails" style={{display: 'flex'}}>
-            {/* Top 5 Simulations (statico) */}
+            {/* Top 5 Simulations (dinamico) */}
             <div className="summary-widget gamified">
               <h3 className="widget-title">🏆 Hall of Fame - Top Simulations</h3>
               <div className="top-simulations">
-                <div className="simulation-item rank-1">
-                  <span className="simulation-rank gold">👑 #1</span>
-                  <span className="simulation-name">Vente Retail</span>
-                  <span className="simulation-count">58 <small>runs</small></span>
-                  <div className="achievement-badge">🥇 Champion</div>
-                </div>
-                <div className="simulation-item rank-2">
-                  <span className="simulation-rank silver">🥈 #2</span>
-                  <span className="simulation-name">Formation Sécurité</span>
-                  <span className="simulation-count">45 <small>runs</small></span>
-                  <div className="achievement-badge">🔥 Hot</div>
-                </div>
-                <div className="simulation-item rank-3">
-                  <span className="simulation-rank bronze">🥉 #3</span>
-                  <span className="simulation-name">Relation Client</span>
-                  <span className="simulation-count">41 <small>runs</small></span>
-                  <div className="achievement-badge">⭐ Star</div>
-                </div>
-                <div className="simulation-item">
-                  <span className="simulation-rank">#4</span>
-                  <span className="simulation-name">Onboarding RH</span>
-                  <span className="simulation-count">34 <small>runs</small></span>
-                </div>
-                <div className="simulation-item">
-                  <span className="simulation-rank">#5</span>
-                  <span className="simulation-name">Négociation</span>
-                  <span className="simulation-count">28 <small>runs</small></span>
-                </div>
+                {stats.topChatbotsThisMonth && stats.topChatbotsThisMonth.length > 0 ? (
+                  stats.topChatbotsThisMonth.map((chatbot, index) => {
+                    const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+                    const rankIcon = index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                    const achievementBadge = index === 0 ? '🥇 Champion' : index === 1 ? '🔥 Hot' : index === 2 ? '⭐ Star' : '';
+                    
+                    return (
+                      <div key={chatbot.storylineKey} className={`simulation-item ${rankClass}`}>
+                        <span className="simulation-rank">
+                          {rankIcon} #{chatbot.rank}
+                        </span>
+                        <span className="simulation-name">{chatbot.name}</span>
+                        <span className="simulation-count">{chatbot.count} <small>runs</small></span>
+                        {achievementBadge && (
+                          <div className="achievement-badge">{achievementBadge}</div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="no-data-message">
+                    <span>📊 Aucune simulation ce mois-ci</span>
+                  </div>
+                )}
               </div>
             </div>
-            {/* Statistiche evolutive (statico) */}
+            {/* Statistiche evolutive (dinamico) */}
             <div className="summary-widget gamified">
               <h3 className="widget-title">📊 Mes stats</h3>
               <div className="evolution-stats">
                 <div className="evolution-item streak">
                   <div className="evolution-icon">🚀</div>
                   <div className="evolution-label">Nouvelles simulations</div>
-                  <div className="evolution-value positive">+120</div>
+                  <div className="evolution-value positive">+{stats.newSimulationsThisMonth}</div>
                 </div>
                 <div className="evolution-item level-up">
                   <div className="evolution-icon">👑</div>
                   <div className="evolution-label">Nouveaux learners</div>
-                  <div className="evolution-value positive">+12</div>
+                  <div className="evolution-value positive">+{stats.newLearnersThisMonthStats}</div>
                 </div>
                 <div className="evolution-item achievement">
                   <div className="evolution-icon">🎯</div>
                   <div className="evolution-label">Score moyen</div>
-                  <div className="evolution-value positive">+3.2</div>
+                  <div className="evolution-value positive">+{stats.averageScoreThisMonth}</div>
                 </div>
               </div>
             </div>
