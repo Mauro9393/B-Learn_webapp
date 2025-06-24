@@ -8,6 +8,12 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupData, setPopupData] = useState({
+    title: '',
+    message: '',
+    icon: '🔒'
+  });
 
   useEffect(() => {
     document.body.classList.add('login-page');
@@ -16,9 +22,17 @@ function Login() {
     };
   }, []);
 
+  const showPopupMessage = (title: string, message: string, icon: string = '🔒') => {
+    setPopupData({ title, message, icon });
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log('handleLogin appelé');
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
         method: 'POST',
@@ -26,16 +40,18 @@ function Login() {
         body: JSON.stringify({ email, password })
       });
       const result = await response.json();
-      // console.log('Réponse login:', result);
+      
       if (result.success) {
         localStorage.setItem('userEmail', email);
         localStorage.setItem('userRole', String(result.role));
         localStorage.setItem('tenantId', result.user.tenant_id);
         localStorage.setItem('userId', String(result.user.id));
+        
         if (result.user.must_change_password) {
           navigate('/choose-password');
           return;
         }
+        
         fetch(`${import.meta.env.VITE_API_URL}/api/tenants`)
         .then(res => res.json())
         .then((tenants: { id: number|string, name: string }[]) => {
@@ -45,65 +61,66 @@ function Login() {
           }
           navigate('/dashboard');
         });
-        // console.log('Enregistré dans localStorage:', {
-        //   userEmail: localStorage.getItem('userEmail'),
-        //   userRole: localStorage.getItem('userRole'),
-        //   tenantId: localStorage.getItem('tenantId')
-        // });
+        
         navigate('/dashboard');
       } else {
-        setError(result.message || 'Email ou mot de passe incorrect');
+        showPopupMessage('Erreur de connexion', result.message || 'Email ou mot de passe incorrect', '❌');
       }
     } catch (err) {
-      setError('Erreur de connexion');
+      showPopupMessage('Erreur de connexion', 'Erreur de connexion', '❌');
     }
   };
 
   return (
-    <main className="login-main-centered">
-      <div className="animated-bg">
-        {[...Array(12)].map((_, i) => (
-          <div className="sphere" key={i}></div>
-        ))}
-      </div>
-      <div className="login-container">
-        <div className="login-card">
-          <div className="login-header">
-            <img src={logoBlearn} alt="B-learn Logo" className="login-logo" />
-            <h1 className="login-title">Connexion</h1>
-            <p className="login-subtitle">Accédez à votre espace B-learn</p>
+    <>
+      <main className="login-main-centered">
+        <div className="animated-bg">
+          {[...Array(12)].map((_, i) => (
+            <div className="sphere" key={i}></div>
+          ))}
+        </div>
+        <div className="login-container">
+          <div className="login-logo">
+            <img src={logoBlearn} alt="B-learn Logo" />
           </div>
+          <h1>Connexion</h1>
+          <p className="login-subtitle">Accédez à votre espace B-learn</p>
           <form className="login-form" onSubmit={handleLogin} autoComplete="off">
-            <div className="form-group">
-              <label htmlFor="email">E-mail</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="E-mail"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                autoComplete="username"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Mot de passe</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="Mot de passe"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
-            </div>
-            <button type="submit" className="login-button">Se connecter</button>
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoComplete="username"
+            />
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+            />
+            <button type="submit">Se connecter</button>
           </form>
-          {error && <p style={{color: 'red', marginTop: '1rem'}}>{error}</p>}
+        </div>
+      </main>
+
+      {/* Popup di notifica */}
+      <div className={`popup-overlay ${showPopup ? 'show' : ''}`} onClick={closePopup}>
+        <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+          <div className="popup-icon">{popupData.icon}</div>
+          <h3 className="popup-title">{popupData.title}</h3>
+          <p className="popup-message">{popupData.message}</p>
+          <div className="popup-buttons">
+            <button className="popup-button secondary" onClick={closePopup}>
+              Fermer
+            </button>
+          </div>
         </div>
       </div>
-    </main>
+    </>
   );
 }
 

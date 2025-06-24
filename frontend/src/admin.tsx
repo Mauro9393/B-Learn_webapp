@@ -106,14 +106,14 @@ function Admin() {
       </form>
       {message && <p style={{ color: message.includes('succès') ? 'green' : 'red' }}>{message}</p>}
       
-      {/* Popup di conferma */}
+      {/* Popup de confirmation - Stile originale da add-admin.html */}
       {showPopup && (
         <div className="popup-overlay show">
           <div className="popup-content">
             <div className="popup-icon">📧</div>
-            <h3 className="popup-title">Compte créé !</h3>
+            <h3 className="popup-title">Email envoyé !</h3>
             <p className="popup-message">
-              Un email vient d'être envoyé à <b>{email}</b> pour inviter <b>{fullName}</b> à rejoindre la plateforme B-Learn.
+              Un email vient d'être envoyé sur l'email de l'administrateur pour l'inviter à rejoindre la plateforme B-Learn.
             </p>
             <button className="popup-button" onClick={closePopup}>OK</button>
           </div>
