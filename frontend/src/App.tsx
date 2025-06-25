@@ -15,6 +15,8 @@ import AllStudentList from './AllStudentList';
 import Analysis from './Analysis';
 import ChooseYourPw from './ChooseYourPw';
 import Confirmation from './Confirmation';
+import ForgotPassword from './ForgotPassword';
+import ResetPassword from './ResetPassword';
 import './App.css'
 
 function AppLayout() {
@@ -23,7 +25,9 @@ function AppLayout() {
   const hideHeader = location.pathname === '/' || 
                     location.pathname === '/login' || 
                     location.pathname === '/inscription' ||
-                    location.pathname === '/confirmation';
+                    location.pathname === '/confirmation' ||
+                    location.pathname === '/forgot-password' ||
+                    location.pathname.startsWith('/reset-password');
   return (
     <>
       {!hideHeader && <HeaderMenu />}
@@ -45,6 +49,8 @@ function AppLayout() {
         <Route path="/analysis" element={<Analysis />} />
         <Route path="/choose-password" element={<ChooseYourPw />} />
         <Route path="/confirmation" element={<Confirmation />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </>
   );

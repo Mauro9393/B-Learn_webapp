@@ -103,6 +103,24 @@ function Login() {
             />
             <button type="submit">Se connecter</button>
           </form>
+          <div style={{ 
+            textAlign: 'center', 
+            marginTop: '20px',
+            fontSize: '14px'
+          }}>
+            <a 
+              href="/forgot-password" 
+              style={{ 
+                color: '#007bff', 
+                textDecoration: 'none',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => (e.target as HTMLElement).style.textDecoration = 'underline'}
+              onMouseLeave={(e) => (e.target as HTMLElement).style.textDecoration = 'none'}
+            >
+              Mot de passe oublié ?
+            </a>
+          </div>
         </div>
       </main>
 

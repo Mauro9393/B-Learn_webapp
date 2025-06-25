@@ -460,4 +460,102 @@ router.post('/change-password', async(req, res) => {
     }
 });
 
+// Rotte per il reset password
+router.post('/forgot-password', async(req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email manquante.' });
+        }
+
+        // Verifica se l'utente esiste
+        const userRes = await pool.query('SELECT id, user_mail, full_name FROM users WHERE user_mail = $1', [email]);
+        if (userRes.rows.length === 0) {
+            return res.json({ success: true, message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.' });
+        }
+
+        const user = userRes.rows[0];
+        const resetToken = uuidv4();
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 ore
+
+        // Salva il token nel database
+        await pool.query(
+            'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3', [resetToken, expiresAt, user.id]
+        );
+
+        // Invia l'email di reset
+        const resetLink = `http://163.172.159.116:3001/reset-password?token=${resetToken}`;
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Réinitialisation de votre mot de passe B-Learn',
+            html: `
+                <p>Bonjour ${user.full_name},</p>
+                <p>Vous avez demandé la réinitialisation de votre mot de passe sur B-Learn.</p>
+                <p>Cliquez sur le lien suivant pour définir un nouveau mot de passe :</p>
+                <p><a href="${resetLink}">${resetLink}</a></p>
+                <p>Ce lien expire dans 24 heures.</p>
+                <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
+            `
+        });
+
+        res.json({ success: true, message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.' });
+    } catch (error) {
+        console.error('Errore forgot-password:', error);
+        res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi de l\'email de réinitialisation.' });
+    }
+});
+
+router.post('/reset-password', async(req, res) => {
+    try {
+        const { token, password } = req.body;
+        if (!token || !password) {
+            return res.status(400).json({ success: false, message: 'Token et mot de passe requis.' });
+        }
+
+        // Verifica il token
+        const userRes = await pool.query(
+            'SELECT id FROM users WHERE reset_password_token = $1 AND reset_password_expires > NOW()', [token]
+        );
+
+        if (userRes.rows.length === 0) {
+            return res.status(400).json({ success: false, message: 'Token invalide ou expiré.' });
+        }
+
+        const userId = userRes.rows[0].id;
+        const hashedPw = await bcrypt.hash(password, 10);
+
+        // Aggiorna la password e cancella il token
+        await pool.query(
+            'UPDATE users SET user_pw = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2', [hashedPw, userId]
+        );
+
+        res.json({ success: true, message: 'Mot de passe réinitialisé avec succès.' });
+    } catch (error) {
+        console.error('Errore reset-password:', error);
+        res.status(500).json({ success: false, message: 'Erreur lors de la réinitialisation du mot de passe.' });
+    }
+});
+
+router.get('/verify-reset-token', async(req, res) => {
+    try {
+        const { token } = req.query;
+        if (!token) {
+            return res.status(400).json({ success: false, message: 'Token manquant.' });
+        }
+
+        const userRes = await pool.query(
+            'SELECT id FROM users WHERE reset_password_token = $1 AND reset_password_expires > NOW()', [token]
+        );
+
+        if (userRes.rows.length === 0) {
+            return res.json({ success: false, message: 'Token invalide ou expiré.' });
+        }
+
+        res.json({ success: true, message: 'Token valide.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Erreur lors de la vérification du token.' });
+    }
+});
+
 module.exports = router;
