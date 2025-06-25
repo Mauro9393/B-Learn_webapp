@@ -38,7 +38,7 @@ function Home() {
           <div className="home-box-desc">
             Organisez et suivez les performances de vos apprenants en temps réel : les données collectées lors de l'utilisation de chatbots pédagogiques — intégrés à des parcours e-learning sur un LMS — sont centralisées sur B-Learn pour vous offrir une vision claire et immédiate de leur progression.
           </div>
-          <button className="home-box-btn" onClick={() => navigate('/login')}>En savoir plus</button>
+          {/*<button className="home-box-btn" onClick={() => navigate('/login')}>En savoir plus</button>*/}
         </div>
         <div className="home-box">
           <div className="home-box-icon">📊</div>
@@ -46,7 +46,7 @@ function Home() {
           <div className="home-box-desc">
             Analysez les progrès grâce à des tableaux de bord intuitifs et des rapports détaillés : prenez des décisions éclairées pour personnaliser l'expérience d'apprentissage.
           </div>
-          <button className="home-box-btn" onClick={() => navigate('/login')}>En savoir plus</button>
+          {/*<button className="home-box-btn" onClick={() => navigate('/login')}>En savoir plus</button>*/}
         </div>
         <div className="home-box">
           <div className="home-box-icon">🔐</div>
@@ -54,7 +54,7 @@ function Home() {
           <div className="home-box-desc">
             Gérez l'accès en toute sécurité : inscriptions, connexions et récupération de mot de passe sont rapides, simples et sécurisées.
           </div>
-          <button className="home-box-btn" onClick={() => navigate('/login')}>En savoir plus</button>
+         {/* <button className="home-box-btn" onClick={() => navigate('/login')}>En savoir plus</button>*/}
         </div>
       </section>
     </>

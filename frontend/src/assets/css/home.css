@@ -343,12 +343,12 @@ body.home-page main {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-width: 280px;
-    max-width: 340px;
+    min-width: 380px;
+    max-width: 440px;
     min-height: 320px;
     position: relative;
     transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #f0f0f0;
+    /*border: 1px solid #f0f0f0;*/
 }
 
 .home-box:not(:last-child) {
