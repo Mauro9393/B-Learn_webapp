@@ -751,9 +751,6 @@ button:hover,
         font-size: 12px;
         padding: 10px 16px;
     }
-}
-
-@media (max-width: 700px) {
     .summary-details {
         flex-direction: column !important;
         align-items: stretch !important;
