@@ -195,7 +195,7 @@ router.post('/invite-partner', async(req, res) => {
                 'INSERT INTO invitations (email, token, tenant_id, role_id, chatbot_id, expires_at, used, created_at) VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL \'2 days\', false, NOW())', [email, token, tenantId, roleId, chatbotId]
             );
             // Envoie l'email
-            const link = `http://163.172.159.116:3001/inscription?token=${token}`;
+            const link = `http://163.172.159.116:8080/inscription?token=${token}`;
             const salutation = managerName ? `Bonjour ${managerName},` : 'Bonjour,';
             await transporter.sendMail({
                 from: 'noreplyblearn@gmail.com',
@@ -484,7 +484,7 @@ router.post('/forgot-password', async(req, res) => {
         );
 
         // Invia l'email di reset
-        const resetLink = `http://163.172.159.116:3001/reset-password?token=${resetToken}`;
+        const resetLink = `http://163.172.159.116:8080/reset-password?token=${resetToken}`;
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
