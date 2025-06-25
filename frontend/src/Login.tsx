@@ -15,6 +15,7 @@ function Login() {
   });
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [showAttemptsWarning, setShowAttemptsWarning] = useState(false);
+  const [attemptsMessage, setAttemptsMessage] = useState('');
 
   useEffect(() => {
     document.body.classList.add('login-page');
@@ -38,14 +39,19 @@ function Login() {
         setLoginAttempts(attempts);
         setEmail(savedEmail);
         
-        // Se ha già fatto 3 tentativi, redirect automatico
-        if (attempts >= 3) {
+        // Se ha già fatto 4 tentativi, redirect automatico
+        if (attempts >= 4) {
           navigate('/forgot-password');
           return;
         }
         
         // Mostra avviso se ha già fatto tentativi
         if (attempts > 0) {
+          const remainingAttempts = 4 - attempts;
+          const message = remainingAttempts === 1 
+            ? 'Il vous reste 1 tentative avant le blocage du compte.'
+            : `Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
+          setAttemptsMessage(message);
           setShowAttemptsWarning(true);
         }
       }
@@ -68,8 +74,8 @@ function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Se ha già fatto 3 tentativi, redirect automatico
-    if (loginAttempts >= 3) {
+    // Se ha già fatto 4 tentativi, redirect automatico
+    if (loginAttempts >= 4) {
       navigate('/forgot-password');
       return;
     }
@@ -119,14 +125,19 @@ function Login() {
         localStorage.setItem('failedLoginEmail', email);
         localStorage.setItem('lastLoginAttemptTime', Date.now().toString());
         
-        if (newAttempts >= 3) {
-          // Dopo 3 tentativi, redirect automatico
+        if (newAttempts >= 4) {
+          // Dopo 4 tentativi, redirect automatico
           showPopupMessage('Compte bloqué', 'Trop de tentatives échouées. Vous avez été redirigé vers la page de récupération de mot de passe.', '🔒');
           setTimeout(() => {
             navigate('/forgot-password');
           }, 2000);
         } else {
-          // Mostra solo la scritta rossa per i primi 2 tentativi (senza popup)
+          // Mostra solo la scritta rossa per i primi 3 tentativi (senza popup)
+          const remainingAttempts = 4 - newAttempts;
+          const message = remainingAttempts === 1 
+            ? 'Il vous reste 1 tentative avant le blocage du compte.'
+            : `Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
+          setAttemptsMessage(message);
           setShowAttemptsWarning(true);
         }
       }
@@ -139,13 +150,18 @@ function Login() {
       localStorage.setItem('failedLoginEmail', email);
       localStorage.setItem('lastLoginAttemptTime', Date.now().toString());
       
-      if (newAttempts >= 3) {
+      if (newAttempts >= 4) {
         showPopupMessage('Compte bloqué', 'Trop de tentatives échouées. Vous avez été redirigé vers la page de récupération de mot de passe.', '🔒');
         setTimeout(() => {
           navigate('/forgot-password');
         }, 2000);
       } else {
-        // Mostra solo la scritta rossa per i primi 2 tentativi (senza popup)
+        // Mostra solo la scritta rossa per i primi 3 tentativi (senza popup)
+        const remainingAttempts = 4 - newAttempts;
+        const message = remainingAttempts === 1 
+          ? 'Il vous reste 1 tentative avant le blocage du compte.'
+          : `Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
+        setAttemptsMessage(message);
         setShowAttemptsWarning(true);
       }
     }
@@ -186,7 +202,7 @@ function Login() {
           </form>
           
           {/* Avviso tentativi rimanenti */}
-          {showAttemptsWarning && loginAttempts > 0 && loginAttempts < 3 && (
+          {showAttemptsWarning && loginAttempts > 0 && loginAttempts < 4 && (
             <div style={{
               color: '#dc3545',
               fontSize: '14px',
@@ -194,10 +210,7 @@ function Login() {
               marginTop: '10px',
               fontWeight: 'bold'
             }}>
-              ⚠️ {loginAttempts === 1 
-                ? 'Il vous reste 1 tentative avant le blocage du compte.'
-                : `Il vous reste ${3 - loginAttempts} tentatives avant le blocage du compte.`
-              }
+              ⚠️ {attemptsMessage}
             </div>
           )}
           
