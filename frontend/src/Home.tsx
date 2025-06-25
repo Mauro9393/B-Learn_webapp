@@ -15,13 +15,6 @@ function Home() {
 
   return (
     <>
-      {/* Sfondo animato */}
-      <div className="animated-bg">
-        {[...Array(12)].map((_, i) => (
-          <div className="sphere" key={i}></div>
-        ))}
-      </div>
-
       {/* HERO SECTION */}
       <section className="home-hero">
         <div className="home-hero-left">
