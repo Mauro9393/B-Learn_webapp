@@ -1182,4 +1182,7 @@ button:hover,
         font-size: 12px;
         padding: 10px 16px;
     }
+    .summary-details {
+        flex-direction: column !important;
+    }
 }
