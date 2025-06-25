@@ -290,7 +290,7 @@ body {
 .profile-avatar-circle {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: 30%;
     background: linear-gradient(135deg, #7F53F5 0%, #5B6DF6 100%);
     color: #fff;
     display: flex;
@@ -561,7 +561,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px;
+    padding: 4px;
     border-bottom: 1px solid #eee;
     margin-bottom: 20px;
 }
