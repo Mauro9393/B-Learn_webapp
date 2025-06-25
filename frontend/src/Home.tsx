@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/home.css';
 import logoBlearn from './assets/logo-blearn.png';
