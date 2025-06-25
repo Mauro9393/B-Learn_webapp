@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/home.css';
-import logoBlearn from './assets/logo-blearn.png';
 
 function Home() {
   const navigate = useNavigate();
@@ -16,18 +15,18 @@ function Home() {
   return (
     <>
       {/* HERO SECTION */}
-      <section className="home-hero">
-        <div className="home-hero-left">
-          <img src={logoBlearn} alt="B-learn Logo" className="home-hero-logo" />
-        </div>
-        <div className="home-hero-right">
-          <h1 className="home-hero-title">🎓 Bienvenue sur B-Learn</h1>
-          <p className="home-hero-desc">
-            La plateforme qui vous permet de suivre l'apprentissage, de visualiser des données clés et d'accompagner vos apprenants dans leurs parcours de formation digitale.
-          </p>
-          <button className="home-hero-btn" onClick={() => navigate('/login')}>
-            Connection
-          </button>
+      <section className="home-hero-bg">
+        <div className="home-hero-overlay" />
+        <div className="home-hero-content">
+          <div className="home-hero-text">
+            <h1 className="home-hero-title">🎓 Bienvenue sur B-Learn</h1>
+            <p className="home-hero-desc">
+              La plateforme qui vous permet de suivre l'apprentissage, de visualiser des données clés et d'accompagner vos apprenants dans leurs parcours de formation digitale.
+            </p>
+            <button className="home-hero-btn" onClick={() => navigate('/login')}>
+              Connection
+            </button>
+          </div>
         </div>
       </section>
 
