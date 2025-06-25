@@ -126,13 +126,7 @@ function Login() {
             navigate('/forgot-password');
           }, 2000);
         } else {
-          // Mostra avviso con tentativi rimanenti
-          const remainingAttempts = 3 - newAttempts;
-          const warningMessage = remainingAttempts === 1 
-            ? 'Tentative échouée. Il vous reste 1 tentative avant le blocage du compte.'
-            : `Tentative échouée. Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
-          
-          showPopupMessage('Erreur de connexion', warningMessage, '⚠️');
+          // Mostra solo la scritta rossa per i primi 2 tentativi (senza popup)
           setShowAttemptsWarning(true);
         }
       }
@@ -151,12 +145,7 @@ function Login() {
           navigate('/forgot-password');
         }, 2000);
       } else {
-        const remainingAttempts = 3 - newAttempts;
-        const warningMessage = remainingAttempts === 1 
-          ? 'Erreur de connexion. Il vous reste 1 tentative avant le blocage du compte.'
-          : `Erreur de connexion. Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
-        
-        showPopupMessage('Erreur de connexion', warningMessage, '⚠️');
+        // Mostra solo la scritta rossa per i primi 2 tentativi (senza popup)
         setShowAttemptsWarning(true);
       }
     }

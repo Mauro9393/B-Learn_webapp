@@ -81,6 +81,11 @@ function ResetPassword() {
       const result = await response.json();
       
       if (result.success) {
+        // Reset dei tentativi di login quando la password viene cambiata con successo
+        localStorage.removeItem('loginAttempts');
+        localStorage.removeItem('failedLoginEmail');
+        localStorage.removeItem('lastLoginAttemptTime');
+        
         showPopupMessage('Succès', 'Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.', '✅');
       } else {
         showPopupMessage('Erreur', result.message || 'Erreur lors de la réinitialisation du mot de passe', '❌');
