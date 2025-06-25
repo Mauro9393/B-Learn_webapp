@@ -252,9 +252,9 @@ body.home-page main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(90deg, rgba(91, 109, 246, 0.82) 0%, rgba(127, 83, 245, 0.65) 100%);
+    background: linear-gradient(90deg, rgba(91, 109, 246, 0.95) 0%, rgba(127, 83, 245, 0.85) 100%);
     z-index: 1;
-    opacity: 0.82;
+    opacity: 1;
 }
 
 .home-hero-content {
@@ -450,6 +450,22 @@ body.home-page main {
         font-size: 0.95rem;
     }
     .home-hero-content {
-        padding-left: 0.5vw;
+        padding-left: 0;
+        justify-content: center;
+        text-align: center;
+    }
+    .home-hero-text {
+        align-items: center;
+        width: 100%;
+    }
+    .home-hero-btn {
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    .home-hero-title,
+    .home-hero-desc {
+        color: #fff !important;
+        text-align: center;
     }
 }
