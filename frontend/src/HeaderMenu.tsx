@@ -13,7 +13,7 @@ const HeaderMenu: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userRole');
-    navigate('/login');
+    navigate('/Home');
   };
 
   const isSuperAdmin = userRole === '1';
