@@ -313,10 +313,20 @@
 /* Smartphone piccolo */
 
 @media (max-width: 480px) {
+    body,
+    html {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow-x: hidden !important;
+    }
     .chatbot-detail-main {
-        padding: 20px 20px 16px 20px;
-        border-radius: 16px;
-        margin: 12px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: calc(100% - 24px) !important;
+        max-width: 420px !important;
+        box-sizing: border-box;
     }
     .breadcrumb {
         font-size: 0.9rem;
