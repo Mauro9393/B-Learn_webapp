@@ -327,8 +327,8 @@ body.home-page main {
     align-items: stretch;
     gap: 4rem;
     max-width: 1600px;
-    margin: 0 auto 40px auto;
-    padding: 60px 2rem 0 2rem;
+    margin: 0 auto 0px auto;
+    padding: 0px 2rem 0 2rem;
     background: #fff;
 }
 
