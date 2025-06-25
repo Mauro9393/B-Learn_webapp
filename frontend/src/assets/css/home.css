@@ -1,0 +1,361 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap');
+
+/* Stili per la pagina Home */
+
+body.home-page {
+    background: linear-gradient(135deg, #5B6DF6 0%, #7F53F5 100%) !important;
+    color: #333 !important;
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+
+body.home-page * {
+    color: inherit;
+}
+
+body.home-page #root {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+body.home-page main {
+    background: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+
+/* Header con pulsante Connection */
+
+.home-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.connection-button {
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.connection-button:hover {
+    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(127, 83, 245, 0.3);
+}
+
+
+/* Contenuto principale */
+
+.home-main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 2rem 2rem 2rem;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 100;
+}
+
+
+/* Container del contenuto */
+
+.home-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    padding: 3rem 2.5rem;
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 101;
+}
+
+
+/* Logo */
+
+.home-logo {
+    width: 100px;
+    height: auto;
+    margin: 0 auto 2rem auto;
+    filter: drop-shadow(0 4px 8px rgba(91, 109, 246, 0.3));
+    display: block;
+}
+
+
+/* Titolo principale */
+
+.home-title {
+    color: #5B6DF6;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+
+/* Sottotitolo */
+
+.home-subtitle {
+    color: #666;
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* Sezione funzionalità */
+
+.features-section {
+    text-align: left;
+    margin-top: 2rem;
+}
+
+.features-title {
+    color: #5B6DF6;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.feature-item {
+    background: rgba(91, 109, 246, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #5B6DF6;
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: rgba(91, 109, 246, 0.1);
+    transform: translateX(5px);
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.feature-text {
+    color: #333;
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+
+/* Sfondo animato */
+
+.animated-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.sphere {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: float3d 6s ease-in-out infinite;
+    z-index: 2;
+}
+
+.sphere:nth-child(1) {
+    width: 80px;
+    height: 80px;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.sphere:nth-child(2) {
+    width: 120px;
+    height: 120px;
+    top: 20%;
+    right: 15%;
+    animation-delay: 1s;
+}
+
+.sphere:nth-child(3) {
+    width: 60px;
+    height: 60px;
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 2s;
+}
+
+.sphere:nth-child(4) {
+    width: 100px;
+    height: 100px;
+    bottom: 30%;
+    right: 10%;
+    animation-delay: 3s;
+}
+
+.sphere:nth-child(5) {
+    width: 70px;
+    height: 70px;
+    top: 50%;
+    left: 5%;
+    animation-delay: 4s;
+}
+
+.sphere:nth-child(6) {
+    width: 90px;
+    height: 90px;
+    top: 60%;
+    right: 5%;
+    animation-delay: 5s;
+}
+
+.sphere:nth-child(7) {
+    width: 50px;
+    height: 50px;
+    top: 15%;
+    left: 50%;
+    animation-delay: 0.5s;
+}
+
+.sphere:nth-child(8) {
+    width: 110px;
+    height: 110px;
+    bottom: 15%;
+    left: 50%;
+    animation-delay: 1.5s;
+}
+
+.sphere:nth-child(9) {
+    width: 65px;
+    height: 65px;
+    top: 40%;
+    left: 30%;
+    animation-delay: 2.5s;
+}
+
+.sphere:nth-child(10) {
+    width: 85px;
+    height: 85px;
+    top: 70%;
+    right: 25%;
+    animation-delay: 3.5s;
+}
+
+.sphere:nth-child(11) {
+    width: 75px;
+    height: 75px;
+    bottom: 40%;
+    left: 15%;
+    animation-delay: 4.5s;
+}
+
+.sphere:nth-child(12) {
+    width: 95px;
+    height: 95px;
+    top: 25%;
+    right: 35%;
+    animation-delay: 5.5s;
+}
+
+@keyframes float3d {
+    0%,
+    100% {
+        transform: translateY(0px) translateX(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-20px) translateX(10px) rotate(90deg);
+    }
+    50% {
+        transform: translateY(-10px) translateX(-5px) rotate(180deg);
+    }
+    75% {
+        transform: translateY(-15px) translateX(15px) rotate(270deg);
+    }
+}
+
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .home-container {
+        padding: 2rem 1.5rem;
+        margin: 0 1rem;
+    }
+    .home-title {
+        font-size: 2rem;
+    }
+    .home-subtitle {
+        font-size: 1.1rem;
+    }
+    .features-title {
+        font-size: 1.5rem;
+    }
+    .home-header {
+        padding: 1rem 1.5rem;
+    }
+    .connection-button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-container {
+        padding: 1.5rem 1rem;
+    }
+    .home-title {
+        font-size: 1.8rem;
+    }
+    .home-subtitle {
+        font-size: 1rem;
+    }
+    .feature-item {
+        padding: 1rem;
+    }
+    .home-main {
+        padding: 100px 1rem 1rem 1rem;
+    }
+}

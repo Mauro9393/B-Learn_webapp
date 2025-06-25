@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
+import Home from './Home'
 import Login from './Login'
 import Dashboard from './Dashboard'
 import List from './List';
@@ -21,7 +22,7 @@ import './App.css'
 
 function AppLayout() {
   const location = useLocation();
-  // Nascondi header su login, inscription e confirmation
+  // Nascondi header su home, login, inscription e confirmation
   const hideHeader = location.pathname === '/' || 
                     location.pathname === '/login' || 
                     location.pathname === '/inscription' ||
@@ -32,7 +33,7 @@ function AppLayout() {
     <>
       {!hideHeader && <HeaderMenu />}
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Home />} />
         <Route path="/inscription" element={<Inscription />} />
         <Route path="/add-partner" element={<AddPartner />} />
         <Route path="/login" element={<Login />} /> 
