@@ -239,6 +239,9 @@ body.home-page main {
     justify-content: flex-start;
     background: url('/assets/hero-bg.png') center center/cover no-repeat;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
 }
 
 .home-hero-overlay {
@@ -249,6 +252,7 @@ body.home-page main {
     bottom: 0;
     background: linear-gradient(90deg, rgba(91, 109, 246, 0.82) 0%, rgba(127, 83, 245, 0.65) 100%);
     z-index: 1;
+    opacity: 0.82;
 }
 
 .home-hero-content {
@@ -317,18 +321,19 @@ body.home-page main {
 
 .home-boxes-row {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: stretch;
-    gap: 2rem;
+    gap: 2.5rem;
     max-width: 1200px;
     margin: 0 auto 40px auto;
-    padding: 0 2rem;
+    padding: 60px 2rem 0 2rem;
+    background: #fff;
 }
 
 .home-box {
-    flex: 1;
-    background: linear-gradient(135deg, #5B6DF6 0%, #7F53F5 100%);
-    color: #fff;
+    flex: 1 1 0;
+    background: #fff;
+    color: #5B6DF6;
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(91, 109, 246, 0.10);
     padding: 2.5rem 1.5rem 2rem 1.5rem;
@@ -340,6 +345,11 @@ body.home-page main {
     min-height: 320px;
     position: relative;
     transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #f0f0f0;
+}
+
+.home-box:not(:last-child) {
+    margin-right: 0;
 }
 
 .home-box:hover {
@@ -350,13 +360,14 @@ body.home-page main {
 .home-box-icon {
     font-size: 2.5rem;
     margin-bottom: 1.2rem;
-    background: rgba(255, 255, 255, 0.13);
+    background: rgba(91, 109, 246, 0.08);
     border-radius: 50%;
     width: 64px;
     height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #5B6DF6;
 }
 
 .home-box-title {
@@ -364,18 +375,19 @@ body.home-page main {
     font-weight: 700;
     margin-bottom: 1rem;
     letter-spacing: 0.5px;
+    color: #5B6DF6;
 }
 
 .home-box-desc {
     font-size: 1.05rem;
-    color: #f3f3f3;
+    color: #444;
     margin-bottom: 2rem;
     line-height: 1.5;
 }
 
 .home-box-btn {
-    background: #fff;
-    color: #5B6DF6;
+    background: #5B6DF6;
+    color: #fff;
     border: none;
     border-radius: 8px;
     padding: 0.7rem 1.5rem;
@@ -387,8 +399,8 @@ body.home-page main {
 }
 
 .home-box-btn:hover {
-    background: #f3f3f3;
-    color: #7F53F5;
+    background: #7F53F5;
+    color: #fff;
 }
 
 
@@ -401,7 +413,7 @@ body.home-page main {
     .home-boxes-row {
         flex-direction: column;
         gap: 1.5rem;
-        padding: 0 1rem;
+        padding: 40px 1rem 0 1rem;
     }
 }
 
