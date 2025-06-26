@@ -6,6 +6,8 @@ const pool = require('../../config/db');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const handlebars = require('handlebars');
 require('dotenv').config();
 
 router.post('/register', async(req, res) => {
@@ -483,20 +485,22 @@ router.post('/forgot-password', async(req, res) => {
             'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3', [resetToken, expiresAt, user.id]
         );
 
-        // Invia l'email di reset
-        const resetLink = `${process.env.PROD_URL}/reset-password?token=${resetToken}`;
+        // Carica il template HTML
+        const templateSource = fs.readFileSync(__dirname + '/../templates/reset-password.html', 'utf8');
+        const template = handlebars.compile(templateSource);
+
+        // Compila il template con i dati dinamici
+        const html = template({
+            full_name: user.full_name, // oppure name: user.full_name, se nel template hai {{name}}
+            resetLink: `${process.env.PROD_URL}/reset-password?token=${resetToken}`
+        });
+
+        // Invia la mail
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Réinitialisation de votre mot de passe B-Learn',
-            html: `
-                <p>Bonjour ${user.full_name},</p>
-                <p>Vous avez demandé la réinitialisation de votre mot de passe sur B-Learn.</p>
-                <p>Cliquez sur le lien suivant pour définir un nouveau mot de passe :</p>
-                <p><a href="${resetLink}">${resetLink}</a></p>
-                <p>Ce lien expire dans 24 heures.</p>
-                <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
-            `
+            html
         });
 
         res.json({ success: true, message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.' });
