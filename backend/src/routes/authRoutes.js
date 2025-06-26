@@ -486,7 +486,7 @@ router.post('/forgot-password', async(req, res) => {
         );
 
         // Carica il template HTML
-        const templateSource = fs.readFileSync(__dirname + '/../templates/reset-password.html', 'utf8');
+        const templateSource = fs.readFileSync(__dirname + '/../../templates/reset-password.html', 'utf8');
         const template = handlebars.compile(templateSource);
 
         // Compila il template con i dati dinamici
