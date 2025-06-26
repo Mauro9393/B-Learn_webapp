@@ -55,6 +55,15 @@ const AllStudentList: React.FC = () => {
     return matchesSearch && matchesScore && matchesSimulations && matchesClient;
   });
 
+  // Stato per la paginazione mobile
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 5;
+  const totalPages = Math.ceil(filteredStudents.length / cardsPerPage);
+  const paginatedCards = filteredStudents.slice((currentPage - 1) * cardsPerPage, currentPage * cardsPerPage);
+  const goToPrevPage = () => setCurrentPage(p => Math.max(1, p - 1));
+  const goToNextPage = () => setCurrentPage(p => Math.min(totalPages, p + 1));
+  useEffect(() => { setCurrentPage(1); }, [filteredStudents]);
+
   return (
     <div className="">
       <main className="student-list-main">
@@ -132,6 +141,37 @@ const AllStudentList: React.FC = () => {
               )}
             </tbody>
           </table>
+          {/* Card mobile */}
+          <div className="student-cards">
+            {paginatedCards.map(stu => (
+              <div className="student-card" key={stu.id}>
+                <div><strong>Nom:</strong> {stu.name}</div>
+                <div><strong>Client:</strong> {stu.chatbot_name}</div>
+                <div><strong>Groupe:</strong> {stu.group || '-'}</div>
+                <div><strong>Simulations:</strong> {stu.simulations}</div>
+                <div>
+                  <strong>Score max:</strong>
+                  <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
+                </div>
+                <div><strong>Dernière simulation:</strong> <span className="date-badge">{stu.last_date}</span></div>
+                <div className="card-buttons">
+                  <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'all-student-list' } })}>Voir</button>
+                </div>
+              </div>
+            ))}
+            {/* Paginazione mobile */}
+            {totalPages > 1 && (
+              <div className="mobile-pagination">
+                <button className="page-btn" onClick={goToPrevPage} disabled={currentPage === 1} aria-label="Pagina precedente">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <span className="page-indicator">{currentPage} / {totalPages}</span>
+                <button className="page-btn" onClick={goToNextPage} disabled={currentPage === totalPages} aria-label="Pagina successiva">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>

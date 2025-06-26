@@ -594,14 +594,27 @@ function Dashboard() {
         })}
       </div>
       {/* PAGINAZIONE BOTTONI */}
-      <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:'1rem',margin:'2rem 0 1rem 0'}}>
-        <button className="pagination-btn" onClick={()=>goToPage(currentPage-1)} disabled={currentPage===1} style={{padding:'0.6rem 1.2rem',borderRadius:'8px',fontWeight:600,fontSize:'0.9rem',background:'#fff',color:'#7F53F5',border:'1px solid #e0e0e0',cursor:currentPage===1?'not-allowed':'pointer',opacity:currentPage===1?0.5:1}}>← Précédent</button>
-        <span className="pagination-pages">
-          {[...Array(totalPages)].map((_,i)=>(
-            <button key={i+1} className={`page-btn${currentPage===i+1?' active':''}`} onClick={()=>goToPage(i+1)} style={{background:currentPage===i+1?'linear-gradient(90deg,#5B6DF6 0%,#7F53F5 100%)':'#fff',color:currentPage===i+1?'#fff':'#7F53F5',border:'1px solid #e0e0e0',borderRadius:'6px',padding:'0.5rem 0.8rem',fontSize:'0.9rem',fontWeight:600,margin:'0 2px',minWidth:'35px',cursor:'pointer'}}>{i+1}</button>
-          ))}
-        </span>
-        <button className="pagination-btn" onClick={()=>goToPage(currentPage+1)} disabled={currentPage===totalPages} style={{padding:'0.6rem 1.2rem',borderRadius:'8px',fontWeight:600,fontSize:'0.9rem',background:'#fff',color:'#7F53F5',border:'1px solid #e0e0e0',cursor:currentPage===totalPages?'not-allowed':'pointer',opacity:currentPage===totalPages?0.5:1}}>Suivant →</button>
+      <div className="dashboard-pagination">
+        {/* Mobile pagination */}
+        <div className="mobile-pagination">
+          <button className="page-btn" onClick={()=>goToPage(currentPage-1)} disabled={currentPage===1} aria-label="Pagina precedente">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span className="page-indicator">{currentPage} / {totalPages}</span>
+          <button className="page-btn" onClick={()=>goToPage(currentPage+1)} disabled={currentPage===totalPages} aria-label="Pagina successiva">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        {/* Desktop/tablet pagination */}
+        <div className="desktop-pagination">
+          <button className="pagination-btn" onClick={()=>goToPage(currentPage-1)} disabled={currentPage===1}>← Précédent</button>
+          <span className="pagination-pages">
+            {[...Array(totalPages)].map((_,i)=>(
+              <button key={i+1} className={`page-btn${currentPage===i+1?' active':''}`} onClick={()=>goToPage(i+1)}>{i+1}</button>
+            ))}
+          </span>
+          <button className="pagination-btn" onClick={()=>goToPage(currentPage+1)} disabled={currentPage===totalPages}>Suivant →</button>
+        </div>
       </div>
     </div>
   );

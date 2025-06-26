@@ -342,4 +342,89 @@ h1 {
         padding: 0.7rem 0.5rem;
         font-size: 0.7rem;
     }
+    .simulations-table {
+        display: none !important;
+    }
+    .simulations-cards {
+        display: block;
+    }
+    .mobile-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 18px 0 8px 0;
+        padding: 8px 0;
+        width: 100%;
+        max-width: 340px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .mobile-pagination .page-btn {
+        background: #6c63ff;
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        padding: 8px 12px;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+    .mobile-pagination .page-btn:disabled {
+        background: #e0e0e0;
+        color: #aaa;
+        cursor: not-allowed;
+    }
+    .mobile-pagination .page-indicator {
+        font-weight: bold;
+        font-size: 1.1rem;
+        background: #f4f4f4;
+        border-radius: 8px;
+        padding: 4px 16px;
+        min-width: 48px;
+        text-align: center;
+        margin: 0 8px;
+    }
+}
+
+@media (min-width: 481px) {
+    .simulations-cards {
+        display: none;
+    }
+}
+
+.simulation-card {
+    background: #fff;
+    border-radius: 12px;
+    margin: 18px 0;
+    padding: 18px 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.simulation-card>div {
+    margin-bottom: 6px;
+}
+
+.simulation-card>div:last-child {
+    margin-bottom: 0;
+}
+
+.simulation-card .score-badge {
+    margin-left: 8px;
+}
+
+.simulation-card .card-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 6px;
+    justify-content: center;
+}
+
+.simulation-card .card-buttons button {
+    margin: 0;
 }

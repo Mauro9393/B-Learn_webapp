@@ -61,7 +61,7 @@ router.post('/register', async(req, res) => {
             'INSERT INTO email_confirmations (user_id, token, type) VALUES ($1, $2, $3)', [userId, confirmationToken, 'confirm']
         );
         // Envoie l'email de confirmation
-        const confirmLink = `https://b-learn.io/api/confirm?token=${confirmationToken}`;
+        const confirmLink = `${process.env.PROD_URL}/api/confirm?token=${confirmationToken}`;
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
@@ -195,7 +195,7 @@ router.post('/invite-partner', async(req, res) => {
                 'INSERT INTO invitations (email, token, tenant_id, role_id, chatbot_id, expires_at, used, created_at) VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL \'2 days\', false, NOW())', [email, token, tenantId, roleId, chatbotId]
             );
             // Envoie l'email
-            const link = `https://b-learn.io/inscription?token=${token}`;
+            const link = `${process.env.PROD_URL}/inscription?token=${token}`;
             const salutation = managerName ? `Bonjour ${managerName},` : 'Bonjour,';
             await transporter.sendMail({
                 from: 'noreplyblearn@gmail.com',
@@ -484,7 +484,7 @@ router.post('/forgot-password', async(req, res) => {
         );
 
         // Invia l'email di reset
-        const resetLink = `https://b-learn.io/reset-password?token=${resetToken}`;
+        const resetLink = `${process.env.PROD_URL}/reset-password?token=${resetToken}`;
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
