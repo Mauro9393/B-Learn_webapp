@@ -568,8 +568,8 @@ function Dashboard() {
                 >
                   {/* SVG icona due quadrati */}
                   <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="5" width="10" height="10" rx="2" fill="#7F53F5" fillOpacity="0.18" stroke="#7F53F5" strokeWidth="1.2"/>
-                    <rect x="8" y="8" width="7" height="7" rx="1.5" fill="#7F53F5" stroke="#7F53F5" strokeWidth="1.2"/>
+                    <rect x="5" y="5" width="10" height="10" rx="2" fill="#fff" fillOpacity="0.18" stroke="#fff" strokeWidth="1.2"/>
+                    <rect x="8" y="8" width="7" height="7" rx="1.5" fill="#fff" stroke="#fff" strokeWidth="1.2"/>
                   </svg>
                   {copied === bot.storyline_key && (
                     <span className="copied-message">Copié</span>
