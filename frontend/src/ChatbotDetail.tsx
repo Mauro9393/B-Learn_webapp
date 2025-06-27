@@ -25,7 +25,6 @@ const ChatbotDetail: React.FC = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<ChatbotDetailData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loadingSims, setLoadingSims] = useState(true);
 
   // Statistiche mensili
@@ -64,9 +63,9 @@ const ChatbotDetail: React.FC = () => {
       setLoadingSims(true);
       try {
         // Nuova fetch: solo simulazioni del mese corrente per questo chatbot
-        const res = await fetch(`/api/userlist/month?chatbot_name=${storyline_key}`);
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const res = await fetch(`${apiUrl}/api/userlist/month?chatbot_name=${storyline_key}`);
         const sims = await res.json();
-        setSimulations(sims);
         // learners unici mese
         const learnersSet = new Set(sims.map((s: Simulation) => s.user_email));
         const learnersThisMonth = learnersSet.size;
@@ -88,7 +87,6 @@ const ChatbotDetail: React.FC = () => {
           bestLearners,
         });
       } catch (e) {
-        setSimulations([]);
         setMonthStats({ simulations: 0, avgScore: 0, learners: 0, bestLearners: [] });
       } finally {
         setLoadingSims(false);
