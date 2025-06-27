@@ -32,96 +32,100 @@ const HeaderMenu: React.FC = () => {
   };
 
   return (
-    <header className="header-menu">
-      <div className="header-menu-container">
-        <div className="logo">
-          <Link to="/dashboard">
-            <img src="./assets/logo-blearn.png" alt="B-Learn Logo" className="logo-image logo-desktop" />
-            <img src="./assets/logo-blearn-notxt.PNG" alt="B-Learn Logo Mobile" className="logo-image logo-mobile" />
-          </Link>
-        </div>
-        {/* Logo scritta solo mobile */}
-        <div className="logo-mobile-center">
-          <img src="./assets/logo-blearn - txt.PNG" alt="B-Learn Logo Testo Mobile" />
-        </div>
-        <nav className={`nav-menu ${isMenuOpen ? 'nav-menu-open' : ''}`}>
-          <Link to="/dashboard" className="nav-link">🏠 Dashboard</Link>
-          {/* Chatbots solo per super admin */}
-          {isSuperAdmin && (
-            <Link to="/create-chatbot" className="nav-link">🤖 Chatbots</Link>
-          )}
-          {/* Utilisateurs */}
-          {isSuperAdmin && (
-            <Link to="/all-student-list" className="nav-link">👥 Utilisateurs</Link>
-          )}
-          {/* Ajouter un Admin solo per super admin */}
-          {isSuperAdmin &&(
-            <Link to="/admin" className="nav-link">➕ Ajouter un Admin</Link>
-          )}
-          {isAdmin &&(
-            <Link to="/add-partner" className="nav-link">➕ Ajouter un Manager</Link>
-          )}
-        </nav>
-        <div className="mobile-menu-container">
-          <div className="burger-menu" onClick={toggleMenu}>
-            <div className={`burger-line ${isMenuOpen ? 'open' : ''}`}></div>
-            <div className={`burger-line ${isMenuOpen ? 'open' : ''}`}></div>
-            <div className={`burger-line ${isMenuOpen ? 'open' : ''}`}></div>
+    <>
+      <header className="header-menu">
+        <div className="header-menu-container">
+          <div className="logo">
+            <Link to="/dashboard">
+              <img src="./assets/logo-blearn.png" alt="B-Learn Logo" className="logo-image logo-desktop" />
+              <img src="./assets/logo-blearn-notxt.PNG" alt="B-Learn Logo Mobile" className="logo-image logo-mobile" />
+            </Link>
           </div>
-          {isMenuOpen && (
-            <div className="mobile-menu">
-              <div className="mobile-profile">
-                <div className="profile-avatar-circle">{initials}</div>
-                <div className="profile-info">
-                  <div className="profile-role">{roleLabel}</div>
-                  <div className="profile-email">{userEmail}</div>
-                </div>
-              </div>
-              <nav className="mobile-nav">
-                <Link to="/dashboard" className="mobile-nav-link" onClick={toggleMenu}>🏠 Dashboard</Link>
-                {isSuperAdmin && (
-                  <Link to="/create-chatbot" className="mobile-nav-link" onClick={toggleMenu}>🤖 Chatbots</Link>
-                )}
-                {isSuperAdmin && (
-                  <Link to="/all-student-list" className="mobile-nav-link" onClick={toggleMenu}>👥 Utilisateurs</Link>
-                )}
-                {isSuperAdmin && (
-                  <Link to="/admin" className="mobile-nav-link" onClick={toggleMenu}>➕ Ajouter un Admin</Link>
-                )}
-                {isAdmin && (
-                  <Link to="/add-partner" className="mobile-nav-link" onClick={toggleMenu}>➕ Ajouter un Manager</Link>
-                )}
-              </nav>
-              <button className="mobile-logout-btn" onClick={handleLogout}>Déconnexion</button>
+          {/* Logo scritta solo mobile */}
+          <div className="logo-mobile-center">
+            <img src="./assets/logo-blearn - txt.PNG" alt="B-Learn Logo Testo Mobile" />
+          </div>
+          <nav className={`nav-menu ${isMenuOpen ? 'nav-menu-open' : ''}`}>
+            <Link to="/dashboard" className="nav-link">🏠 Dashboard</Link>
+            {/* Chatbots solo per super admin */}
+            {isSuperAdmin && (
+              <Link to="/create-chatbot" className="nav-link">🤖 Chatbots</Link>
+            )}
+            {/* Utilisateurs */}
+            {isSuperAdmin && (
+              <Link to="/all-student-list" className="nav-link">👥 Utilisateurs</Link>
+            )}
+            {/* Ajouter un Admin solo per super admin */}
+            {isSuperAdmin &&(
+              <Link to="/admin" className="nav-link">➕ Ajouter un Admin</Link>
+            )}
+            {isAdmin &&(
+              <Link to="/add-partner" className="nav-link">➕ Ajouter un Manager</Link>
+            )}
+          </nav>
+          <div className="mobile-menu-container">
+            <div className="burger-menu" onClick={toggleMenu}>
+              <div className={`burger-line ${isMenuOpen ? 'open' : ''}`}></div>
+              <div className={`burger-line ${isMenuOpen ? 'open' : ''}`}></div>
+              <div className={`burger-line ${isMenuOpen ? 'open' : ''}`}></div>
             </div>
-          )}
-        </div>
-        <div className="desktop-profile">
-          <div
-            className="user-initials-container"
-            style={{ position: 'relative', cursor: 'pointer' }}
-            onMouseEnter={() => setProfileDropdown(true)}
-            onMouseLeave={() => setProfileDropdown(false)}
-          >
-            <div className="user-initials" id="user-initials">
-              {initials}
-            </div>
-            {profileDropdown && (
-              <div className="profile-dropdown-menu">
-                <div className="profile-dropdown-header">
+            {isMenuOpen && (
+              <div className="mobile-menu">
+                <div className="mobile-profile">
                   <div className="profile-avatar-circle">{initials}</div>
                   <div className="profile-info">
                     <div className="profile-role">{roleLabel}</div>
                     <div className="profile-email">{userEmail}</div>
                   </div>
                 </div>
-                <button className="profile-logout-btn" onClick={handleLogout}>Déconnexion</button>
+                <nav className="mobile-nav">
+                  <Link to="/dashboard" className="mobile-nav-link" onClick={toggleMenu}>🏠 Dashboard</Link>
+                  {isSuperAdmin && (
+                    <Link to="/create-chatbot" className="mobile-nav-link" onClick={toggleMenu}>🤖 Chatbots</Link>
+                  )}
+                  {isSuperAdmin && (
+                    <Link to="/all-student-list" className="mobile-nav-link" onClick={toggleMenu}>👥 Utilisateurs</Link>
+                  )}
+                  {isSuperAdmin && (
+                    <Link to="/admin" className="mobile-nav-link" onClick={toggleMenu}>➕ Ajouter un Admin</Link>
+                  )}
+                  {isAdmin && (
+                    <Link to="/add-partner" className="mobile-nav-link" onClick={toggleMenu}>➕ Ajouter un Manager</Link>
+                  )}
+                </nav>
+                <button className="mobile-logout-btn" onClick={handleLogout}>Déconnexion</button>
               </div>
             )}
           </div>
+          <div className="desktop-profile">
+            <div
+              className="user-initials-container"
+              style={{ position: 'relative', cursor: 'pointer' }}
+              onMouseEnter={() => setProfileDropdown(true)}
+              onMouseLeave={() => setProfileDropdown(false)}
+            >
+              <div className="user-initials" id="user-initials">
+                {initials}
+              </div>
+              {profileDropdown && (
+                <div className="profile-dropdown-menu">
+                  <div className="profile-dropdown-header">
+                    <div className="profile-avatar-circle">{initials}</div>
+                    <div className="profile-info">
+                      <div className="profile-role">{roleLabel}</div>
+                      <div className="profile-email">{userEmail}</div>
+                    </div>
+                  </div>
+                  <button className="profile-logout-btn" onClick={handleLogout}>Déconnexion</button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+      {/* Banner Breadcrumbs solo desktop */}
+      {/* <Breadcrumbs /> */}
+    </>
   );
 };
 

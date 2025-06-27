@@ -188,7 +188,6 @@ const StudentDetail: React.FC = () => {
               <th style={{cursor: 'pointer'}} onClick={() => handleSort('created_at')}>
                 Date simulation {getSortArrow('created_at')}
               </th>
-              <th>Simulations</th>
               <th>Historique conversation</th>
               <th>Analyse conversation</th>
               <th style={{cursor: 'pointer'}} onClick={() => handleSort('score')}>
@@ -200,7 +199,6 @@ const StudentDetail: React.FC = () => {
             {sortedSimulations.map(sim => (
               <tr key={sim.id}>
                 <td>{formatDate(sim.created_at)}</td>
-                <td>{sim.id}</td>
                 <td>
                   {/* Pulsante download PDF storico chat */}
                   <button

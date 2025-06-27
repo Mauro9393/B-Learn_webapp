@@ -209,6 +209,12 @@
     color: #5B6DF6;
 }
 
+.stat-green-small {
+    color: #00cc00;
+    font-size: 0.7em;
+    font-weight: 600;
+}
+
 
 /* Tablet (iPad) */
 

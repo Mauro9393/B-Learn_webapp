@@ -123,23 +123,29 @@ const ChatbotDetail: React.FC = () => {
             <span className="main-stat-label">🎯 Simulations réalisées :</span>
             <span className="main-stat-value">{data.simulations}</span>
             <br />
-            <span style={{ color: '#00cc00', fontSize: '0.85em', fontWeight: 600 }}>
+            <span className="stat-green-small">
               Simulations ce mois-ci : {monthStats.simulations}
             </span>
           </div>
           <div className="main-stat-card">
-            <span className="main-stat-label">🎯 Best Learners :</span>
+            <span className="main-stat-label">👑 Best Learners :</span>
             {loadingSims ? (
               <span className="main-stat-value">Caricamento...</span>
             ) : monthStats.bestLearners.length === 0 ? (
               <span className="main-stat-value">Unknow</span>
             ) : (
               <ul style={{ margin: 0, padding: 0, listStyle: 'none', textAlign: 'left' }}>
-                {monthStats.bestLearners.map((l, i) => (
-                  <li key={l.user_email} style={{ color: '#6a6af6', fontWeight: 600, fontSize: '0.75em', marginBottom: 2 }}>
-                    {i + 1}. {l.name} - <span style={{ color: '#00cc00' }}>Score: {l.score}</span>
-                  </li>
-                ))}
+                {monthStats.bestLearners.map((l, i) => {
+                  let icon = '';
+                  if (i === 0) icon = '🥇';
+                  else if (i === 1) icon = '🥈';
+                  else if (i === 2) icon = '🥉';
+                  return (
+                    <li key={l.user_email} style={{ color: '#6a6af6', fontWeight: 600, fontSize: '0.75em', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: '1.1em', marginRight: 4 }}>{icon}</span> {l.name} - <span style={{ color: '#00cc00' }}>Score: {l.score}</span>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
@@ -150,7 +156,7 @@ const ChatbotDetail: React.FC = () => {
             <span className="secondary-stat-label">⭐ Score moyen :</span>
             <span className="secondary-stat-value">{data.avg_score}</span>
             <br />
-            <span style={{ color: '#00cc00', fontSize: '0.85em', fontWeight: 600 }}>
+            <span className="stat-green-small">
               Score moyen ce mois-ci : {monthStats.avgScore}
             </span>
           </div>
@@ -158,7 +164,7 @@ const ChatbotDetail: React.FC = () => {
             <span className="secondary-stat-label">👥 Learners :</span>
             <span className="secondary-stat-value">{data.learners}</span>
             <br />
-            <span style={{ color: '#00cc00', fontSize: '0.85em', fontWeight: 600 }}>
+            <span className="stat-green-small">
               Nouveaux learners ce mois-ci : {monthStats.learners}
             </span>
           </div>

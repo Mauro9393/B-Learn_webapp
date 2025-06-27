@@ -28,6 +28,7 @@ const StudentList: React.FC = () => {
   const goToPrevPage = () => setCurrentPage(p => Math.max(1, p - 1));
   const goToNextPage = () => setCurrentPage(p => Math.min(totalPages, p + 1));
   useEffect(() => { setCurrentPage(1); }, [students]);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,6 +59,58 @@ const StudentList: React.FC = () => {
 
     return matchesSearch && matchesScore && matchesSimulations;
   });
+
+  // Funzione per parsing data formato giorno/mese/anno
+  function parseDMY(dateStr: string) {
+    if (!dateStr) return null;
+    const [day, month, year] = dateStr.split(/[\/\-]/).map(Number);
+    if (!day || !month || !year) return null;
+    return new Date(year, month - 1, day);
+  }
+
+  // Funzione per ordinare gli studenti
+  const sortedStudents = React.useMemo(() => {
+    let sortable = [...filteredStudents];
+    if (sortConfig !== null) {
+      sortable.sort((a, b) => {
+        let aValue = a[sortConfig.key as keyof StudentRow];
+        let bValue = b[sortConfig.key as keyof StudentRow];
+        // Gestione speciale per le colonne
+        if (sortConfig.key === 'name' || sortConfig.key === 'group') {
+          aValue = String(aValue).toLowerCase();
+          bValue = String(bValue).toLowerCase();
+          if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+          if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+          return 0;
+        }
+        if (sortConfig.key === 'score' || sortConfig.key === 'simulations') {
+          return sortConfig.direction === 'asc'
+            ? Number(aValue) - Number(bValue)
+            : Number(bValue) - Number(aValue);
+        }
+        if (sortConfig.key === 'last_date') {
+          const aDate = parseDMY(String(aValue));
+          const bDate = parseDMY(String(bValue));
+          const aTime = aDate ? aDate.getTime() : (sortConfig.direction === 'asc' ? Infinity : -Infinity);
+          const bTime = bDate ? bDate.getTime() : (sortConfig.direction === 'asc' ? Infinity : -Infinity);
+          return sortConfig.direction === 'asc'
+            ? aTime - bTime
+            : bTime - aTime;
+        }
+        return 0;
+      });
+    }
+    return sortable;
+  }, [filteredStudents, sortConfig]);
+
+  // Funzione per cambiare ordinamento
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
 
   return (
     <div className="">
@@ -101,21 +154,29 @@ const StudentList: React.FC = () => {
           <table className="student-table styled-table no-vertical-lines">
             <thead>
               <tr>
-                <th className="th-name">Nom <span className="sort-arrow">⇅</span></th>
-                <th className="th-group">Groupe <span className="sort-arrow">⇅</span></th>
+                <th className="th-name" onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
+                  Nom <span className="sort-arrow">{sortConfig?.key === 'name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
+                </th>
+                <th className="th-group">
+                  Groupe <span className="sort-arrow">⇅</span>
+                </th>
                 <th className="th-simulations">Simulations</th>
-                <th className="th-score">Score max<span className="sort-arrow">⇅</span></th>
-                <th className="th-date">Dernière simulation <span className="sort-arrow">⇅</span></th>
+                <th className="th-score" onClick={() => requestSort('score')} style={{ cursor: 'pointer' }}>
+                  Score max <span className="sort-arrow">{sortConfig?.key === 'score' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
+                </th>
+                <th className="th-date" onClick={() => requestSort('last_date')} style={{ cursor: 'pointer' }}>
+                  Dernière simulation <span className="sort-arrow">{sortConfig?.key === 'last_date' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
+                </th>
                 <th className="th-details">Détails</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6}>Caricamento...</td></tr>
-              ) : filteredStudents.length === 0 ? (
-                <tr><td colSpan={6}>Nessun learner trovato.</td></tr>
+                <tr><td colSpan={6}>Chargement...</td></tr>
+              ) : sortedStudents.length === 0 ? (
+                <tr><td colSpan={6}>Nothing found.</td></tr>
               ) : (
-                filteredStudents.map(stu => (
+                sortedStudents.map(stu => (
                   <tr key={stu.email}>
                     <td className="td-name">{stu.name}</td>
                     <td className="td-group">{stu.group}</td>

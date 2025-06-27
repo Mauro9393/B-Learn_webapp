@@ -99,7 +99,7 @@ body {
 .content-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    gap: 16px;
     margin-top: 2rem;
 }
 
@@ -332,16 +332,14 @@ button:hover,
 }
 
 .paginated-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
+    display: flex;
     justify-content: center;
-    margin-left: auto;
-    margin-right: auto;
-    justify-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
 }
 
 .card {
-    margin: 0 auto;
+    margin: 2rem 0 1rem 0;
 }
 
 .riquadro-chatbots-trouves {

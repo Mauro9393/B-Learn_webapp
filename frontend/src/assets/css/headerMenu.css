@@ -15,7 +15,8 @@
     }
     
     body {
-        padding-top: 80px !important;
+        padding-top: 128px !important;
+        /* header (80px) + banner (48px) circa */
         /* altezza header, regola se necessario */
     }
     
@@ -444,9 +445,6 @@
             transform: translateX(0);
         }
     }
-    /* Responsive Styles */
-    /* Tablet (iPad) */
-    /* Tablet (iPad) */
     
     @media (max-width: 1024px) {
         .header-menu-container {
