@@ -47,7 +47,7 @@ function List() {
 
   useEffect(() => {
     const fetchData = async () => {
-      let url = `${import.meta.env.VITE_API_URL}/api/userlist`;
+      let url = `/api/userlist`;
       if (chatbotName) {
         url += `?chatbot_name=${encodeURIComponent(chatbotName)}`;
       }

@@ -75,7 +75,7 @@ const StudentDetail: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/learner-detail?storyline_key=${storyline_key}&email=${email}`);
+        const res = await fetch(`/api/learner-detail?storyline_key=${storyline_key}&email=${email}`);
         const data = await res.json();
         setSimulations(data);
       } catch (e) {

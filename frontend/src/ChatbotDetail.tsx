@@ -63,8 +63,7 @@ const ChatbotDetail: React.FC = () => {
       setLoadingSims(true);
       try {
         // Nuova fetch: solo simulazioni del mese corrente per questo chatbot
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const res = await fetch(`${apiUrl}/api/userlist/month?chatbot_name=${storyline_key}`);
+        const res = await fetch(`/api/userlist/month?chatbot_name=${storyline_key}`);
         const sims = await res.json();
         // learners unici mese
         const learnersSet = new Set(sims.map((s: Simulation) => s.user_email));

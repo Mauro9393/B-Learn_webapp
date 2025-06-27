@@ -23,8 +23,8 @@ const StudentList: React.FC = () => {
   // Stato per la paginazione mobile
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 5;
-  const totalPages = Math.ceil(students.length / cardsPerPage);
-  const paginatedCards = students.slice((currentPage - 1) * cardsPerPage, currentPage * cardsPerPage);
+  const totalPages = Math.ceil((Array.isArray(students) ? students.length : 0) / cardsPerPage);
+  const paginatedCards = Array.isArray(students) ? students.slice((currentPage - 1) * cardsPerPage, currentPage * cardsPerPage) : [];
   const goToPrevPage = () => setCurrentPage(p => Math.max(1, p - 1));
   const goToNextPage = () => setCurrentPage(p => Math.min(totalPages, p + 1));
   useEffect(() => { setCurrentPage(1); }, [students]);
@@ -32,7 +32,7 @@ const StudentList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/learners-list-maxscore?storyline_key=${storyline_key}`);
+        const res = await fetch(`/api/learners-list-maxscore?storyline_key=${storyline_key}`);
         const data = await res.json();
         setStudents(data);
       } catch (e) {
@@ -44,7 +44,7 @@ const StudentList: React.FC = () => {
     fetchData();
   }, [storyline_key]);
 
-  const filteredStudents = students.filter(stu => {
+  const filteredStudents = (Array.isArray(students) ? students : []).filter(stu => {
     // Filtre pour la recherche de texte (nom ou email)
     const matchesSearch =
       stu.name.toLowerCase().includes(search.toLowerCase()) ||

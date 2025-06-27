@@ -234,7 +234,7 @@ function Dashboard() {
       const userId = localStorage.getItem('userId');
       const userRole = localStorage.getItem('userRole');
       const tenantId = localStorage.getItem('tenantId');
-      let url = `${import.meta.env.VITE_API_URL}/api/chatbots`;
+      let url = `/api/chatbots`;
       if (userId && userRole && tenantId) {
         url += `?user_id=${encodeURIComponent(userId)}&user_role=${encodeURIComponent(userRole)}&tenant_id=${encodeURIComponent(tenantId)}`;
       }
@@ -247,14 +247,14 @@ function Dashboard() {
 
   useEffect(() => {
     if (userRole === '1') {
-      fetch(`${import.meta.env.VITE_API_URL}/api/tenants`)
+      fetch(`/api/tenants`)
         .then(res => res.json())
         .then(data => setTenants(data));
     }
   }, [userRole]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/userlist?all=1`)
+    fetch(`/api/userlist?all=1`)
       .then(res => res.json())
       .then((data: UserlistRow[]) => {
         setUserlist(data);

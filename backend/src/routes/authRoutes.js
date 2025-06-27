@@ -416,7 +416,7 @@ router.get('/learners-list', async(req, res) => {
     }
 });
 
-// Nuova rotta: restituisce la lista degli studenti unici per uno specifico client_name (storyline_key) con lo score massimo
+// Nuova rotta: restituisce la lista degli studenti unici per uno specifico chatbot_name (storyline_key) con lo score massimo
 router.get('/learners-list-maxscore', async(req, res) => {
     try {
         const { storyline_key } = req.query;
@@ -432,7 +432,7 @@ router.get('/learners-list-maxscore', async(req, res) => {
                 COALESCE(MAX(score),0) AS score,
                 TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
             FROM userlist
-            WHERE client_name = $1
+            WHERE chatbot_name = $1
             GROUP BY user_email
             ORDER BY last_date DESC
         `, [storyline_key]);
