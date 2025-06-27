@@ -313,6 +313,54 @@ router.get('/userlist', async(req, res) => {
     }
 });
 
+// Rotta per ottenere le simulazioni del mese corrente per un chatbot
+router.get('/userlist/month', async(req, res) => {
+    try {
+        const chatbotName = req.query.chatbot_name;
+        console.log("=== DEBUG /userlist/month ===");
+        console.log("chatbot_name ricevuto:", chatbotName);
+        console.log("Tipo di chatbot_name:", typeof chatbotName);
+
+        if (!chatbotName) {
+            return res.status(400).json({ message: 'chatbot_name mancante' });
+        }
+
+        // Calcola inizio e fine mese corrente
+        const now = new Date();
+        const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+        console.log("Data corrente:", now);
+        console.log("Inizio mese:", startMonth);
+        console.log("Fine mese:", endMonth);
+
+        // Prima controlliamo se ci sono dati per questo chatbot (senza filtro date)
+        const checkResult = await pool.query(
+            `SELECT COUNT(*) as total FROM userlist WHERE chatbot_name = $1`, [chatbotName]
+        );
+        console.log("Totale record per questo chatbot (senza filtro date):", checkResult.rows[0].total);
+
+        // Ora controlliamo tutti i chatbot_name disponibili
+        const allChatbots = await pool.query(`SELECT DISTINCT chatbot_name FROM userlist`);
+        console.log("Tutti i chatbot_name disponibili:", allChatbots.rows.map(r => r.chatbot_name));
+
+        // Query per filtrare per chatbot_name e created_at nel mese corrente
+        const result = await pool.query(
+            `SELECT * FROM userlist WHERE chatbot_name = $1 AND created_at >= $2 AND created_at < $3`, [chatbotName, startMonth, endMonth]
+        );
+
+        console.log("Query eseguita con parametri:", [chatbotName, startMonth, endMonth]);
+        console.log("Risultati trovati per il mese:", result.rows.length);
+        console.log("Primi 3 risultati:", result.rows.slice(0, 3));
+        console.log("=== FINE DEBUG ===");
+
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Errore in /userlist/month:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Restituisce un chatbot tramite storyline_key con stats learners/simulations/avg_score
 router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
     try {
@@ -368,7 +416,7 @@ router.get('/learners-list', async(req, res) => {
     }
 });
 
-// Nuova rotta: restituisce la lista degli studenti unici per uno specifico chatbot_name (storyline_key) con lo score massimo
+// Nuova rotta: restituisce la lista degli studenti unici per uno specifico client_name (storyline_key) con lo score massimo
 router.get('/learners-list-maxscore', async(req, res) => {
     try {
         const { storyline_key } = req.query;
@@ -384,7 +432,7 @@ router.get('/learners-list-maxscore', async(req, res) => {
                 COALESCE(MAX(score),0) AS score,
                 TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
             FROM userlist
-            WHERE chatbot_name = $1
+            WHERE client_name = $1
             GROUP BY user_email
             ORDER BY last_date DESC
         `, [storyline_key]);

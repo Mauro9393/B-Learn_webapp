@@ -36,8 +36,13 @@ const HeaderMenu: React.FC = () => {
       <div className="header-menu-container">
         <div className="logo">
           <Link to="/dashboard">
-            <img src="./assets/logo-blearn.png" alt="B-Learn Logo" className="logo-image" />
+            <img src="./assets/logo-blearn.png" alt="B-Learn Logo" className="logo-image logo-desktop" />
+            <img src="./assets/logo-blearn-notxt.PNG" alt="B-Learn Logo Mobile" className="logo-image logo-mobile" />
           </Link>
+        </div>
+        {/* Logo scritta solo mobile */}
+        <div className="logo-mobile-center">
+          <img src="./assets/logo-blearn - txt.PNG" alt="B-Learn Logo Testo Mobile" />
         </div>
         <nav className={`nav-menu ${isMenuOpen ? 'nav-menu-open' : ''}`}>
           <Link to="/dashboard" className="nav-link">🏠 Dashboard</Link>

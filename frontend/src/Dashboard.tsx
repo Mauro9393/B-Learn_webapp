@@ -481,7 +481,7 @@ function Dashboard() {
         <div className="dashboard-filters-center">
           <div className="dashboard-filters-fields">
             <div className="input-icon-wrapper">
-              <span className="input-search-icon" role="img" aria-label="search">🔍</span>
+              {/*<span className="input-search-icon" role="img" aria-label="search">🔍</span>*/}
               <input
                 type="text"
                 placeholder="Rechercher un chatbot..."

@@ -102,6 +102,7 @@
 
 .chatbot-main-stats {
     display: flex;
+    gap: 18px;
     justify-content: center;
     margin-bottom: 18px;
 }
