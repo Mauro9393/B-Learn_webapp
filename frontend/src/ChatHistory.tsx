@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './assets/css/chatHistory.css';
 // @ts-ignore
@@ -105,7 +105,6 @@ const ChatHistory: React.FC = () => {
     );
   }
 
-  const from = chatHistoryState?.from;
   const { name, date, score, chat_history } = chatHistoryState;
   const messages = parseMessages(chat_history, name);
 
@@ -333,4 +332,4 @@ const ChatHistory: React.FC = () => {
   );
 };
 
-export default ChatHistory; 
+export default ChatHistory;

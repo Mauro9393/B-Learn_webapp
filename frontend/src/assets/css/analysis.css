@@ -523,23 +523,28 @@
 }
 
 .analysis-label-blue {
-    color: #7F53F5;
+    color: #7F53F5 !important;
+    font-weight: bold !important;
 }
 
 .analysis-label-green {
-    color: #43a047;
+    color: #43a047 !important;
+    font-weight: bold !important;
 }
 
 .analysis-label-orange {
-    color: #ff9800;
+    color: #ff9800 !important;
+    font-weight: bold !important;
 }
 
 .analysis-label-red {
-    color: #e53935;
+    color: #e53935 !important;
+    font-weight: bold !important;
 }
 
 .analysis-label-yellow {
-    color: #ffb300;
+    color: #ffb300 !important;
+    font-weight: bold !important;
 }
 
 .analysis-note-num-green,
