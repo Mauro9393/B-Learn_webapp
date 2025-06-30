@@ -492,9 +492,25 @@
         gap: 1rem;
         align-items: center;
     }
+    .pdf-controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.3rem;
+    }
     .btn-small {
-        padding: 0.7rem 1.4rem;
+        padding: 0.4rem 0.7rem;
         font-size: 0.7rem;
+        min-width: 36px;
+        max-width: 48px;
+        margin: 0.1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-text {
+        display: none;
     }
 }
 
@@ -565,8 +581,24 @@
     .progress-value {
         font-size: 1.1rem;
     }
+    .pdf-controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.3rem;
+    }
     .btn-small {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.65rem;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.7rem;
+        min-width: 36px;
+        max-width: 48px;
+        margin: 0.1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-text {
+        display: none;
     }
 }
