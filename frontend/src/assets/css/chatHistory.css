@@ -115,6 +115,24 @@
     border: 1px solid #c3e6cb;
 }
 
+.score-badge.score-red {
+    background: #ffeaea;
+    color: #e53935;
+    border: 2px solid #e53935;
+}
+
+.score-badge.score-yellow {
+    background: #fff8e1;
+    color: #ffb300;
+    border: 2px solid #ffb300;
+}
+
+.score-badge.score-green {
+    background: #e8f5e9;
+    color: #43a047;
+    border: 2px solid #43a047;
+}
+
 .pdf-container {
     background: #fff;
     border-radius: 16px;

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './assets/css/headerMenu.css';
+import { useBreadcrumbContext } from './BreadcrumbContext';
 
 const HeaderMenu: React.FC = () => {
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { addBreadcrumb } = useBreadcrumbContext();
   const userRole = localStorage.getItem('userRole');
   const userEmail = localStorage.getItem('userEmail') || '';
 
@@ -31,36 +33,40 @@ const HeaderMenu: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  // Handler per le voci di menu
+  const handleMenuClick = (label: string, path: string) => {
+    addBreadcrumb({ label, path });
+    navigate(path);
+    setIsMenuOpen(false);
+  };
+
   return (
     <>
       <header className="header-menu">
         <div className="header-menu-container">
           <div className="logo">
-            <Link to="/dashboard">
+            <span style={{cursor:'pointer'}} onClick={() => handleMenuClick('Dashboard', '/dashboard')}>
               <img src="./assets/logo-blearn.png" alt="B-Learn Logo" className="logo-image logo-desktop" />
               <img src="./assets/logo-blearn-notxt.PNG" alt="B-Learn Logo Mobile" className="logo-image logo-mobile" />
-            </Link>
+            </span>
           </div>
           {/* Logo scritta solo mobile */}
           <div className="logo-mobile-center">
             <img src="./assets/logo-blearn - txt.PNG" alt="B-Learn Logo Testo Mobile" />
           </div>
-          <nav className={`nav-menu ${isMenuOpen ? 'nav-menu-open' : ''}`}>
-            <Link to="/dashboard" className="nav-link">🏠 Dashboard</Link>
-            {/* Chatbots solo per super admin */}
+          <nav className={`nav-menu ${isMenuOpen ? 'nav-menu-open' : ''}`}> 
+            <span className="nav-link" onClick={() => handleMenuClick('Dashboard', '/dashboard')}>🏠 Dashboard</span>
             {isSuperAdmin && (
-              <Link to="/create-chatbot" className="nav-link">🤖 Chatbots</Link>
+              <span className="nav-link" onClick={() => handleMenuClick('Chatbots', '/create-chatbot')}>🤖 Chatbots</span>
             )}
-            {/* Utilisateurs */}
             {isSuperAdmin && (
-              <Link to="/all-student-list" className="nav-link">👥 Utilisateurs</Link>
+              <span className="nav-link" onClick={() => handleMenuClick('Utilisateurs', '/all-student-list')}>👥 Utilisateurs</span>
             )}
-            {/* Ajouter un Admin solo per super admin */}
             {isSuperAdmin &&(
-              <Link to="/admin" className="nav-link">➕ Ajouter un Admin</Link>
+              <span className="nav-link" onClick={() => handleMenuClick('Ajouter un Admin', '/admin')}>➕ Ajouter un Admin</span>
             )}
             {isAdmin &&(
-              <Link to="/add-partner" className="nav-link">➕ Ajouter un Manager</Link>
+              <span className="nav-link" onClick={() => handleMenuClick('Ajouter un Manager', '/add-partner')}>➕ Ajouter un Manager</span>
             )}
           </nav>
           <div className="mobile-menu-container">
@@ -79,18 +85,18 @@ const HeaderMenu: React.FC = () => {
                   </div>
                 </div>
                 <nav className="mobile-nav">
-                  <Link to="/dashboard" className="mobile-nav-link" onClick={toggleMenu}>🏠 Dashboard</Link>
+                  <span className="mobile-nav-link" onClick={() => handleMenuClick('Dashboard', '/dashboard')}>🏠 Dashboard</span>
                   {isSuperAdmin && (
-                    <Link to="/create-chatbot" className="mobile-nav-link" onClick={toggleMenu}>🤖 Chatbots</Link>
+                    <span className="mobile-nav-link" onClick={() => handleMenuClick('Chatbots', '/create-chatbot')}>🤖 Chatbots</span>
                   )}
                   {isSuperAdmin && (
-                    <Link to="/all-student-list" className="mobile-nav-link" onClick={toggleMenu}>👥 Utilisateurs</Link>
+                    <span className="mobile-nav-link" onClick={() => handleMenuClick('Utilisateurs', '/all-student-list')}>👥 Utilisateurs</span>
                   )}
                   {isSuperAdmin && (
-                    <Link to="/admin" className="mobile-nav-link" onClick={toggleMenu}>➕ Ajouter un Admin</Link>
+                    <span className="mobile-nav-link" onClick={() => handleMenuClick('Ajouter un Admin', '/admin')}>➕ Ajouter un Admin</span>
                   )}
                   {isAdmin && (
-                    <Link to="/add-partner" className="mobile-nav-link" onClick={toggleMenu}>➕ Ajouter un Manager</Link>
+                    <span className="mobile-nav-link" onClick={() => handleMenuClick('Ajouter un Manager', '/add-partner')}>➕ Ajouter un Manager</span>
                   )}
                 </nav>
                 <button className="mobile-logout-btn" onClick={handleLogout}>Déconnexion</button>

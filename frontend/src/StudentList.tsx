@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './assets/css/studentList.css';
+import { useBreadcrumbContext } from './BreadcrumbContext';
 
 interface StudentRow {
   name: string;
@@ -29,6 +30,7 @@ const StudentList: React.FC = () => {
   const goToNextPage = () => setCurrentPage(p => Math.min(totalPages, p + 1));
   useEffect(() => { setCurrentPage(1); }, [students]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const { addBreadcrumb } = useBreadcrumbContext();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,12 +121,12 @@ const StudentList: React.FC = () => {
         <div className="student-list-title-card">
           <h1>Liste des learners</h1>
         </div>
-        {/* Breadcrumb */}
+        {/* Breadcrumb 
         <div className="breadcrumb">
           <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
           <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${storyline_key}`)}>Chatbot</span> &gt;
           <span className="current">Liste des learners</span>
-        </div>
+        </div>*/}
         {/* Statistiche generali learners (placeholder, puoi aggiungere dati reali) */}
         {/* <div className="student-list-stats">
           <div className="stat-card"><span className="stat-icon">👥</span> <span className="stat-label">Total learners :</span> <span className="stat-value">{students.length}</span></div>
@@ -188,7 +190,10 @@ const StudentList: React.FC = () => {
                       <span className="date-badge">{stu.last_date}</span>
                     </td>
                     <td className="td-details">
-                      <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'student-list' } })}>Voir</button>
+                      <button className="btn btn-voir" onClick={() => {
+                        addBreadcrumb({ label: stu.name, path: `/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}` });
+                        navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'student-list' } });
+                      }}>Voir</button>
                     </td>
                   </tr>
                 ))
@@ -208,7 +213,10 @@ const StudentList: React.FC = () => {
                 </div>
                 <div><strong>Dernière simulation:</strong> <span className="date-badge">{stu.last_date}</span></div>
                 <div className="card-buttons">
-                  <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'student-list' } })}>Voir</button>
+                  <button className="btn btn-voir" onClick={() => {
+                    addBreadcrumb({ label: stu.name, path: `/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}` });
+                    navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'student-list' } });
+                  }}>Voir</button>
                 </div>
               </div>
             ))}

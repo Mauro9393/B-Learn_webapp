@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './assets/css/chatbotDetail.css';
+import { useBreadcrumbContext } from './BreadcrumbContext';
 
 interface ChatbotDetailData {
   id: number;
@@ -26,6 +27,7 @@ const ChatbotDetail: React.FC = () => {
   const [data, setData] = useState<ChatbotDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingSims, setLoadingSims] = useState(true);
+  const { addBreadcrumb } = useBreadcrumbContext();
 
   // Statistiche mensili
   const [monthStats, setMonthStats] = useState({
@@ -94,8 +96,8 @@ const ChatbotDetail: React.FC = () => {
     if (storyline_key) fetchSimulations();
   }, [storyline_key]);
 
-  if (loading) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Caricamento...</div></div>;
-  if (!data) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Chatbot non trovato.</div></div>;
+  if (loading) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Charging...</div></div>;
+  if (!data) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Chatbot not found.</div></div>;
 
   return (
     <div className="">
@@ -112,11 +114,11 @@ const ChatbotDetail: React.FC = () => {
             </div>
           </div>
         </div>
-        {/* Breadcrumb */}
+        {/* Breadcrumb 
         <div className="breadcrumb">
           <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;  
           <span className="current">{data.name}</span>
-        </div>
+        </div>*/}
         {/* Statistiche principali */}
         <div className="chatbot-main-stats">
           <div className="main-stat-card">
@@ -171,10 +173,16 @@ const ChatbotDetail: React.FC = () => {
         </div>
         {/* Bottoni azione */}
         <div className="action-buttons">
-          <button className="action-btn primary" onClick={() => navigate(`/list?chatbot_name=${encodeURIComponent(data.storyline_key)}`)}>
+          <button className="action-btn primary" onClick={() => {
+            addBreadcrumb({ label: 'Simulations', path: `/list?chatbot_name=${encodeURIComponent(data.storyline_key)}` });
+            navigate(`/list?chatbot_name=${encodeURIComponent(data.storyline_key)}`);
+          }}>
             Voir la liste des simulations
           </button>
-          <button className="action-btn primary" onClick={() => navigate(`/chatbot/${data.storyline_key}/learners`)}>
+          <button className="action-btn primary" onClick={() => {
+            addBreadcrumb({ label: 'Learners', path: `/chatbot/${data.storyline_key}/learners` });
+            navigate(`/chatbot/${data.storyline_key}/learners`);
+          }}>
             Voir la liste des learners
           </button>
         </div>

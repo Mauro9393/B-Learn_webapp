@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/studentList.css';
+import { useBreadcrumbContext } from './BreadcrumbContext';
 
 interface StudentRow {
   id: number;
@@ -23,6 +24,7 @@ const AllStudentList: React.FC = () => {
   const [minSimulations, setMinSimulations] = useState('');
   const [clientFilter, setClientFilter] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const { addBreadcrumb } = useBreadcrumbContext();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -197,7 +199,10 @@ const AllStudentList: React.FC = () => {
                       <span className="date-badge">{stu.last_date}</span>
                     </td>
                     <td className="td-details">
-                      <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'all-student-list' } })}>Voir</button>
+                      <button className="btn btn-voir" onClick={() => {
+                        addBreadcrumb({ label: stu.name, path: `/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}` });
+                        navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'all-student-list' } });
+                      }}>Voir</button>
                     </td>
                   </tr>
                 ))
@@ -218,7 +223,10 @@ const AllStudentList: React.FC = () => {
                 </div>
                 <div><strong>Dernière simulation:</strong> <span className="date-badge">{stu.last_date}</span></div>
                 <div className="card-buttons">
-                  <button className="btn btn-voir" onClick={() => navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'all-student-list' } })}>Voir</button>
+                  <button className="btn btn-voir" onClick={() => {
+                    addBreadcrumb({ label: stu.name, path: `/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}` });
+                    navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'all-student-list' } });
+                  }}>Voir</button>
                 </div>
               </div>
             ))}

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 // @ts-ignore
 import jsPDF from 'jspdf';
+import { useBreadcrumbContext } from './BreadcrumbContext';
 
 // Definisci un'interfaccia per i dati
 interface DataItem {
@@ -44,6 +45,7 @@ function List() {
   const totalPages = Math.ceil(filteredData.length / cardsPerPage);
   // Calcola le card da mostrare in base alla pagina
   const paginatedCards = filteredData.slice((currentPage - 1) * cardsPerPage, currentPage * cardsPerPage);
+  const { addBreadcrumb } = useBreadcrumbContext();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -171,7 +173,7 @@ function List() {
   return (
     <div className="list-container">
       <h1>Liste des Simulations</h1>
-      {/* Breadcrumb */}
+      {/* Breadcrumb 
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
         <span
@@ -181,7 +183,7 @@ function List() {
           Chatbot
         </span> &gt;
         <span className='current'>Liste des simulations</span>
-      </div>
+      </div>*/}
       {/* Filtri comme in simulations-list.html */}
       <div className="filters">
         <input
@@ -239,8 +241,11 @@ function List() {
                     <button
                       className="btn-small btn-view"
                       title="Visualiser"
-                      onClick={() => navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } })}
-                      disabled={!item.chat_analysis}
+                      onClick={() => {
+                        addBreadcrumb({ label: 'Historique', path: '/chat-history' });
+                        navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } });
+                      }}
+                      disabled={!item.chat_history}
                     >
                       {/* Icona occhio */}
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -261,7 +266,10 @@ function List() {
                     <button
                       className="btn-small btn-view"
                       title="Visualiser"
-                      onClick={() => navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, from: 'simulations-list', storyline_key: chatbotName } })}
+                      onClick={() => {
+                        addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                        navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, chat_history: item.chat_history, from: 'simulations-list', storyline_key: chatbotName } });
+                      }}
                       disabled={!item.chat_analysis}
                     >
                       {/* Icona occhio */}
@@ -293,8 +301,11 @@ function List() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </button>
                 <button className="btn-small btn-view" title="Visualiser"
-                  onClick={() => navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } })}
-                  disabled={!item.chat_analysis}>
+                  onClick={() => {
+                    addBreadcrumb({ label: 'Historique', path: '/chat-history' });
+                    navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } });
+                  }}
+                  disabled={!item.chat_history}>
                   {/* Icona occhio */}
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -309,12 +320,18 @@ function List() {
                   {/* Icona download */}
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </button>
-                <button className="btn-small btn-view" title="Visualiser"
-                  onClick={() => navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, from: 'simulations-list', storyline_key: chatbotName } })}
-                  disabled={!item.chat_analysis}>
-                  {/* Icona occhio */}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
+                <button
+                      className="btn-small btn-view"
+                      title="Visualiser"
+                      onClick={() => {
+                        addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                        navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, chat_history: item.chat_history, from: 'simulations-list', storyline_key: chatbotName } });
+                      }}
+                      disabled={!item.chat_analysis}
+                    >
+                      {/* Icona occhio */}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
               </div>
             </div>
           </div>

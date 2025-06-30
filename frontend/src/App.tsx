@@ -18,7 +18,10 @@ import ChooseYourPw from './ChooseYourPw';
 import Confirmation from './Confirmation';
 import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
+import Breadcrumbs from "./Breadcrumbs";
+import "./assets/css/breadcrumbs.css";
 import './App.css'
+import { BreadcrumbProvider } from "./BreadcrumbContext";
 
 function AppLayout() {
   const location = useLocation();
@@ -59,10 +62,23 @@ function AppLayout() {
 
 function App() {
   return (
-    <Router basename="/">
-      <AppLayout />
-    </Router>
+    <BreadcrumbProvider>
+      <Router basename="/">
+        <BreadcrumbsWrapper />
+        <AppLayout />
+      </Router>
+    </BreadcrumbProvider>
   )
+}
+
+function BreadcrumbsWrapper() {
+  const location = useLocation();
+  const hideOn = ['/', '/login', '/reset-password'];
+  // Nascondi anche tutte le varianti di reset-password (es. con token)
+  if (hideOn.includes(location.pathname) || location.pathname.startsWith('/reset-password')) {
+    return null;
+  }
+  return <Breadcrumbs />;
 }
 
 export default App

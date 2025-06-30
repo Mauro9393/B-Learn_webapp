@@ -8,7 +8,7 @@
         left: 0;
         right: 0;
         width: 100vw;
-        z-index: 1000;
+        z-index: 2000;
         border-bottom: 1px solid #e4e4e7;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         margin-bottom: 50px;
@@ -255,16 +255,12 @@
         position: absolute;
         top: 100%;
         right: 0;
-        min-width: 180px;
         background: #fff;
+        box-shadow: 0 4px 16px rgba(108, 99, 255, 0.12);
         border-radius: 12px;
-        box-shadow: 0 8px 24px 0 rgba(91, 109, 246, 0.15), 0 1.5px 6px 0 rgba(0, 0, 0, 0.08);
-        padding: 0.7rem 0.7rem 0.7rem 0.7rem;
-        z-index: 10002;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        animation: fadeIn 0.2s;
+        min-width: 220px;
+        padding: 1rem 0.5rem;
+        z-index: 9999;
     }
     
     .profile-dropdown-header {

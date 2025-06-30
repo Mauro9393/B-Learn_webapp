@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './assets/css/chatHistory.css';
 // @ts-ignore
 import jsPDF from 'jspdf';
+import { useBreadcrumbContext } from './BreadcrumbContext';
 
 // Fonction de parsing : supposons que chaque message commence par "Assistant:" ou par le nom de l'étudiant (ex : "Baptiste:")
 function parseMessages(chat_history: string, studentName: string) {
@@ -37,15 +38,75 @@ function parseMessages(chat_history: string, studentName: string) {
   return messages;
 }
 
+// Funzione per determinare la classe della pillola score
+const getScoreBadgeClass = (score: number) => {
+  if (score >= 80) return 'score-badge score-green';
+  if (score >= 50) return 'score-badge score-yellow';
+  return 'score-badge score-red';
+};
+
 const ChatHistory: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { addBreadcrumb } = useBreadcrumbContext();
   const state = location.state as any;
   const messagesRef = React.useRef<HTMLDivElement>(null);
-  const from = state?.from;
-  if (!state) return <div>Contenuto non trovato.</div>;
+  
+  // Recupera lo stato dal localStorage se non è presente nel location.state
+  const getChatHistoryState = () => {
+    if (state) {
+      // Salva tutti i dati originali nel localStorage
+      localStorage.setItem('originalData', JSON.stringify(state));
+      localStorage.setItem('chatHistoryState', JSON.stringify(state));
+      return state;
+    }
+    
+    // Prova a recuperare dal localStorage
+    const savedState = localStorage.getItem('chatHistoryState');
+    if (savedState) {
+      try {
+        return JSON.parse(savedState);
+      } catch (e) {
+        console.error('Errore nel parsing dello stato salvato:', e);
+      }
+    }
+    
+    return null;
+  };
 
-  const { name, date, score, chat_history } = state;
+  const chatHistoryState = getChatHistoryState();
+  
+  if (!chatHistoryState) {
+    return (
+      <main className="student-detail-main">
+        <div className="breadcrumb">
+          <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
+          <span className="current">Historique de Chat</span>
+        </div>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+          <h2>Contenuto non trovato</h2>
+          <p>I dati dell'historique non sono più disponibili.</p>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            style={{
+              background: '#6C63FF',
+              color: 'white',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              marginTop: '1rem'
+            }}
+          >
+            Torna alla Dashboard
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  const from = chatHistoryState?.from;
+  const { name, date, score, chat_history } = chatHistoryState;
   const messages = parseMessages(chat_history, name);
 
   // Funzione per schermo intero
@@ -101,20 +162,20 @@ const ChatHistory: React.FC = () => {
                 <h2 className="student-name">{name}</h2>
                 <div className="simulation-date">Date : {date ? new Date(date).toLocaleDateString('fr-FR') : ''}</div>
                 <div className="simulation-score">
-                  <span className="score-badge score-high">Score : {score}</span>
+                  <span className={getScoreBadgeClass(Number(score))}>Score : {score}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* Breadcrumb */}
+      {/* Breadcrumb 
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
         {from === 'simulations-list' ? (
           <>
-            <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${state.storyline_key}`)}>Chatbot</span> &gt;
-            <span className="breadcrumb-link" onClick={() => navigate(`/list?chatbot_name=${state.storyline_key}`)}>Simulations</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${chatHistoryState.storyline_key}`)}>Chatbot</span> &gt;
+            <span className="breadcrumb-link" onClick={() => navigate(`/list?chatbot_name=${chatHistoryState.storyline_key}`)}>Simulations</span> &gt;
             <span className="current">Historique</span>
           </>
         ) : from === 'all-student-list' ? (
@@ -138,7 +199,7 @@ const ChatHistory: React.FC = () => {
             <span className="current">Historique</span>
           </>
         )}
-      </div>
+      </div>*/}
       {/* Contenuto principale */}
       <div className="pdf-container">
         <div className="pdf-viewer">
@@ -160,6 +221,56 @@ const ChatHistory: React.FC = () => {
                   <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
                 <span className='btn-text'>Télécharger PDF</span>
+              </button>
+              <button 
+                className="btn-small btn-secondary" 
+                title="Voir l'analyse" 
+                onClick={() => {
+                  // Usa sempre i dati originali salvati
+                  const originalData = localStorage.getItem('originalData');
+                  if (originalData) {
+                    try {
+                      const analysisData = JSON.parse(originalData);
+                      
+                      // Aggiorna il breadcrumb
+                      addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                      // Naviga verso Analysis passando tutti i dati originali
+                      navigate('/analysis', { state: analysisData });
+                    } catch (e) {
+                      console.error('Errore nel parsing dei dati originali:', e);
+                      // Fallback: usa i dati correnti
+                      const fallbackData = {
+                        name, 
+                        date, 
+                        score, 
+                        chat_analysis: chatHistoryState.chat_analysis || '',
+                        from: chatHistoryState.from,
+                        storyline_key: chatHistoryState.storyline_key 
+                      };
+                      addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                      navigate('/analysis', { state: fallbackData });
+                    }
+                  } else {
+                    // Se non ci sono dati originali, usa i dati correnti
+                    const fallbackData = {
+                      name, 
+                      date, 
+                      score, 
+                      chat_analysis: chatHistoryState.chat_analysis || '',
+                      from: chatHistoryState.from,
+                      storyline_key: chatHistoryState.storyline_key 
+                    };
+                    addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                    navigate('/analysis', { state: fallbackData });
+                  }
+                }}
+              >
+                {/* Icona analisi */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 3v18h18"/>
+                  <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                </svg>
+                <span className='btn-text'>Analysis</span>
               </button>
             </div>
           </div>
@@ -204,7 +315,6 @@ const ChatHistory: React.FC = () => {
               <span className="score-label">Score Final</span>
               <span className="score-value">{score ? `${score}/100` : '-'}</span>
             </div>
-            {/* Placeholder durata e numero messaggi */}
             <div className="progress-indicator">
               <span className="progress-label">Durée</span>
               <span className="progress-value score-style">-</span>

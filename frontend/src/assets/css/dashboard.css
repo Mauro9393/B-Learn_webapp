@@ -117,11 +117,13 @@ body {
 }
 
 .mini-dashboard-cards {
-    display: flex;
-    gap: 1.2rem;
-    margin: 0.8rem 0 1rem 0;
+    display: grid;
     justify-content: center;
-    flex-wrap: wrap;
+    gap: 1.2rem;
+    max-width: 800px;
+    margin: 0.8rem 0 1rem 0;
+    grid-template-columns: repeat(4, 1fr);
+    margin: 0 auto;
 }
 
 .mini-dashboard-card {
@@ -1026,6 +1028,11 @@ button:hover,
         grid-template-columns: 1fr;
         gap: 12px;
     }
+    .mini-dashboard-cards {
+        gap: 0.6rem;
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 300px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1047,6 +1054,8 @@ button:hover,
     }
     .mini-dashboard-cards {
         gap: 0.6rem;
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 300px;
     }
     .mini-dashboard-card {
         min-width: 100px;

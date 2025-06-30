@@ -76,6 +76,24 @@
     background: linear-gradient(135deg, #32cd32, #90ee90);
 }
 
+.score-badge.score-red {
+    background: #ffeaea;
+    color: #e53935;
+    border: 2px solid #e53935;
+}
+
+.score-badge.score-yellow {
+    background: #fff8e1;
+    color: #ffb300;
+    border: 2px solid #ffb300;
+}
+
+.score-badge.score-green {
+    background: #e8f5e9;
+    color: #43a047;
+    border: 2px solid #43a047;
+}
+
 .breadcrumb {
     font-size: 0.9rem;
     color: #666;
@@ -233,10 +251,53 @@
 }
 
 .pdf-list {
+    margin-top: 1rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+
+/* Stile dei messaggi come in ChatHistory */
+
+.pdf-message {
+    margin: 1rem 0;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border-left: 4px solid #ddd;
+}
+
+.pdf-message.assistant {
+    background: #f8f9ff;
+    border-left-color: #7F53F5;
+}
+
+.pdf-message.student {
+    background: #f8fff8;
+    border-left-color: #5B6DF6;
+}
+
+.pdf-message.summary {
+    background: #fff8f0;
+    border-left: 4px solid #ff9800;
+}
+
+.pdf-message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.pdf-sender {
+    font-weight: bold;
+    color: #333;
+}
+
+.pdf-message-content {
     font-size: 0.9rem;
-    line-height: 1.8;
-    color: #555;
-    padding-left: 0.5rem;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
 }
 
 .pdf-footer {
@@ -250,6 +311,21 @@
     font-size: 0.8rem;
     color: #666;
     font-style: italic;
+}
+
+.pdf-message .analysis-note-num-green {
+    font-weight: bold !important;
+    color: #43a047 !important;
+}
+
+.pdf-message .analysis-note-num-yellow {
+    font-weight: bold !important;
+    color: #ffb300 !important;
+}
+
+.pdf-message .analysis-note-num-red {
+    font-weight: bold !important;
+    color: #e53935 !important;
 }
 
 
@@ -411,4 +487,55 @@
     .pdf-list {
         font-size: 0.8rem;
     }
+}
+
+.analysis-label {
+    font-weight: bold;
+}
+
+.analysis-label-blue {
+    color: #7F53F5;
+}
+
+.analysis-label-green {
+    color: #43a047;
+}
+
+.analysis-label-orange {
+    color: #ff9800;
+}
+
+.analysis-label-red {
+    color: #e53935;
+}
+
+.analysis-label-yellow {
+    color: #ffb300;
+}
+
+.analysis-note-num-green,
+.analysis-note-num-yellow,
+.analysis-note-num-red {
+    color: #43a047 !important;
+    font-weight: bold !important;
+}
+
+.analysis-question-title {
+    font-size: 1.18rem;
+    font-weight: bold;
+    color: #7F53F5;
+    margin-bottom: 0.3rem;
+    margin-top: 0.1rem;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.analysis-block-content {
+    margin: 0;
+    padding: 0;
+}
+
+.analysis-block-content-indent {
+    margin-left: 1.5rem;
+    padding: 0;
 }

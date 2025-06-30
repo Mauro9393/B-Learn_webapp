@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './assets/css/dashboard.css';
 import { useNavigate} from 'react-router-dom';
+import { useBreadcrumbContext } from './BreadcrumbContext';
 
 interface Chatbot {
   id: number;
@@ -43,6 +44,7 @@ function Dashboard() {
   const [copied, setCopied] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const { addBreadcrumb } = useBreadcrumbContext();
 
   // Récupère l'email de l'utilisateur connecté
   const userRole = localStorage.getItem('userRole');
@@ -585,7 +587,10 @@ function Dashboard() {
               <button
                 className="btn"
                 style={{ minWidth: '120px', maxWidth: '160px', padding: '0.6rem 1.2rem', fontSize: '1rem', marginTop: '0.5rem', alignSelf: 'flex-start' }}
-                onClick={() => navigate(`/chatbot/${bot.storyline_key}`)}
+                onClick={() => {
+                  addBreadcrumb({ label: 'Chatbot', path: `/chatbot/${bot.storyline_key}` });
+                  navigate(`/chatbot/${bot.storyline_key}`);
+                }}
               >
                 Voir le détail
               </button>

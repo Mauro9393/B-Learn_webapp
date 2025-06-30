@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import './assets/css/studentDetail.css';
 // @ts-ignore
 import jsPDF from 'jspdf';
+import { useBreadcrumbContext } from './BreadcrumbContext';
 
 interface Simulation {
   id: number;
@@ -71,6 +72,7 @@ const StudentDetail: React.FC = () => {
   const goToPrevPage = () => setCurrentPage(p => Math.max(1, p - 1));
   const goToNextPage = () => setCurrentPage(p => Math.min(totalPages, p + 1));
   useEffect(() => { setCurrentPage(1); }, [sortedSimulations]);
+  const { addBreadcrumb } = useBreadcrumbContext();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,7 +147,7 @@ const StudentDetail: React.FC = () => {
           <h1 className="student-name" style={{textAlign: 'center', marginTop: '12px'}}>{learner.name}</h1>
         </div>
       </div>
-      {/* Breadcrumb */}
+      {/* Breadcrumb 
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
         {from === 'all-student-list' ? (
@@ -160,7 +162,7 @@ const StudentDetail: React.FC = () => {
             <span className="current">{learner.name}</span>
           </>
         )}
-      </div>
+      </div>*/}
       {/* Statistiche */}
       <div className="student-stats">
         <div className="stat-card">
@@ -215,7 +217,10 @@ const StudentDetail: React.FC = () => {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => navigate('/chat-history', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_history: sim.chat_history, chat_analysis: sim.chat_analysis, show: 'analysis', from } })}
+                    onClick={() => {
+                      addBreadcrumb({ label: 'Historique', path: '/chat-history' });
+                      navigate('/chat-history', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_history: sim.chat_history, chat_analysis: sim.chat_analysis, show: 'analysis', from } });
+                    }}
                     disabled={!sim.chat_history}
                   >
                     {/* Icona occhio */}
@@ -238,7 +243,10 @@ const StudentDetail: React.FC = () => {
                   <button
                     className="btn-small btn-view"
                     title="Visualiser"
-                    onClick={() => navigate('/analysis', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_analysis: sim.chat_analysis, from } })}
+                    onClick={() => {
+                      addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                      navigate('/analysis', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_analysis: sim.chat_analysis, chat_history: sim.chat_history, from } });
+                    }}
                     disabled={!sim.chat_analysis}
                   >
                     {/* Icona occhio */}
@@ -271,7 +279,10 @@ const StudentDetail: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </button>
                 <button className="btn-small btn-view" title="Visualiser"
-                  onClick={() => navigate('/chat-history', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_history: sim.chat_history, chat_analysis: sim.chat_analysis, show: 'analysis', from } })}
+                  onClick={() => {
+                    addBreadcrumb({ label: 'Historique', path: '/chat-history' });
+                    navigate('/chat-history', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_history: sim.chat_history, chat_analysis: sim.chat_analysis, show: 'analysis', from } });
+                  }}
                   disabled={!sim.chat_history}>
                   {/* Icona occhio */}
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -286,7 +297,10 @@ const StudentDetail: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </button>
                 <button className="btn-small btn-view" title="Visualiser"
-                  onClick={() => navigate('/analysis', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_analysis: sim.chat_analysis, from } })}
+                  onClick={() => {
+                    addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                    navigate('/analysis', { state: { name: sim.name, date: sim.created_at, score: sim.score, chat_analysis: sim.chat_analysis, chat_history: sim.chat_history, from } });
+                  }}
                   disabled={!sim.chat_analysis}>
                   {/* Icona occhio */}
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
