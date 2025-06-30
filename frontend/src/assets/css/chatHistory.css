@@ -512,6 +512,9 @@
     .btn-text {
         display: none;
     }
+    .btn-plein-ecran {
+        display: none !important;
+    }
 }
 
 

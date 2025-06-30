@@ -262,7 +262,7 @@ const Analysis: React.FC = () => {
           <div className="pdf-header">
             <h3>Rapport d'Analyse</h3>
             <div className="pdf-controls">
-              <button className="btn-small btn-secondary" title="Plein écran" onClick={handleFullscreen}>
+              <button className="btn-small btn-secondary btn-plein-ecran" title="Plein écran" onClick={handleFullscreen}>
                 {/* Icona fullscreen */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>

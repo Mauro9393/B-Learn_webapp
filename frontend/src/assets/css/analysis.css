@@ -448,6 +448,9 @@
     .pdf-list {
         font-size: 0.85rem;
     }
+    .btn-plein-ecran {
+        display: none !important;
+    }
 }
 
 
