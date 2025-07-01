@@ -1,6 +1,6 @@
 .breadcrumbs-container {
     width: 100%;
-    background: #c0c7ff;
+    background: #9da9ff;
     padding: 1rem 2rem;
     border-radius: 0 0 16px 16px;
     box-shadow: 0 2px 8px rgba(108, 99, 255, 0.08);
@@ -20,6 +20,7 @@
     list-style: none;
     margin: 0;
     padding: 0;
+    margin: 0 auto;
 }
 
 .breadcrumbs-item {
@@ -53,6 +54,7 @@
 .breadcrumbs-separator {
     color: #6C63FF;
     font-size: 1.5rem;
+    font-weight: 999;
     margin: 0 0.2rem;
     user-select: none;
 }

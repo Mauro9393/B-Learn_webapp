@@ -136,11 +136,11 @@ const AllStudentList: React.FC = () => {
         <div className="student-list-title-card">
           <h1>Liste de tous les learners</h1>
         </div>
-        {/* Breadcrumb */}
+        {/* Breadcrumb 
         <div className="breadcrumb">
           <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
           <span className="current">Tous les utilisateurs</span>
-        </div>
+        </div>*/}
         {/* Filtri */}
         <div className="filters">
           <input
