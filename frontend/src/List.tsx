@@ -33,7 +33,8 @@ function List() {
   const chatbotName = query.get('chatbot_name');
   const [filter, setFilter] = useState('');
   const [scoreFilter, setScoreFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
+  const [monthFilter, setMonthFilter] = useState('');
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
   // Stato per ordinamento
   const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score'>('created_at');
@@ -66,17 +67,33 @@ function List() {
       data.filter(item => {
         // Filtro par nom
         const matchesName = item.name.toLowerCase().includes(filter.toLowerCase());
-        // Filtro per score
-        const matchesScore = scoreFilter ? item.score >= parseInt(scoreFilter) : true;
-        // Filtro per data (YYYY-MM-DD)
-        let matchesDate = true;
-        if (dateFilter && item.created_at) {
-          matchesDate = item.created_at.includes(dateFilter);
+        // Filtro per range di punteggio
+        const matchesScore = scoreFilter ? (() => {
+          const score = item.score;
+          switch(scoreFilter) {
+            case '0-20': return score >= 0 && score <= 20;
+            case '20-40': return score >= 20 && score <= 40;
+            case '40-60': return score >= 40 && score <= 60;
+            case '60-80': return score >= 60 && score <= 80;
+            case '80-100': return score >= 80 && score <= 100;
+            default: return true;
+          }
+        })() : true;
+        // Filtro per anno
+        let matchesYear = true;
+        if (yearFilter && item.created_at) {
+          matchesYear = item.created_at.startsWith(yearFilter);
         }
-        return matchesName && matchesScore && matchesDate;
+        // Filtro per mese
+        let matchesMonth = true;
+        if (monthFilter && item.created_at) {
+          const month = item.created_at.substring(5, 7); // Estrae MM da YYYY-MM-DD
+          matchesMonth = month === monthFilter;
+        }
+        return matchesName && matchesScore && matchesYear && matchesMonth;
       })
     );
-  }, [filter, scoreFilter, dateFilter, data]);
+  }, [filter, scoreFilter, yearFilter, monthFilter, data]);
 
   // Ordina i dati filtrati in base a sortColumn e sortDirection
   const sortedData = [...filteredData].sort((a, b) => {
@@ -195,12 +212,29 @@ function List() {
         />
         <select id="score-filter" value={scoreFilter} onChange={e => setScoreFilter(e.target.value)}>
           <option value="">Tous les scores</option>
-          <option value="90">Score ≥ 90</option>
-          <option value="80">Score ≥ 80</option>
-          <option value="70">Score ≥ 70</option>
+          <option value="0-20">Score 0-20</option>
+          <option value="20-40">Score 20-40</option>
+          <option value="40-60">Score 40-60</option>
+          <option value="60-80">Score 60-80</option>
+          <option value="80-100">Score 80-100</option>
         </select>
-        <select id="date-filter" value={dateFilter} onChange={e => setDateFilter(e.target.value)}>
-          <option value="">Toutes les dates</option>
+        <select id="month-filter" value={monthFilter} onChange={e => setMonthFilter(e.target.value)}>
+          <option value="">Tous les mois</option>
+          <option value="01">Janvier</option>
+          <option value="02">Février</option>
+          <option value="03">Mars</option>
+          <option value="04">Avril</option>
+          <option value="05">Mai</option>
+          <option value="06">Juin</option>
+          <option value="07">Juillet</option>
+          <option value="08">Août</option>
+          <option value="09">Septembre</option>
+          <option value="10">Octobre</option>
+          <option value="11">Novembre</option>
+          <option value="12">Décembre</option>
+        </select>
+        <select id="year-filter" value={yearFilter} onChange={e => setYearFilter(e.target.value)}>
+          <option value="">Toutes les années</option>
           {/* Opzioni dinamiche pour les années trouvées dans les données */}
           {[...new Set(data.map(item => item.created_at ? item.created_at.substring(0,4) : ''))]
             .filter(y => y)

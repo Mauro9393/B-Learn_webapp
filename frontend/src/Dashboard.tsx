@@ -383,13 +383,13 @@ function Dashboard() {
             <div className="card-emoji">👥</div>
             <h3>Learners</h3>
             <div className="mini-value">{stats.totalLearners}</div>
-            <div className="card-badge positive">+{stats.newLearnersThisMonth} learners</div>
+            <div className="card-badge positive">+{stats.newLearnersThisMonth} ce mois-ci</div>
           </div>
           <div className="mini-dashboard-card">
             <div className="card-emoji">🎯</div>
             <h3>Simulations</h3>
             <div className="mini-value">{stats.totalSimulations}</div>
-            <div className="card-badge positive">+{stats.simulationsThisMonth} simulations</div>
+            <div className="card-badge positive">+{stats.simulationsThisMonth} ce mois-ci</div>
           </div>
           <div className="mini-dashboard-card">
             <div className="card-emoji">⭐</div>
@@ -450,7 +450,7 @@ function Dashboard() {
             </div>
             {/* Statistiche evolutive (dinamico) */}
             <div className="summary-widget gamified">
-              <h3 className="widget-title">📊 Mes stats</h3>
+              <h3 className="widget-title">📊 Mes stats du mois</h3>
               <div className="evolution-stats">
                 <div className="evolution-item streak">
                   <div className="evolution-icon">🚀</div>

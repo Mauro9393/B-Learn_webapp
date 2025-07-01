@@ -73,7 +73,15 @@ function App() {
 
 function BreadcrumbsWrapper() {
   const location = useLocation();
-  const hideOn = ['/', '/login', '/reset-password'];
+  // Aggiungi qui tutti i path dove NON vuoi vedere il breadcrumbs
+  const hideOn = [
+    '/', 
+    '/login', 
+    '/reset-password', 
+    '/forgot-password', 
+    '/inscription', 
+    '/confirmation'
+  ];
   // Nascondi anche tutte le varianti di reset-password (es. con token)
   if (hideOn.includes(location.pathname) || location.pathname.startsWith('/reset-password')) {
     return null;

@@ -49,8 +49,18 @@ const AllStudentList: React.FC = () => {
     const matchesSearch =
       stu.name.toLowerCase().includes(search.toLowerCase()) ||
       stu.email.toLowerCase().includes(search.toLowerCase());
-    // Filtro per punteggio minimo
-    const matchesScore = minScore ? stu.score >= parseInt(minScore) : true;
+    // Filtro per range di punteggio
+    const matchesScore = minScore ? (() => {
+      const score = stu.score;
+      switch(minScore) {
+        case '0-20': return score >= 0 && score <= 20;
+        case '20-40': return score >= 20 && score <= 40;
+        case '40-60': return score >= 40 && score <= 60;
+        case '60-80': return score >= 60 && score <= 80;
+        case '80-100': return score >= 80 && score <= 100;
+        default: return true;
+      }
+    })() : true;
     // Filtro per simulazioni minime
     const matchesSimulations = minSimulations ? stu.simulations >= parseInt(minSimulations) : true;
     // Filtro per cliente
@@ -141,14 +151,17 @@ const AllStudentList: React.FC = () => {
           />
           <select value={minScore} onChange={e => setMinScore(e.target.value)}>
             <option value="">Tous les scores</option>
-            <option value="90">Score ≥ 90</option>
-            <option value="80">Score ≥ 80</option>
-            <option value="70">Score ≥ 70</option>
+            <option value="0-20">Score 0-20</option>
+            <option value="20-40">Score 20-40</option>
+            <option value="40-60">Score 40-60</option>
+            <option value="60-80">Score 60-80</option>
+            <option value="80-100">Score 80-100</option>
           </select>
           <select value={minSimulations} onChange={e => setMinSimulations(e.target.value)}>
             <option value="">Toutes les simulations</option>
-            <option value="10">≥ 10 simulations</option>
+            <option value="3">≥ 3 simulations</option>
             <option value="5">≥ 5 simulations</option>
+            <option value="10">≥ 10 simulations</option>
           </select>
           <select value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
             <option value="">Tous les clients</option>

@@ -226,7 +226,7 @@ body.home-page main {
 }
 
 
-/* HERO SECTION */
+/* --- HERO BG FLUIDO E RESPONSIVE --- */
 
 .home-hero-bg {
     position: relative;
@@ -410,13 +410,68 @@ body.home-page main {
 /* Responsive */
 
 @media (max-width: 1200px) {
+    /* Hero più fluido su tablet/desktop piccoli */
+    .home-hero-bg {
+        width: 100%;
+        padding: 0 1.5rem;
+        max-width: 100%;
+        margin: 0;
+    }
+    .home-hero-content {
+        padding-left: 0;
+        margin-left: 0;
+    }
     .home-boxes-row {
+        flex-direction: column;
         gap: 2rem;
-        max-width: 1000px;
+        padding: 30px 0 0 0;
+        max-width: 700px;
+    }
+    .home-box {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .home-hero-text {
+        margin-left: 60px;
+    }
+    .home-hero-title {
+        font-size: 2.2rem;
+        padding: 12px;
+    }
+    .home-hero-desc {
+        font-size: 1.1rem;
+        padding: 12px;
     }
 }
 
 @media (max-width: 900px) {
+    /* Hero e box ancora più compatti su tablet verticali */
+    .home-hero-bg {
+        padding: 0 0.5rem;
+    }
+    .home-hero-content {
+        padding: 0;
+        margin-left: 0;
+    }
+    .home-boxes-row {
+        max-width: 100%;
+        padding: 20px 0 0 0;
+        gap: 1rem;
+    }
+    .home-hero-text {
+        margin-left: 30px;
+    }
+    .home-hero-title {
+        font-size: 1.7rem;
+        padding: 8px;
+    }
+    .home-hero-desc {
+        font-size: 1rem;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 768px) {
     .home-hero-content {
         padding-left: 2vw;
     }
@@ -430,11 +485,69 @@ body.home-page main {
         max-width: 100%;
         min-width: 0;
     }
+    .home-hero-text {
+        align-items: center;
+    }
+    .home-hero-title {
+        color: #fff !important;
+        text-align: center;
+        font-size: 2.5rem;
+        padding: 20px;
+    }
+    .home-hero-desc {
+        color: #fff !important;
+        text-align: center;
+        padding: 20px;
+    }
 }
 
 @media (max-width: 600px) {
+    .home-hero-desc {
+        font-size: 1rem;
+    }
+    .home-box {
+        min-width: 0;
+        padding: 1.5rem 0.7rem 1.2rem 0.7rem;
+    }
+    .home-box-title {
+        font-size: 1.1rem;
+    }
+    .home-box-desc {
+        font-size: 0.95rem;
+    }
+    .home-hero-content {
+        padding-left: 0;
+        justify-content: center;
+        text-align: center;
+    }
+    .home-hero-btn {
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    .home-hero-text {
+        margin: 0px;
+    }
     .home-hero-title {
-        font-size: 2rem;
+        color: #fff !important;
+        text-align: center;
+        font-size: 2.5rem;
+        padding: 20px;
+    }
+    .home-hero-desc {
+        color: #fff !important;
+        text-align: center;
+        padding: 20px;
+    }
+}
+
+.break-mobile {
+    display: inline;
+}
+
+@media (max-width: 480px) {
+    .break-mobile {
+        display: block;
     }
     .home-hero-desc {
         font-size: 1rem;
@@ -454,18 +567,25 @@ body.home-page main {
         justify-content: center;
         text-align: center;
     }
-    .home-hero-text {
-        align-items: center;
-        width: 100%;
-    }
     .home-hero-btn {
         margin-left: auto;
         margin-right: auto;
         display: block;
     }
-    .home-hero-title,
+    .home-hero-text {
+        margin: 0px;
+    }
+    .home-hero-title {
+        color: #fff !important;
+        margin: 0 auto;
+        text-align: center;
+        font-size: 2.2rem;
+        line-height: 2.5rem;
+        padding: 0px;
+    }
     .home-hero-desc {
         color: #fff !important;
         text-align: center;
+        padding: 20px;
     }
 }

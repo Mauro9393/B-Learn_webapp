@@ -21,6 +21,8 @@ const StudentList: React.FC = () => {
   const [search, setSearch] = useState('');
   const [minScore, setMinScore] = useState('');
   const [minSimulations, setMinSimulations] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
+  const [monthFilter, setMonthFilter] = useState('');
   // Stato per la paginazione mobile
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 5;
@@ -53,13 +55,43 @@ const StudentList: React.FC = () => {
       stu.name.toLowerCase().includes(search.toLowerCase()) ||
       stu.email.toLowerCase().includes(search.toLowerCase());
 
-    // Filtro per punteggio minimo
-    const matchesScore = minScore ? stu.score >= parseInt(minScore) : true;
+    // Filtro per range di punteggio
+    const matchesScore = minScore ? (() => {
+      const score = stu.score;
+      switch(minScore) {
+        case '0-20': return score >= 0 && score <= 20;
+        case '20-40': return score >= 20 && score <= 40;
+        case '40-60': return score >= 40 && score <= 60;
+        case '60-80': return score >= 60 && score <= 80;
+        case '80-100': return score >= 80 && score <= 100;
+        default: return true;
+      }
+    })() : true;
 
     // Filtro per simulazioni minime
     const matchesSimulations = minSimulations ? stu.simulations >= parseInt(minSimulations) : true;
 
-    return matchesSearch && matchesScore && matchesSimulations;
+    // Filtro per anno (se last_date è nel formato YYYY-MM-DD)
+    let matchesYear = true;
+    if (yearFilter && stu.last_date) {
+      const dateParts = stu.last_date.split(/[\/\-]/);
+      if (dateParts.length >= 3) {
+        const year = dateParts[2] || dateParts[0]; // Supporta sia DD/MM/YYYY che YYYY-MM-DD
+        matchesYear = year === yearFilter;
+      }
+    }
+
+    // Filtro per mese (se last_date è nel formato YYYY-MM-DD)
+    let matchesMonth = true;
+    if (monthFilter && stu.last_date) {
+      const dateParts = stu.last_date.split(/[\/\-]/);
+      if (dateParts.length >= 3) {
+        const month = dateParts[1]; // Il mese è sempre nella posizione 1
+        matchesMonth = month === monthFilter;
+      }
+    }
+
+    return matchesSearch && matchesScore && matchesSimulations && matchesYear && matchesMonth;
   });
 
   // Funzione per parsing data formato giorno/mese/anno
@@ -142,14 +174,50 @@ const StudentList: React.FC = () => {
             />
             <select value={minScore} onChange={e => setMinScore(e.target.value)}>
               <option value="">Tous les scores</option>
-              <option value="90">Score ≥ 90</option>
-              <option value="80">Score ≥ 80</option>
-              <option value="70">Score ≥ 70</option>
+              <option value="0-20">Score 0-20</option>
+              <option value="20-40">Score 20-40</option>
+              <option value="40-60">Score 40-60</option>
+              <option value="60-80">Score 60-80</option>
+              <option value="80-100">Score 80-100</option>
             </select>
             <select value={minSimulations} onChange={e => setMinSimulations(e.target.value)}>
               <option value="">Toutes les simulations</option>
-              <option value="10">≥ 10 simulations</option>
+              <option value="3">≥ 3 simulations</option>
               <option value="5">≥ 5 simulations</option>
+              <option value="10">≥ 10 simulations</option>
+            </select>
+            <select value={monthFilter} onChange={e => setMonthFilter(e.target.value)}>
+              <option value="">Tous les mois</option>
+              <option value="01">Janvier</option>
+              <option value="02">Février</option>
+              <option value="03">Mars</option>
+              <option value="04">Avril</option>
+              <option value="05">Mai</option>
+              <option value="06">Juin</option>
+              <option value="07">Juillet</option>
+              <option value="08">Août</option>
+              <option value="09">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
+            </select>
+            <select value={yearFilter} onChange={e => setYearFilter(e.target.value)}>
+              <option value="">Toutes les années</option>
+              {/* Opzioni dinamiche pour les années trouvées dans les données */}
+              {[...new Set(students.map(stu => {
+                if (stu.last_date) {
+                  const dateParts = stu.last_date.split(/[\/\-]/);
+                  if (dateParts.length >= 3) {
+                    return dateParts[2] || dateParts[0]; // Supporta sia DD/MM/YYYY che YYYY-MM-DD
+                  }
+                }
+                return '';
+              }))]
+                .filter(y => y)
+                .sort((a, b) => b.localeCompare(a))
+                .map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
             </select>
           </div>
           {/* Tabella desktop/tablet */}

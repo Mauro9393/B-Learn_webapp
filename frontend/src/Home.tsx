@@ -19,7 +19,7 @@ function Home() {
         <div className="home-hero-overlay" />
         <div className="home-hero-content">
           <div className="home-hero-text">
-            <h1 className="home-hero-title">🎓 Bienvenue sur B-Learn</h1>
+            <h1 className="home-hero-title">🎓 Bienvenue sur <span className="break-mobile">B-Learn</span></h1>
             <p className="home-hero-desc">
               La plateforme qui vous permet de suivre l'apprentissage, de visualiser des données clés et d'accompagner vos apprenants dans leurs parcours de formation digitale.
             </p>

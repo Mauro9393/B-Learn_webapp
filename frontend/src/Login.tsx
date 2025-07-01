@@ -16,6 +16,7 @@ function Login() {
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [showAttemptsWarning, setShowAttemptsWarning] = useState(false);
   const [attemptsMessage, setAttemptsMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     document.body.classList.add('login-page');
@@ -190,14 +191,29 @@ function Login() {
               required
               autoComplete="username"
             />
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Mot de passe"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+              <span
+                className="password-eye"
+                onMouseDown={() => setShowPassword(true)}
+                onMouseUp={() => setShowPassword(false)}
+                onMouseLeave={() => setShowPassword(false)}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <svg width="22" height="22" fill="none" stroke="#888" strokeWidth="2" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="5"/><circle cx="12" cy="12" r="2.5"/></svg>
+                ) : (
+                  <svg width="22" height="22" fill="none" stroke="#888" strokeWidth="2" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="5"/><circle cx="12" cy="12" r="2.5"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
+                )}
+              </span>
+            </div>
             <button type="submit">Se connecter</button>
           </form>
           

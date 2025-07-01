@@ -130,11 +130,11 @@ const ChatbotDetail: React.FC = () => {
             </span>
           </div>
           <div className="main-stat-card">
-            <span className="main-stat-label">👑 Best Learners :</span>
+            <span className="main-stat-label">👑 Best Learners:</span>
             {loadingSims ? (
               <span className="main-stat-value">Caricamento...</span>
             ) : monthStats.bestLearners.length === 0 ? (
-              <span className="main-stat-value">Unknow</span>
+              <span className="main-stat-value">0 <br /> <span style={{fontSize:'0.8rem', color:'#00cc00'}}>Ce mois-ci</span></span>
             ) : (
               <ul style={{ margin: 0, padding: 0, listStyle: 'none', textAlign: 'left' }}>
                 {monthStats.bestLearners.map((l, i) => {

@@ -671,3 +671,50 @@
         display: none;
     }
 }
+
+
+/* Classi utility per visibilità responsive */
+
+.hide-mobile {
+    display: block;
+}
+
+.show-mobile {
+    display: none;
+}
+
+
+/* Nascondi su mobile (≤ 768px) */
+
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
+    .show-mobile {
+        display: block !important;
+    }
+}
+
+
+/* Nascondi su tablet e mobile (≤ 1024px) */
+
+@media (max-width: 1024px) {
+    .hide-tablet {
+        display: none !important;
+    }
+    .show-tablet {
+        display: block !important;
+    }
+}
+
+
+/* Mostra solo su desktop (> 1024px) */
+
+@media (min-width: 1025px) {
+    .show-desktop {
+        display: block !important;
+    }
+    .hide-desktop {
+        display: none !important;
+    }
+}
