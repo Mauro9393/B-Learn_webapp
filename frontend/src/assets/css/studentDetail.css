@@ -436,3 +436,15 @@
             display: none;
         }
     }
+    /* Pulsanti orizzontali nella tabella simulazioni (desktop) */
+    
+    .simulations-table td .btn-small {
+        display: inline-flex;
+        vertical-align: middle;
+        margin-right: 4px;
+        margin-bottom: 0;
+    }
+    
+    .simulations-table td {
+        white-space: nowrap;
+    }

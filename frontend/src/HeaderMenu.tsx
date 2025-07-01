@@ -57,13 +57,13 @@ const HeaderMenu: React.FC = () => {
           <nav className={`nav-menu ${isMenuOpen ? 'nav-menu-open' : ''}`}> 
             <span className="nav-link" onClick={() => handleMenuClick('Dashboard', '/dashboard')}>🏠 Dashboard</span>
             {isSuperAdmin && (
-              <span className="nav-link" onClick={() => handleMenuClick('Chatbots', '/create-chatbot')}>🤖 Chatbots</span>
+              <span className="nav-link" onClick={() => handleMenuClick('Chatbots', '/create-chatbot')}>🤖 Ajouter un chatbot</span>
             )}
             {isSuperAdmin && (
               <span className="nav-link" onClick={() => handleMenuClick('Utilisateurs', '/all-student-list')}>👥 Utilisateurs</span>
             )}
             {isSuperAdmin &&(
-              <span className="nav-link" onClick={() => handleMenuClick('Ajouter un Admin', '/admin')}>➕ Ajouter un Admin</span>
+              <span className="nav-link" onClick={() => handleMenuClick('Ajouter un Admin', '/admin')}>➕ Ajouter un Client</span>
             )}
             {isAdmin &&(
               <span className="nav-link" onClick={() => handleMenuClick('Ajouter un Manager', '/add-partner')}>➕ Ajouter un Manager</span>
