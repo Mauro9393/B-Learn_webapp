@@ -349,10 +349,15 @@
     cursor: pointer;
     transition: all 0.2s;
     font-family: 'Montserrat', Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3em;
+    line-height: 1;
 }
 
 .btn-text {
-    margin-left: 0.5em;
+    margin-left: 0;
     color: white;
     font-size: 1.4rem;
 }
@@ -375,6 +380,16 @@
 .btn-secondary:hover {
     transform: scale(1.05);
     background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%) !important;
+}
+
+.btn-small svg {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    vertical-align: middle;
+    display: inline-block;
+    margin-right: 0.3em;
 }
 
 
@@ -418,6 +433,9 @@
     }
     .chart-info {
         gap: 1.5rem;
+    }
+    .btn-text {
+        font-size: 0.9rem !important;
     }
 }
 
@@ -593,10 +611,10 @@
     }
     .btn-small {
         padding: 0.4rem 0.7rem;
-        font-size: 0.7rem;
+        font-size: 0.9rem;
         min-width: 36px;
         max-width: 48px;
-        margin: 0.1rem 0;
+        margin: 0px;
         display: flex;
         align-items: center;
         justify-content: center;
