@@ -2,6 +2,7 @@ console.log("authRoutes.js caricato!");
 const express = require('express');
 const { registerUser, authenticateUser } = require('../auth');
 const router = express.Router();
+
 const pool = require('../../config/db');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
@@ -283,6 +284,35 @@ router.get('/chatbots', async(req, res) => {
     }
 });
 
+// Modifica nome card chatbot
+
+router.put('/chatbots/:id', async(req, res) => {
+    try {
+        const { id } = req.params;
+        const { name } = req.body;
+
+        // Validazione
+        if (!name || name.trim() === '') {
+            return res.status(400).json({ success: false, message: 'Il nome non può essere vuoto' });
+        }
+
+        // Verifica che il chatbot esista
+        const checkResult = await pool.query('SELECT id FROM chatbots WHERE id = $1', [id]);
+        if (checkResult.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Chatbot non trovato' });
+        }
+
+        await pool.query(
+            'UPDATE chatbots SET name = $1 WHERE id = $2', [name.trim(), id]
+        );
+
+        res.json({ success: true, message: 'Chatbot aggiornato con successo!' });
+    } catch (error) {
+        console.error('Errore aggiornamento chatbot:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 router.get('/tenants', async(req, res) => {
     try {
         const result = await pool.query('SELECT id, name FROM tenants');
@@ -349,10 +379,10 @@ router.get('/userlist/month', async(req, res) => {
             `SELECT * FROM userlist WHERE chatbot_name = $1 AND created_at >= $2 AND created_at < $3`, [chatbotName, startMonth, endMonth]
         );
 
-        console.log("Query eseguita con parametri:", [chatbotName, startMonth, endMonth]);
-        console.log("Risultati trovati per il mese:", result.rows.length);
-        console.log("Primi 3 risultati:", result.rows.slice(0, 3));
-        console.log("=== FINE DEBUG ===");
+        // console.log("Query eseguita con parametri:", [chatbotName, startMonth, endMonth]);
+        //  console.log("Risultati trovati per il mese:", result.rows.length);
+        //  console.log("Primi 3 risultati:", result.rows.slice(0, 3));
+        //  console.log("=== FINE DEBUG ===");
 
         res.json(result.rows);
     } catch (err) {
@@ -401,7 +431,7 @@ router.get('/learners-list', async(req, res) => {
             SELECT 
                 user_email AS email,
                 MAX(name) AS name,
-                '' AS group,
+                COALESCE(MAX(usergroup), 'Groupe par défaut') AS usergroup,
                 COUNT(*) AS simulations,
                 COALESCE(ROUND(AVG(score)),0) AS score,
                 TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
@@ -423,11 +453,14 @@ router.get('/learners-list-maxscore', async(req, res) => {
         if (!storyline_key) {
             return res.status(400).json({ message: 'storyline_key mancante' });
         }
+
+        console.log('Learners list request for storyline_key:', storyline_key);
+
         const result = await pool.query(`
             SELECT 
                 user_email AS email,
                 MAX(name) AS name,
-                '' AS group,
+                COALESCE(MAX(usergroup), 'Groupe par défaut') AS usergroup,
                 COUNT(*) AS simulations,
                 COALESCE(MAX(score),0) AS score,
                 TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
@@ -436,8 +469,15 @@ router.get('/learners-list-maxscore', async(req, res) => {
             GROUP BY user_email
             ORDER BY last_date DESC
         `, [storyline_key]);
+
+        console.log('Learners list result:', {
+            totalLearners: result.rows.length,
+            sampleEmails: result.rows.slice(0, 3).map(r => ({ email: r.email, name: r.name }))
+        });
+
         res.json(result.rows);
     } catch (error) {
+        console.error('Errore in /learners-list-maxscore:', error);
         res.status(500).json({ message: error.message });
     }
 });
@@ -448,14 +488,62 @@ router.get('/learner-detail', async(req, res) => {
         return res.status(400).json({ message: 'Parametri mancanti' });
     }
     try {
-        const result = await pool.query(`
+        console.log('Learner detail request:', { storyline_key, email });
+
+        // Prima controlliamo tutti i dati per questo chatbot
+        const allData = await pool.query(`
+            SELECT user_email, name, COUNT(*) as count
+            FROM userlist
+            WHERE chatbot_name = $1
+            GROUP BY user_email, name
+            ORDER BY count DESC
+            LIMIT 10
+        `, [storyline_key]);
+
+        console.log('All data for chatbot:', {
+            totalRows: allData.rows.length,
+            sampleData: allData.rows
+        });
+
+        // Cerchiamo specificamente l'email "review@baberlearning.fr"
+        const reviewEmailCheck = await pool.query(`
+            SELECT user_email, name, COUNT(*) as count
+            FROM userlist
+            WHERE chatbot_name = $1 AND user_email LIKE '%review%'
+            GROUP BY user_email, name
+        `, [storyline_key]);
+
+        console.log('Review email check:', {
+            found: reviewEmailCheck.rows.length,
+            data: reviewEmailCheck.rows
+        });
+
+        // Proviamo sia con l'email originale che con la versione codificata
+        let result = await pool.query(`
             SELECT *
             FROM userlist
             WHERE chatbot_name = $1 AND user_email = $2
             ORDER BY created_at DESC
         `, [storyline_key, email]);
+
+        // Se non troviamo nulla, proviamo con la versione codificata
+        if (result.rows.length === 0) {
+            const encodedEmail = encodeURIComponent(email);
+            console.log('Trying with encoded email:', encodedEmail);
+
+            result = await pool.query(`
+                SELECT *
+                FROM userlist
+                WHERE chatbot_name = $1 AND user_email = $2
+                ORDER BY created_at DESC
+            `, [storyline_key, encodedEmail]);
+        }
+
+        console.log('Query result:', { rows: result.rows.length, firstRow: result.rows[0] });
+
         res.json(result.rows);
     } catch (error) {
+        console.error('Errore in /learner-detail:', error);
         res.status(500).json({ message: error.message });
     }
 });
@@ -469,7 +557,7 @@ router.get('/all-users', async(req, res) => {
                 user_email AS email,
                 MAX(name) AS name,
                 chatbot_name,
-                '' AS group,
+                COALESCE(MAX(usergroup), 'Groupe par défaut') AS usergroup,
                 COUNT(*) AS simulations,
                 COALESCE(MAX(score),0) AS score,
                 TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
@@ -483,7 +571,7 @@ router.get('/all-users', async(req, res) => {
             email: row.email,
             name: row.name,
             chatbot_name: row.chatbot_name,
-            group: row.group,
+            group: row.usergroup,
             simulations: Number(row.simulations),
             score: Number(row.score),
             last_date: row.last_date

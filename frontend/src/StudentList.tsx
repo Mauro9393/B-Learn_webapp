@@ -6,7 +6,7 @@ import { useBreadcrumbContext } from './BreadcrumbContext';
 interface StudentRow {
   name: string;
   email: string;
-  group: string;
+  usergroup: string;
   simulations: number;
   score: number;
   last_date: string;
@@ -23,6 +23,7 @@ const StudentList: React.FC = () => {
   const [minSimulations, setMinSimulations] = useState('');
   const [yearFilter, setYearFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
+  const [groupFilter, setGroupFilter] = useState('');
   // Stato per la paginazione mobile
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 5;
@@ -91,7 +92,10 @@ const StudentList: React.FC = () => {
       }
     }
 
-    return matchesSearch && matchesScore && matchesSimulations && matchesYear && matchesMonth;
+    // Filtro per gruppo
+    const matchesGroup = groupFilter ? stu.usergroup.toLowerCase().includes(groupFilter.toLowerCase()) : true;
+
+    return matchesSearch && matchesScore && matchesSimulations && matchesYear && matchesMonth && matchesGroup;
   });
 
   // Funzione per parsing data formato giorno/mese/anno
@@ -110,7 +114,7 @@ const StudentList: React.FC = () => {
         let aValue = a[sortConfig.key as keyof StudentRow];
         let bValue = b[sortConfig.key as keyof StudentRow];
         // Gestione speciale per le colonne
-        if (sortConfig.key === 'name' || sortConfig.key === 'group') {
+        if (sortConfig.key === 'name' || sortConfig.key === 'usergroup') {
           aValue = String(aValue).toLowerCase();
           bValue = String(bValue).toLowerCase();
           if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -219,6 +223,12 @@ const StudentList: React.FC = () => {
                   <option key={year} value={year}>{year}</option>
                 ))}
             </select>
+            <input
+              type="text"
+              placeholder="Filtrer par groupe..."
+              value={groupFilter}
+              onChange={e => setGroupFilter(e.target.value)}
+            />
           </div>
           {/* Tabella desktop/tablet */}
           <table className="student-table styled-table no-vertical-lines">
@@ -227,8 +237,8 @@ const StudentList: React.FC = () => {
                 <th className="th-name" onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
                   Nom <span className="sort-arrow">{sortConfig?.key === 'name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
                 </th>
-                <th className="th-group">
-                  Groupe <span className="sort-arrow">⇅</span>
+                <th className="th-group" onClick={() => requestSort('usergroup')} style={{ cursor: 'pointer' }}>
+                  Groupe <span className="sort-arrow">{sortConfig?.key === 'usergroup' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
                 </th>
                 <th className="th-simulations">Simulations</th>
                 <th className="th-score" onClick={() => requestSort('score')} style={{ cursor: 'pointer' }}>
@@ -242,14 +252,14 @@ const StudentList: React.FC = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6}>Chargement...</td></tr>
+                <tr><td colSpan={7}>Chargement...</td></tr>
               ) : sortedStudents.length === 0 ? (
-                <tr><td colSpan={6}>Nothing found.</td></tr>
+                <tr><td colSpan={7}>Nothing found.</td></tr>
               ) : (
                 sortedStudents.map(stu => (
                   <tr key={stu.email}>
-                    <td className="td-name">{stu.name}</td>
-                    <td className="td-group">{stu.group}</td>
+                    <td className="td-name" title={stu.name}>{stu.name}</td>
+                    <td className="td-group">{stu.usergroup}</td>
                     <td className="td-simulations">{stu.simulations}</td>
                     <td className="td-score">
                       <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
@@ -273,7 +283,7 @@ const StudentList: React.FC = () => {
             {paginatedCards.map(stu => (
               <div className="student-card" key={stu.email}>
                 <div><strong>Nom:</strong> {stu.name}</div>
-                <div><strong>Groupe:</strong> {stu.group}</div>
+                <div><strong>Groupe:</strong> {stu.usergroup}</div>
                 <div><strong>Simulations:</strong> {stu.simulations}</div>
                 <div>
                   <strong>Score max:</strong>

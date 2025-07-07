@@ -77,10 +77,20 @@ const StudentDetail: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/learner-detail?storyline_key=${storyline_key}&email=${email}`);
+        // Decodifica l'email se è stata codificata nell'URL
+        const decodedEmail = decodeURIComponent(email || '');
+        console.log('StudentDetail - Parametri:', { storyline_key, email, decodedEmail });
+        
+        const url = `/api/learner-detail?storyline_key=${storyline_key}&email=${encodeURIComponent(decodedEmail)}`;
+        console.log('StudentDetail - URL richiesta:', url);
+        
+        const res = await fetch(url);
         const data = await res.json();
+        console.log('StudentDetail - Risposta API:', { status: res.status, dataLength: data.length, data });
+        
         setSimulations(data);
       } catch (e) {
+        console.error('Errore nel caricamento dei dati del learner:', e);
         setSimulations([]);
       } finally {
         setLoading(false);

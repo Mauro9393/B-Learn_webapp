@@ -1178,3 +1178,33 @@ button:hover,
         margin: 2rem 0 1rem 0;
     }
 }
+
+.edit-icon {
+    cursor: pointer;
+    margin-left: 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.edit-icon:hover {
+    opacity: 1;
+}
+
+h2 input {
+    border: 2px solid #7F53F5;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: inherit;
+    font-weight: inherit;
+    font-family: inherit;
+    background: #fff;
+    color: #333;
+    outline: none;
+    transition: all 0.2s ease;
+    min-width: 150px;
+}
+
+h2 input:focus {
+    border-color: #5B6DF6;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
+}

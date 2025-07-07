@@ -50,6 +50,9 @@ function Dashboard() {
   const userRole = localStorage.getItem('userRole');
   const tenantId = localStorage.getItem('tenantId');
 
+  const [editingChatbot, setEditingChatbot] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState('');
+
   // Funzione per calcolare i chatbot creati nel mese corrente
   const calculateChatbotsThisMonth = (chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
     const now = new Date();
@@ -229,6 +232,26 @@ function Dashboard() {
     }, 0);
     
     return Math.round(totalScore / simulationsThisMonth.length); // Arrotonda all'intero più vicino
+  };
+
+  const saveChatbotName = async (chatbotId: number, newName: string) => {
+    try {
+        const response = await fetch(`/api/chatbots/${chatbotId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newName })
+        });
+        
+        if (response.ok) {
+            // Aggiorna lo stato locale
+            setChatbots(prev => prev.map(bot => 
+                bot.id === chatbotId ? { ...bot, name: newName } : bot
+            ));
+            setEditingChatbot(null);
+        }
+    } catch (error) {
+        console.error('Errore aggiornamento nome:', error);
+    }
   };
 
   useEffect(() => {
@@ -579,7 +602,31 @@ function Dashboard() {
                 </span>
               </div>
               <br /><br />
-              <h2>{bot.name}</h2>
+              <h2>
+                {editingChatbot === bot.id ? (
+                    <input
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onBlur={() => saveChatbotName(bot.id, editingName)}
+                        onKeyPress={(e) => e.key === 'Enter' && saveChatbotName(bot.id, editingName)}
+                        autoFocus
+                    />
+                ) : (
+                    <>
+                        {bot.name}
+                        <span 
+                            className="edit-icon" 
+                            onClick={() => {
+                                setEditingChatbot(bot.id);
+                                setEditingName(bot.name);
+                            }}
+                        >
+                            ✏️
+                        </span>
+                    </>
+                )}
+              </h2>
               <p>{bot.description}</p>
               <div className="chatbot-meta">
                 {getLearnersForChatbot(bot.storyline_key)} learners &bull; {getSimulationsForChatbot(bot.storyline_key)} simulations
