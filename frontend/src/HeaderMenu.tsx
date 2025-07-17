@@ -13,9 +13,26 @@ const HeaderMenu: React.FC = () => {
 
   // Funzione logout
   const handleLogout = () => {
+    // Pulisci tutti i dati di autenticazione
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('loginAttempts');
+    localStorage.removeItem('failedLoginEmail');
+    localStorage.removeItem('lastLoginAttemptTime');
+    
+    // Chiudi i dropdown
+    setProfileDropdown(false);
+    setIsMenuOpen(false);
+    
+    // Reindirizza alla home
     navigate('/');
+  };
+
+  // Funzione per cambiare password
+  const handleChangePassword = () => {
+    navigate('/forgot-password');
+    setProfileDropdown(false);
+    setIsMenuOpen(false);
   };
 
   const isSuperAdmin = userRole === '1';
@@ -57,13 +74,13 @@ const HeaderMenu: React.FC = () => {
           <nav className={`nav-menu ${isMenuOpen ? 'nav-menu-open' : ''}`}> 
             <span className="nav-link" onClick={() => handleMenuClick('Dashboard', '/dashboard')}>🏠 Dashboard</span>
             {isSuperAdmin && (
-              <span className="nav-link" onClick={() => handleMenuClick('Chatbots', '/create-chatbot')}>🤖 Ajouter un chatbot</span>
+              <span className="nav-link" onClick={() => handleMenuClick('Ajouter un chatbot', '/create-chatbot')}>🤖 Ajouter un chatbot</span>
             )}
             {isSuperAdmin && (
               <span className="nav-link" onClick={() => handleMenuClick('Utilisateurs', '/all-student-list')}>👥 Utilisateurs</span>
             )}
             {isSuperAdmin &&(
-              <span className="nav-link" onClick={() => handleMenuClick('Ajouter un Admin', '/admin')}>➕ Ajouter un Client</span>
+              <span className="nav-link" onClick={() => handleMenuClick('Ajouter un Client', '/admin')}>➕ Ajouter un Client</span>
             )}
             {isAdmin &&(
               <span className="nav-link" onClick={() => handleMenuClick('Ajouter un Manager', '/add-partner')}>➕ Ajouter un Manager</span>
@@ -87,19 +104,20 @@ const HeaderMenu: React.FC = () => {
                 <nav className="mobile-nav">
                   <span className="mobile-nav-link" onClick={() => handleMenuClick('Dashboard', '/dashboard')}>🏠 Dashboard</span>
                   {isSuperAdmin && (
-                    <span className="mobile-nav-link" onClick={() => handleMenuClick('Chatbots', '/create-chatbot')}>🤖 Chatbots</span>
+                    <span className="mobile-nav-link" onClick={() => handleMenuClick('Ajouter un chatbot', '/create-chatbot')}>🤖 Ajouter un chatbot</span>
                   )}
                   {isSuperAdmin && (
                     <span className="mobile-nav-link" onClick={() => handleMenuClick('Utilisateurs', '/all-student-list')}>👥 Utilisateurs</span>
                   )}
                   {isSuperAdmin && (
-                    <span className="mobile-nav-link" onClick={() => handleMenuClick('Ajouter un Admin', '/admin')}>➕ Ajouter un Admin</span>
+                    <span className="mobile-nav-link" onClick={() => handleMenuClick('Ajouter un Client', '/admin')}>➕ Ajouter un Client</span>
                   )}
                   {isAdmin && (
                     <span className="mobile-nav-link" onClick={() => handleMenuClick('Ajouter un Manager', '/add-partner')}>➕ Ajouter un Manager</span>
                   )}
                 </nav>
                 <button className="mobile-logout-btn" onClick={handleLogout}>Déconnexion</button>
+                <button className="mobile-change-password-btn" onClick={handleChangePassword}>Changer mot de passe</button>
               </div>
             )}
           </div>
@@ -123,6 +141,7 @@ const HeaderMenu: React.FC = () => {
                     </div>
                   </div>
                   <button className="profile-logout-btn" onClick={handleLogout}>Déconnexion</button>
+                  <button className="profile-change-password-btn" onClick={handleChangePassword}>Changer mot de passe</button>
                 </div>
               )}
             </div>

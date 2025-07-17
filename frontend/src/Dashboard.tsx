@@ -635,7 +635,7 @@ function Dashboard() {
                 className="btn"
                 style={{ minWidth: '120px', maxWidth: '160px', padding: '0.6rem 1.2rem', fontSize: '1rem', marginTop: '0.5rem', alignSelf: 'flex-start' }}
                 onClick={() => {
-                  addBreadcrumb({ label: 'Chatbot', path: `/chatbot/${bot.storyline_key}` });
+                  addBreadcrumb({ label: bot.name, path: `/chatbot/${bot.storyline_key}` });
                   navigate(`/chatbot/${bot.storyline_key}`);
                 }}
               >

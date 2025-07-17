@@ -1,5 +1,5 @@
     .student-detail-main {
-        max-width: 1200px;
+        max-width: 1500px !important;
         margin: 40px auto 0 auto;
         background: #fff;
         border-radius: 18px;
@@ -71,6 +71,36 @@
         width: 100%;
     }
     
+    .client-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(127, 83, 245, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(127, 83, 245, 0.1);
+    }
+    
+    .client-name {
+        color: #7F53F5;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .storyline-key {
+        color: #7F53F5;
+        font-size: 0.9rem;
+        font-weight: 500;
+        font-family: 'Courier New', monospace;
+        background: rgba(127, 83, 245, 0.1);
+        padding: 0.3rem 0.8rem;
+        border-radius: 6px;
+        border: 1px solid rgba(127, 83, 245, 0.2);
+    }
+    
     .student-stats {
         display: flex;
         gap: 18px;
@@ -119,6 +149,7 @@
     
     .simulations-history {
         margin-top: 24px;
+        overflow-x: auto;
     }
     
     .simulations-table {
@@ -128,16 +159,18 @@
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 1px 6px rgba(123, 83, 245, 0.07);
+        min-width: 1200px;
     }
     
     .simulations-table th,
     .simulations-table td {
-        padding: 12px 10px;
+        padding: 6px 4px;
         text-align: center;
         border-bottom: 1px solid #eee;
         border-left: none;
         border-right: none;
         border-top: none;
+        white-space: nowrap;
     }
     
     .simulations-table th {
@@ -177,26 +210,44 @@
     }
     
     .btn-small {
-        padding: 4px 10px;
+        padding: 2px 4px;
         border-radius: 6px;
-        font-size: 0.95rem;
+        font-size: 0.75rem;
         font-weight: 600;
         border: none;
         background: #7F53F5;
         color: #fff;
         cursor: pointer;
-        margin: 0 2px;
+        margin: 0 1px;
         transition: background 0.2s;
     }
     
     .btn-small:hover {
         background: #5B6DF6;
     }
+    /* Stili per i pulsanti disabilitati */
+    
+    .btn-disabled {
+        background: #cccccc !important;
+        color: #666666 !important;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+    }
+    
+    .btn-disabled:hover {
+        background: #cccccc !important;
+        color: #666666 !important;
+        transform: none !important;
+    }
+    
+    .btn-disabled svg {
+        stroke: #666666 !important;
+    }
     /* Tablet (iPad) */
     
     @media (max-width: 1024px) {
         .student-detail-main {
-            max-width: 900px;
+            max-width: 1400px;
             margin: 30px auto 0 auto;
             padding: 28px 28px 20px 28px;
         }
@@ -236,15 +287,15 @@
         }
         .simulations-table th,
         .simulations-table td {
-            padding: 10px 8px;
+            padding: 6px 4px;
         }
         .score-badge {
             padding: 3px 10px;
             font-size: 0.95rem;
         }
         .btn-small {
-            padding: 3px 8px;
-            font-size: 0.9rem;
+            padding: 2px 4px;
+            font-size: 0.8rem;
         }
     }
     /* Smartphone */
@@ -261,7 +312,7 @@
             margin: 24px -1rem 0;
         }
         .simulations-table {
-            min-width: 800px;
+            min-width: 1200px;
             margin: 0;
             border-radius: 0;
             display: block;
@@ -310,7 +361,7 @@
             margin: 16px -0.8rem 0;
         }
         .simulations-table {
-            min-width: 700px;
+            min-width: 1100px;
         }
         .simulations-table th,
         .simulations-table td {

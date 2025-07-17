@@ -15,6 +15,8 @@ interface DataItem {
   chat_history: string;
   chat_analysis: string;
   created_at?: string; // aggiunta per la data
+  usergroup?: string; // aggiunta per il gruppo
+  temp?: string; // aggiunta per il tempo formattato dal backend
 }
 
 function useQuery() {
@@ -31,10 +33,12 @@ function List() {
   const [modalTitle, setModalTitle] = useState<string>('');
   const query = useQuery();
   const chatbotName = query.get('chatbot_name');
+  const location = useLocation();
   const [filter, setFilter] = useState('');
   const [scoreFilter, setScoreFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
+  const [showAllLaunches, setShowAllLaunches] = useState(false);
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
   // Stato per ordinamento
   const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score'>('created_at');
@@ -47,6 +51,20 @@ function List() {
   // Calcola le card da mostrare in base alla pagina
   const paginatedCards = filteredData.slice((currentPage - 1) * cardsPerPage, currentPage * cardsPerPage);
   const { addBreadcrumb } = useBreadcrumbContext();
+
+  // Salva le informazioni del tenant nel localStorage quando arrivano dallo stato
+  if (location.state?.tenant_name) {
+    localStorage.setItem(`tenant_${chatbotName}`, location.state.tenant_name);
+    localStorage.setItem(`storyline_${chatbotName}`, location.state.storyline_key);
+  }
+  
+  // Recupera le informazioni dal localStorage o dallo stato
+  const tenant_name = location.state?.tenant_name || 
+                     localStorage.getItem(`tenant_${chatbotName}`) || 
+                     'Client inconnu';
+  const storyline_key_from_state = location.state?.storyline_key || 
+                                  localStorage.getItem(`storyline_${chatbotName}`) || 
+                                  chatbotName;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,6 +83,11 @@ function List() {
   useEffect(() => {
     setFilteredData(
       data.filter(item => {
+        // Filtro per score -1 (solo se showAllLaunches è true)
+        if (!showAllLaunches && item.score === -1) {
+          return false;
+        }
+        
         // Filtro par nom
         const matchesName = item.name.toLowerCase().includes(filter.toLowerCase());
         // Filtro per range di punteggio
@@ -93,7 +116,7 @@ function List() {
         return matchesName && matchesScore && matchesYear && matchesMonth;
       })
     );
-  }, [filter, scoreFilter, yearFilter, monthFilter, data]);
+  }, [filter, scoreFilter, yearFilter, monthFilter, showAllLaunches, data]);
 
   // Ordina i dati filtrati in base a sortColumn e sortDirection
   const sortedData = [...filteredData].sort((a, b) => {
@@ -190,6 +213,10 @@ function List() {
   return (
     <div className="list-container">
       <h1>Liste des Simulations</h1>
+      <div className="client-info">
+        <span className="client-name">{tenant_name}</span>
+        <span className="storyline-key">ID: {storyline_key_from_state}</span>
+      </div>
       {/* Breadcrumb 
       <div className="breadcrumb">
         <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
@@ -243,6 +270,24 @@ function List() {
               <option key={year} value={year}>{year}</option>
             ))}
         </select>
+        <div className="toggle-container">
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={showAllLaunches}
+              onChange={(e) => setShowAllLaunches(e.target.checked)}
+            />
+            <span className="toggle-slider"></span>
+          </label>
+          <span className="toggle-label">Tous les lancements</span>
+        </div>
+      </div>
+      
+      {/* Etichetta Lancement */}
+      <div className="lancement-label-container">
+        <div className="lancement-label">
+          {showAllLaunches ? 'Formations terminées / non terminées' : 'Formations terminées'} : {showAllLaunches ? data.length : data.filter(item => item.score >= 0).length}
+        </div>
       </div>
       <div className="simulations-container">
         <table className="simulations-table" id="simulations-table">
@@ -250,7 +295,9 @@ function List() {
             <tr>
               <th className="sortable-header" onClick={() => handleSort('name')}>Nom {getArrow('name')}</th>
               <th className="sortable-header" onClick={() => handleSort('created_at')}>Date simulation {getArrow('created_at')}</th>
+              <th>Groupe</th>
               <th className="sortable-header" onClick={() => handleSort('score')}>Score {getArrow('score')}</th>
+              <th>Temps</th>
               <th>Historique chat</th>
               <th>Analyse chat</th>
             </tr>
@@ -258,9 +305,34 @@ function List() {
           <tbody id="simulationTableBody">
             {sortedData.map(item => (
               <tr key={item.id} data-student={item.name} data-date={item.created_at || ''} data-score={item.score}>
-                <td>{item.name}</td>
+                <td>
+                  <span 
+                    className="clickable-name"
+                    onClick={() => {
+                      addBreadcrumb({ label: item.name, path: `/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}` });
+                      navigate(`/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}`, { 
+                        state: { 
+                          from: 'simulations-list',
+                          tenant_name: tenant_name,
+                          storyline_key: storyline_key_from_state
+                        } 
+                      });
+                    }}
+                    title="Voir le profil"
+                  >
+                    {item.name}
+                  </span>
+                </td>
                 <td className="date-cell">{formatDate(item.created_at)}</td>
-                <td><span className={`score-badge ${item.score >= 90 ? 'score-high' : item.score >= 80 ? 'score-medium' : 'score-low'}`}>{item.score}</span></td>
+                <td>{item.usergroup || 'Groupe par défaut'}</td>
+                <td>
+                  {item.score === -1 ? (
+                    <span>N/A</span>
+                  ) : (
+                    <span className={`score-badge ${item.score >= 90 ? 'score-high' : item.score >= 80 ? 'score-medium' : 'score-low'}`}>{item.score}</span>
+                  )}
+                </td>
+                <td>{item.temp || '-'}</td>
                 <td>
                   <div className="card-buttons">
                     <button
@@ -277,7 +349,7 @@ function List() {
                       title="Visualiser"
                       onClick={() => {
                         addBreadcrumb({ label: 'Historique', path: '/chat-history' });
-                        navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } });
+                        navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, temp: item.temp, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } });
                       }}
                       disabled={!item.chat_history}
                     >
@@ -289,7 +361,7 @@ function List() {
                 <td>
                   <div className="card-buttons">
                     <button
-                      className="btn-small btn-download"
+                      className={`btn-small btn-download ${!item.chat_analysis ? 'btn-disabled' : ''}`}
                       title="Télécharger"
                       onClick={() => downloadPDF('Rapport', item.chat_analysis, `rapport_${item.name}.pdf`)}
                       disabled={!item.chat_analysis}
@@ -298,7 +370,7 @@ function List() {
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </button>
                     <button
-                      className="btn-small btn-view"
+                      className={`btn-small btn-view ${!item.chat_analysis ? 'btn-disabled' : ''}`}
                       title="Visualiser"
                       onClick={() => {
                         addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
@@ -319,12 +391,36 @@ function List() {
       <div className="simulations-cards">
         {paginatedCards.map(item => (
           <div className="simulation-card" key={item.id}>
-            <div><strong>Nom:</strong> {item.name}</div>
+            <div>
+              <strong>Nom:</strong> 
+              <span 
+                className="clickable-name"
+                onClick={() => {
+                  addBreadcrumb({ label: item.name, path: `/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}` });
+                  navigate(`/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}`, { 
+                    state: { 
+                      from: 'simulations-list',
+                      tenant_name: tenant_name,
+                      storyline_key: storyline_key_from_state
+                    } 
+                  });
+                }}
+                title="Voir le profil"
+              >
+                {item.name}
+              </span>
+            </div>
             <div><strong>Date simulation:</strong> {formatDate(item.created_at)}</div>
+            <div><strong>Group:</strong> {item.usergroup || 'Groupe par défaut'}</div>
             <div>
               <strong>Score:</strong>
-              <span className={`score-badge ${item.score >= 90 ? 'score-high' : item.score >= 80 ? 'score-medium' : 'score-low'}`}>{item.score}</span>
+              {item.score === -1 ? (
+                <span>N/A</span>
+              ) : (
+                <span className={`score-badge ${item.score >= 90 ? 'score-high' : item.score >= 80 ? 'score-medium' : 'score-low'}`}>{item.score}</span>
+              )}
             </div>
+            <div><strong>Temp:</strong> {item.temp || '-'}</div>
             <div>
               <strong>Historique chat:</strong>
               <div className="card-buttons">
@@ -337,7 +433,7 @@ function List() {
                 <button className="btn-small btn-view" title="Visualiser"
                   onClick={() => {
                     addBreadcrumb({ label: 'Historique', path: '/chat-history' });
-                    navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } });
+                    navigate('/chat-history', { state: { name: item.name, date: item.created_at, score: item.score, chat_history: item.chat_history, chat_analysis: item.chat_analysis, temp: item.temp, show: 'analysis', from: 'simulations-list', storyline_key: chatbotName } });
                   }}
                   disabled={!item.chat_history}>
                   {/* Icona occhio */}
@@ -345,29 +441,29 @@ function List() {
                 </button>
               </div>
             </div>
-            <div>
-              <strong>Analyse chat:</strong>
-              <div className="card-buttons">
-                <button className="btn-small btn-download" title="Télécharger"
-                  onClick={() => downloadPDF('Rapport', item.chat_analysis, `rapport_${item.name}.pdf`)}
-                  disabled={!item.chat_analysis}>
-                  {/* Icona download */}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </button>
-                <button
-                      className="btn-small btn-view"
-                      title="Visualiser"
-                      onClick={() => {
-                        addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
-                        navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, chat_history: item.chat_history, from: 'simulations-list', storyline_key: chatbotName } });
-                      }}
-                      disabled={!item.chat_analysis}
-                    >
-                      {/* Icona occhio */}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </button>
+                          <div>
+                <strong>Analyse chat:</strong>
+                <div className="card-buttons">
+                  <button className={`btn-small btn-download ${!item.chat_analysis ? 'btn-disabled' : ''}`} title="Télécharger"
+                    onClick={() => downloadPDF('Rapport', item.chat_analysis, `rapport_${item.name}.pdf`)}
+                    disabled={!item.chat_analysis}>
+                    {/* Icona download */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </button>
+                  <button
+                        className={`btn-small btn-view ${!item.chat_analysis ? 'btn-disabled' : ''}`}
+                        title="Visualiser"
+                        onClick={() => {
+                          addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                          navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, chat_history: item.chat_history, from: 'simulations-list', storyline_key: chatbotName } });
+                        }}
+                        disabled={!item.chat_analysis}
+                      >
+                        {/* Icona occhio */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                </div>
               </div>
-            </div>
           </div>
         ))}
         {/* Paginazione mobile */}

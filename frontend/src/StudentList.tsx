@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import './assets/css/studentList.css';
 import { useBreadcrumbContext } from './BreadcrumbContext';
 
@@ -16,6 +16,21 @@ interface StudentRow {
 const StudentList: React.FC = () => {
   const { storyline_key } = useParams<{ storyline_key: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Salva le informazioni del tenant nel localStorage quando arrivano dallo stato
+  if (location.state?.tenant_name) {
+    localStorage.setItem(`tenant_${storyline_key}`, location.state.tenant_name);
+    localStorage.setItem(`storyline_${storyline_key}`, location.state.storyline_key);
+  }
+  
+  // Recupera le informazioni dal localStorage o dallo stato
+  const tenant_name = location.state?.tenant_name || 
+                     localStorage.getItem(`tenant_${storyline_key}`) || 
+                     'Client inconnu';
+  const storyline_key_from_state = location.state?.storyline_key || 
+                                  localStorage.getItem(`storyline_${storyline_key}`) || 
+                                  storyline_key;
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -156,6 +171,10 @@ const StudentList: React.FC = () => {
         {/* Card centrale titolo */}
         <div className="student-list-title-card">
           <h1>Liste des learners</h1>
+          <div className="client-info">
+            <span className="client-name">{tenant_name}</span>
+            <span className="storyline-key">ID: {storyline_key_from_state}</span>
+          </div>
         </div>
         {/* Breadcrumb 
         <div className="breadcrumb">
@@ -270,7 +289,13 @@ const StudentList: React.FC = () => {
                     <td className="td-details">
                       <button className="btn btn-voir" onClick={() => {
                         addBreadcrumb({ label: stu.name, path: `/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}` });
-                        navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'student-list' } });
+                        navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { 
+                          state: { 
+                            from: 'student-list',
+                            tenant_name: tenant_name,
+                            storyline_key: storyline_key_from_state
+                          } 
+                        });
                       }}>Voir</button>
                     </td>
                   </tr>
@@ -293,7 +318,13 @@ const StudentList: React.FC = () => {
                 <div className="card-buttons">
                   <button className="btn btn-voir" onClick={() => {
                     addBreadcrumb({ label: stu.name, path: `/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}` });
-                    navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'student-list' } });
+                    navigate(`/chatbot/${storyline_key}/learners/${encodeURIComponent(stu.email)}`, { 
+                      state: { 
+                        from: 'student-list',
+                        tenant_name: tenant_name,
+                        storyline_key: storyline_key_from_state
+                      } 
+                    });
                   }}>Voir</button>
                 </div>
               </div>

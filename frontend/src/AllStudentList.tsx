@@ -29,7 +29,8 @@ const AllStudentList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/all-users`); // endpoint da creare lato backend
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const res = await fetch(`${apiUrl}/api/all-users`);
         const data = await res.json();
         setStudents(data);
       } catch (e) {
@@ -47,8 +48,8 @@ const AllStudentList: React.FC = () => {
   const filteredStudents = students.filter(stu => {
     // Filtre pour la recherche de texte (nom ou email)
     const matchesSearch =
-      stu.name.toLowerCase().includes(search.toLowerCase()) ||
-      stu.email.toLowerCase().includes(search.toLowerCase());
+      (stu.name?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      (stu.email?.toLowerCase() || '').includes(search.toLowerCase());
     // Filtro per range di punteggio
     const matchesScore = minScore ? (() => {
       const score = stu.score;
@@ -85,8 +86,8 @@ const AllStudentList: React.FC = () => {
         let bValue = b[sortConfig.key as keyof StudentRow];
         // Gestione speciale per le colonne
         if (sortConfig.key === 'name' || sortConfig.key === 'chatbot_name' || sortConfig.key === 'group') {
-          aValue = String(aValue).toLowerCase();
-          bValue = String(bValue).toLowerCase();
+          aValue = String(aValue || '').toLowerCase();
+          bValue = String(bValue || '').toLowerCase();
           if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
           if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
           return 0;
@@ -201,8 +202,8 @@ const AllStudentList: React.FC = () => {
               ) : (
                 sortedStudents.map(stu => (
                   <tr key={stu.id}>
-                    <td className="td-name">{stu.name}</td>
-                    <td className="td-client">{stu.chatbot_name}</td>
+                    <td className="td-name">{stu.name || 'N/A'}</td>
+                    <td className="td-client">{stu.chatbot_name || 'N/A'}</td>
                     <td className="td-group">{stu.group || '-'}</td>
                     <td className="td-simulations">{stu.simulations}</td>
                     <td className="td-score">
@@ -212,10 +213,25 @@ const AllStudentList: React.FC = () => {
                       <span className="date-badge">{stu.last_date}</span>
                     </td>
                     <td className="td-details">
-                      <button className="btn btn-voir" onClick={() => {
-                        addBreadcrumb({ label: stu.name, path: `/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}` });
-                        navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'all-student-list' } });
-                      }}>Voir</button>
+                      <button 
+                        className="btn btn-voir" 
+                        onClick={() => {
+                          const name = stu.name || 'N/A';
+                          const chatbotName = stu.chatbot_name || '';
+                          const email = stu.email || '';
+                          addBreadcrumb({ label: name, path: `/chatbot/${chatbotName}/learners/${encodeURIComponent(email)}` });
+                          navigate(`/chatbot/${chatbotName}/learners/${encodeURIComponent(email)}`, { 
+                            state: { 
+                              from: 'all-student-list',
+                              tenant_name: stu.client_name || 'Client inconnu',
+                              storyline_key: chatbotName
+                            } 
+                          });
+                        }}
+                        disabled={!stu.name || !stu.chatbot_name || !stu.email}
+                      >
+                        Voir
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -226,8 +242,8 @@ const AllStudentList: React.FC = () => {
           <div className="student-cards">
             {paginatedCards.map(stu => (
               <div className="student-card" key={stu.id}>
-                <div><strong>Nom:</strong> {stu.name}</div>
-                <div><strong>Client:</strong> {stu.chatbot_name}</div>
+                <div><strong>Nom:</strong> {stu.name || 'N/A'}</div>
+                <div><strong>Client:</strong> {stu.chatbot_name || 'N/A'}</div>
                 <div><strong>Groupe:</strong> {stu.group || '-'}</div>
                 <div><strong>Simulations:</strong> {stu.simulations}</div>
                 <div>
@@ -236,10 +252,19 @@ const AllStudentList: React.FC = () => {
                 </div>
                 <div><strong>Dernière simulation:</strong> <span className="date-badge">{stu.last_date}</span></div>
                 <div className="card-buttons">
-                  <button className="btn btn-voir" onClick={() => {
-                    addBreadcrumb({ label: stu.name, path: `/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}` });
-                    navigate(`/chatbot/${stu.chatbot_name}/learners/${encodeURIComponent(stu.email)}`, { state: { from: 'all-student-list' } });
-                  }}>Voir</button>
+                  <button 
+                    className="btn btn-voir" 
+                    onClick={() => {
+                      const name = stu.name || 'N/A';
+                      const chatbotName = stu.chatbot_name || '';
+                      const email = stu.email || '';
+                      addBreadcrumb({ label: name, path: `/chatbot/${chatbotName}/learners/${encodeURIComponent(email)}` });
+                      navigate(`/chatbot/${chatbotName}/learners/${encodeURIComponent(email)}`, { state: { from: 'all-student-list' } });
+                    }}
+                    disabled={!stu.name || !stu.chatbot_name || !stu.email}
+                  >
+                    Voir
+                  </button>
                 </div>
               </div>
             ))}

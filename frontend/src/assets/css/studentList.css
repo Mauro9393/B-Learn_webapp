@@ -57,6 +57,36 @@
     letter-spacing: -1px;
 }
 
+.client-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(127, 83, 245, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(127, 83, 245, 0.1);
+}
+
+.client-name {
+    color: #7F53F5;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.storyline-key {
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: 'Courier New', monospace;
+    background: rgba(127, 83, 245, 0.1);
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid rgba(127, 83, 245, 0.2);
+}
+
 .student-list-table-card {
     background: #f8f8fa;
     border-radius: 18px;
@@ -148,7 +178,6 @@
     min-width: 180px;
     max-width: 180px;
     font-weight: 400;
-    font-size: 0.85rem !important;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -181,7 +210,6 @@
     text-align: left;
     min-width: 140px;
     font-weight: 600;
-    font-size: 0.85rem !important;
 }
 
 .th-simulations,

@@ -105,7 +105,7 @@ const ChatHistory: React.FC = () => {
     );
   }
 
-  const { name, date, score, chat_history } = chatHistoryState;
+  const { name, date, score, chat_history, temp } = chatHistoryState;
   const messages = parseMessages(chat_history, name);
 
   // Funzione per schermo intero
@@ -316,7 +316,7 @@ const ChatHistory: React.FC = () => {
             </div>
             <div className="progress-indicator">
               <span className="progress-label">Durée</span>
-              <span className="progress-value score-style">-</span>
+              <span className="progress-value score-style">{temp || '-'}</span>
             </div>
             <div className="progress-indicator">
               <span className="progress-label">Messages</span>

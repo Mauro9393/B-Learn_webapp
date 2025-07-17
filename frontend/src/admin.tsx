@@ -11,7 +11,6 @@ function Admin() {
 
   // Sostituisci con il tuo email admin
   const userRole = localStorage.getItem('userRole');
-  console.log('userRole', userRole);
 
   if (userRole !== '1') {
     return <div>Accès refusé</div>;

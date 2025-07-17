@@ -11,6 +11,8 @@ interface ChatbotDetailData {
   avg_score: number;
   learners: number;
   storyline_key: string;
+  tenant_id?: number;
+  tenant_name?: string;
 }
 
 interface Simulation {
@@ -50,6 +52,8 @@ const ChatbotDetail: React.FC = () => {
           avg_score: chatbot.avg_score || 0,
           learners: chatbot.learners || 0,
           storyline_key: chatbot.storyline_key,
+          tenant_id: chatbot.tenant_id,
+          tenant_name: chatbot.tenant_name,
         });
       } catch (e) {
         setData(null);
@@ -181,7 +185,12 @@ const ChatbotDetail: React.FC = () => {
           </button>
           <button className="action-btn primary" onClick={() => {
             addBreadcrumb({ label: 'Learners', path: `/chatbot/${data.storyline_key}/learners` });
-            navigate(`/chatbot/${data.storyline_key}/learners`);
+            navigate(`/chatbot/${data.storyline_key}/learners`, { 
+              state: { 
+                tenant_name: data.tenant_name || 'Client inconnu',
+                storyline_key: data.storyline_key
+              } 
+            });
           }}>
             Voir la liste des learners
           </button>

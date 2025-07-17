@@ -22,32 +22,61 @@ export const useBreadcrumbContext = () => {
 };
 
 export const BreadcrumbProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>([{
-    label: 'Dashboard',
-    path: '/dashboard',
-  }]);
-
-  const addBreadcrumb = (item: BreadcrumbItem) => {
-    if (item.path === '/dashboard') {
-      setBreadcrumb([{ label: 'Dashboard', path: '/dashboard' }]);
-      return;
+  // Carica i breadcrumbs dal localStorage all'inizializzazione
+  const getInitialBreadcrumbs = (): BreadcrumbItem[] => {
+    try {
+      const saved = localStorage.getItem('breadcrumbs');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : [{ label: 'Dashboard', path: '/dashboard' }];
+      }
+    } catch (error) {
+      console.error('Errore nel caricamento dei breadcrumbs:', error);
     }
-    const idx = breadcrumb.findIndex(b => b.path === item.path);
-    if (idx !== -1) {
-      setBreadcrumb(breadcrumb.slice(0, idx + 1));
-    } else {
-      setBreadcrumb([...breadcrumb, item]);
+    return [{ label: 'Dashboard', path: '/dashboard' }];
+  };
+
+  const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>(getInitialBreadcrumbs);
+
+  // Funzione per salvare i breadcrumbs nel localStorage
+  const saveBreadcrumbs = (breadcrumbs: BreadcrumbItem[]) => {
+    try {
+      localStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbs));
+    } catch (error) {
+      console.error('Errore nel salvataggio dei breadcrumbs:', error);
     }
   };
 
+  const addBreadcrumb = (item: BreadcrumbItem) => {
+    let newBreadcrumbs: BreadcrumbItem[];
+    
+    if (item.path === '/dashboard') {
+      newBreadcrumbs = [{ label: 'Dashboard', path: '/dashboard' }];
+    } else {
+      const idx = breadcrumb.findIndex(b => b.path === item.path);
+      if (idx !== -1) {
+        newBreadcrumbs = breadcrumb.slice(0, idx + 1);
+      } else {
+        newBreadcrumbs = [...breadcrumb, item];
+      }
+    }
+    
+    setBreadcrumb(newBreadcrumbs);
+    saveBreadcrumbs(newBreadcrumbs);
+  };
+
   const resetBreadcrumb = () => {
-    setBreadcrumb([{ label: 'Dashboard', path: '/dashboard' }]);
+    const defaultBreadcrumbs = [{ label: 'Dashboard', path: '/dashboard' }];
+    setBreadcrumb(defaultBreadcrumbs);
+    saveBreadcrumbs(defaultBreadcrumbs);
   };
 
   const goToBreadcrumb = (path: string) => {
     const idx = breadcrumb.findIndex(b => b.path === path);
     if (idx !== -1) {
-      setBreadcrumb(breadcrumb.slice(0, idx + 1));
+      const newBreadcrumbs = breadcrumb.slice(0, idx + 1);
+      setBreadcrumb(newBreadcrumbs);
+      saveBreadcrumbs(newBreadcrumbs);
     }
   };
 

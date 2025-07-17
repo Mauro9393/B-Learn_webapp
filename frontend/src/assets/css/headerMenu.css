@@ -324,6 +324,27 @@
         transform: scale(1.04);
     }
     
+    .profile-change-password-btn {
+        margin-top: 0.5rem;
+        width: 100%;
+        background: #fff;
+        color: #7F53F5;
+        border: 2px solid #7F53F5;
+        border-radius: 8px;
+        padding: 0.6rem 0;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(127, 83, 245, 0.10);
+    }
+    
+    .profile-change-password-btn:hover {
+        background: rgba(127, 83, 245, 0.05);
+        transform: scale(1.04);
+        box-shadow: 0 4px 12px rgba(127, 83, 245, 0.15);
+    }
+    
     .mobile-menu-container {
         display: none;
     }
@@ -433,6 +454,26 @@
         box-shadow: 0 4px 12px rgba(127, 83, 245, 0.2);
     }
     
+    .mobile-change-password-btn {
+        width: 100%;
+        padding: 12px;
+        background: #fff;
+        color: #7F53F5;
+        border: 2px solid #7F53F5;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 8px;
+    }
+    
+    .mobile-change-password-btn:hover {
+        background: rgba(127, 83, 245, 0.05);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(127, 83, 245, 0.15);
+    }
+    
     @keyframes slideIn {
         from {
             transform: translateX(100%);
@@ -497,6 +538,10 @@
             padding: 14px 18px;
         }
         .mobile-logout-btn {
+            padding: 14px;
+            font-size: 1.1rem;
+        }
+        .mobile-change-password-btn {
             padding: 14px;
             font-size: 1.1rem;
         }
@@ -582,6 +627,10 @@
             padding: 12px;
             font-size: 1rem;
         }
+        .mobile-change-password-btn {
+            padding: 12px;
+            font-size: 1rem;
+        }
         .logo-mobile-center {
             display: flex;
             flex: 1;
@@ -652,6 +701,10 @@
             padding: 10px 14px;
         }
         .mobile-logout-btn {
+            padding: 10px;
+            font-size: 0.95rem;
+        }
+        .mobile-change-password-btn {
             padding: 10px;
             font-size: 0.95rem;
         }

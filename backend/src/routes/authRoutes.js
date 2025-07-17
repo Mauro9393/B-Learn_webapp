@@ -326,7 +326,26 @@ router.get('/userlist', async(req, res) => {
     try {
         const chatbotName = req.query.chatbot_name;
         console.log("Filtro chatbot_name:", chatbotName);
-        let query = "SELECT * FROM userlist";
+        let query = `
+            SELECT 
+                id, user_email, chatbot_name, name, score, 
+                chat_history, chat_analysis, created_at, usergroup,
+                CASE 
+                    WHEN timesession IS NULL OR timesession = '00:00:00' THEN '-'
+                    WHEN EXTRACT(HOUR FROM timesession) = 0 THEN 
+                        CONCAT(
+                            LPAD(EXTRACT(MINUTE FROM timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(SECOND FROM timesession)::text, 2, '0')
+                        )
+                    ELSE 
+                        CONCAT(
+                            LPAD(EXTRACT(HOUR FROM timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(MINUTE FROM timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(SECOND FROM timesession)::text, 2, '0')
+                        )
+                END AS temp
+            FROM userlist
+        `;
         let params = [];
         if (chatbotName) {
             query += " WHERE chatbot_name = $1";
@@ -395,8 +414,13 @@ router.get('/userlist/month', async(req, res) => {
 router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
     try {
         const { storyline_key } = req.params;
-        // Prendi il chatbot
-        const chatbotRes = await pool.query('SELECT * FROM chatbots WHERE storyline_key = $1', [storyline_key]);
+        // Prendi il chatbot con il nome del tenant
+        const chatbotRes = await pool.query(`
+            SELECT c.*, t.name AS tenant_name 
+            FROM chatbots c
+            LEFT JOIN tenants t ON c.tenant_id = t.id
+            WHERE c.storyline_key = $1
+        `, [storyline_key]);
         if (chatbotRes.rows.length === 0) {
             return res.status(404).json({ message: 'Chatbot non trovato' });
         }
@@ -520,7 +544,22 @@ router.get('/learner-detail', async(req, res) => {
 
         // Proviamo sia con l'email originale che con la versione codificata
         let result = await pool.query(`
-            SELECT *
+            SELECT 
+                *,
+                CASE 
+                    WHEN timesession IS NULL OR timesession = '00:00:00' THEN '-'
+                    WHEN EXTRACT(HOUR FROM timesession) = 0 THEN 
+                        CONCAT(
+                            LPAD(EXTRACT(MINUTE FROM timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(SECOND FROM timesession)::text, 2, '0')
+                        )
+                    ELSE 
+                        CONCAT(
+                            LPAD(EXTRACT(HOUR FROM timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(MINUTE FROM timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(SECOND FROM timesession)::text, 2, '0')
+                        )
+                END AS temp
             FROM userlist
             WHERE chatbot_name = $1 AND user_email = $2
             ORDER BY created_at DESC
@@ -532,7 +571,22 @@ router.get('/learner-detail', async(req, res) => {
             console.log('Trying with encoded email:', encodedEmail);
 
             result = await pool.query(`
-                SELECT *
+                SELECT 
+                    *,
+                    CASE 
+                        WHEN timesession IS NULL OR timesession = '00:00:00' THEN '-'
+                        WHEN EXTRACT(HOUR FROM timesession) = 0 THEN 
+                            CONCAT(
+                                LPAD(EXTRACT(MINUTE FROM timesession)::text, 2, '0'), ':', 
+                                LPAD(EXTRACT(SECOND FROM timesession)::text, 2, '0')
+                            )
+                        ELSE 
+                            CONCAT(
+                                LPAD(EXTRACT(HOUR FROM timesession)::text, 2, '0'), ':', 
+                                LPAD(EXTRACT(MINUTE FROM timesession)::text, 2, '0'), ':', 
+                                LPAD(EXTRACT(SECOND FROM timesession)::text, 2, '0')
+                            )
+                    END AS temp
                 FROM userlist
                 WHERE chatbot_name = $1 AND user_email = $2
                 ORDER BY created_at DESC
@@ -553,16 +607,19 @@ router.get('/all-users', async(req, res) => {
     try {
         const result = await pool.query(`
             SELECT 
-                MIN(id) AS id,
-                user_email AS email,
-                MAX(name) AS name,
-                chatbot_name,
-                COALESCE(MAX(usergroup), 'Groupe par défaut') AS usergroup,
+                MIN(ul.id) AS id,
+                ul.user_email AS email,
+                MAX(ul.name) AS name,
+                ul.chatbot_name,
+                COALESCE(t.name, 'Client inconnu') AS client_name,
+                COALESCE(MAX(ul.usergroup), 'Groupe par défaut') AS usergroup,
                 COUNT(*) AS simulations,
-                COALESCE(MAX(score),0) AS score,
-                TO_CHAR(MAX(created_at), 'DD/MM/YYYY') AS last_date
-            FROM userlist
-            GROUP BY user_email, chatbot_name
+                COALESCE(MAX(ul.score),0) AS score,
+                TO_CHAR(MAX(ul.created_at), 'DD/MM/YYYY') AS last_date
+            FROM userlist ul
+            LEFT JOIN chatbots c ON ul.chatbot_name = c.storyline_key
+            LEFT JOIN tenants t ON c.tenant_id = t.id
+            GROUP BY ul.user_email, ul.chatbot_name, t.name
             ORDER BY last_date DESC
         `);
         // Adatto i dati per il frontend (aggiungo id, email, name, chatbot_name, group, simulations, score, last_date)
@@ -571,6 +628,7 @@ router.get('/all-users', async(req, res) => {
             email: row.email,
             name: row.name,
             chatbot_name: row.chatbot_name,
+            client_name: row.client_name,
             group: row.usergroup,
             simulations: Number(row.simulations),
             score: Number(row.score),
@@ -695,6 +753,51 @@ router.get('/verify-reset-token', async(req, res) => {
         res.json({ success: true, message: 'Token valide.' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Erreur lors de la vérification du token.' });
+    }
+});
+
+// Endpoint per verificare l'autenticazione dell'utente
+router.post('/verify-auth', async(req, res) => {
+    try {
+        const { email, role } = req.body;
+
+        if (!email || !role) {
+            return res.status(400).json({ success: false, message: 'Email et rôle requis.' });
+        }
+
+        // Verifica se l'utente esiste nel database
+        const userRes = await pool.query(`
+            SELECT u.id, u.user_mail, u.role_id, u.active, r.name AS role_name
+            FROM users u
+            JOIN roles r ON u.role_id = r.id
+            WHERE u.user_mail = $1 AND u.role_id = $2
+        `, [email, role]);
+
+        if (userRes.rows.length === 0) {
+            return res.status(401).json({ success: false, message: 'Utilisateur non trouvé.' });
+        }
+
+        const user = userRes.rows[0];
+
+        // Per gli utenti normali, verifica che siano attivi
+        if (user.role_name === 'user' && !user.active) {
+            return res.status(401).json({ success: false, message: 'Compte non activé.' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Authentification valide.',
+            user: {
+                id: user.id,
+                email: user.user_mail,
+                role: user.role_id,
+                role_name: user.role_name,
+                active: user.active
+            }
+        });
+    } catch (error) {
+        console.error('Errore verify-auth:', error);
+        res.status(500).json({ success: false, message: 'Erreur lors de la vérification de l\'authentification.' });
     }
 });
 
