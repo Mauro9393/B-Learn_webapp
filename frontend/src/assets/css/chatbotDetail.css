@@ -228,6 +228,65 @@
 }
 
 
+/* Best Learners List */
+
+.best-learners-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.best-learner-item {
+    color: #6a6af6;
+    font-weight: 600;
+    font-size: 0.75em;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.best-learner-0 {
+    background-color: #e0d6ff
+    /* Oro */
+}
+
+.best-learner-1 {
+    background-color: #e7e0fe
+    /* Argento */
+}
+
+.best-learner-2 {
+    background-color: #efeafe
+    /* Bronzo */
+}
+
+.learner-icon {
+    font-size: 1.1em;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.learner-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+    max-width: 120px;
+}
+
+.learner-score {
+    color: #00cc00;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+
 /* Tablet (iPad) */
 
 @media (max-width: 1024px) {

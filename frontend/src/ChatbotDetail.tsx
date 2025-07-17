@@ -140,15 +140,21 @@ const ChatbotDetail: React.FC = () => {
             ) : monthStats.bestLearners.length === 0 ? (
               <span className="main-stat-value">0 <br /> <span style={{fontSize:'0.8rem', color:'#00cc00'}}>Ce mois-ci</span></span>
             ) : (
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none', textAlign: 'left' }}>
+              <ul className="best-learners-list">
                 {monthStats.bestLearners.map((l, i) => {
                   let icon = '';
                   if (i === 0) icon = '🥇';
                   else if (i === 1) icon = '🥈';
                   else if (i === 2) icon = '🥉';
                   return (
-                    <li key={l.user_email} style={{ color: '#6a6af6', fontWeight: 600, fontSize: '0.75em', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: '1.1em', marginRight: 4 }}>{icon}</span> {l.name} - <span style={{ color: '#00cc00' }}>Score: {l.score}</span>
+                    <li key={l.user_email} className={`best-learner-item best-learner-${i}`}>
+                      <span className="learner-icon">{icon}</span>
+                      <span className="learner-name">
+                        {l.name}
+                      </span>
+                      <span className="learner-score">
+                        Score: {l.score}
+                      </span>
                     </li>
                   );
                 })}
