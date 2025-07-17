@@ -1,4 +1,4 @@
-console.log("authRoutes.js caricato!");
+console.log("authRoutes.js caricato! VERSIONE AGGIORNATA -", new Date().toISOString());
 const express = require('express');
 const { registerUser, authenticateUser } = require('../auth');
 const router = express.Router();
@@ -605,6 +605,8 @@ router.get('/learner-detail', async(req, res) => {
 // Rotta per ottenere tutti gli utenti unici di tutti i chatbot (per super admin)
 router.get('/all-users', async(req, res) => {
     try {
+        console.log('🔍 DEBUG: Eseguendo query /all-users... VERSIONE AGGIORNATA');
+        console.log('🔍 DEBUG: Timestamp:', new Date().toISOString());
         const result = await pool.query(`
             SELECT 
                 MIN(ul.id) AS id,
@@ -614,13 +616,14 @@ router.get('/all-users', async(req, res) => {
                 COALESCE(t.name, 'Client inconnu') AS client_name,
                 COALESCE(MAX(ul.usergroup), 'Groupe par défaut') AS usergroup,
                 COUNT(*) AS simulations,
-                COALESCE(MAX(ul.score),0) AS score,
-                TO_CHAR(MAX(ul.created_at), 'DD/MM/YYYY') AS last_date
+                COALESCE(MAX(ul.score), 0) AS score,
+                TO_CHAR(MAX(ul.created_at), 'DD/MM/YYYY') AS last_date,
+                MAX(ul.created_at) AS last_date_raw
             FROM userlist ul
             LEFT JOIN chatbots c ON ul.chatbot_name = c.storyline_key
             LEFT JOIN tenants t ON c.tenant_id = t.id
             GROUP BY ul.user_email, ul.chatbot_name, t.name
-            ORDER BY last_date DESC
+            ORDER BY last_date_raw DESC
         `);
         // Adatto i dati per il frontend (aggiungo id, email, name, chatbot_name, group, simulations, score, last_date)
         const users = result.rows.map(row => ({
@@ -636,6 +639,7 @@ router.get('/all-users', async(req, res) => {
         }));
         res.json(users);
     } catch (error) {
+        console.error('/all-users error:', error);
         res.status(500).json({ message: error.message });
     }
 });

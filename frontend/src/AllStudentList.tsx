@@ -12,6 +12,7 @@ interface StudentRow {
   score: number;
   last_date: string;
   chatbot_name: string;
+  client_name?: string;
   chat_analysis?: string;
 }
 
@@ -29,11 +30,26 @@ const AllStudentList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const apiUrl = 'http://localhost:3000'; // Forza uso server locale
         const res = await fetch(`${apiUrl}/api/all-users`);
+        
+        if (!res.ok) {
+          console.error('Errore HTTP:', res.status, res.statusText);
+          setStudents([]);
+          return;
+        }
+        
         const data = await res.json();
-        setStudents(data);
+        
+        // Verifica che data sia un array
+        if (Array.isArray(data)) {
+          setStudents(data);
+        } else {
+          console.error('Dati non validi ricevuti dal backend:', data);
+          setStudents([]);
+        }
       } catch (e) {
+        console.error('Errore durante il fetch:', e);
         setStudents([]);
       } finally {
         setLoading(false);
@@ -43,9 +59,11 @@ const AllStudentList: React.FC = () => {
   }, []);
 
   // Ottieni lista clienti unici
-  const clientList = Array.from(new Set(students.map(stu => stu.chatbot_name))).filter(Boolean);
+  const clientList = Array.isArray(students) 
+    ? Array.from(new Set(students.map(stu => stu.client_name || stu.chatbot_name))).filter(Boolean)
+    : [];
 
-  const filteredStudents = students.filter(stu => {
+  const filteredStudents = Array.isArray(students) ? students.filter((stu: StudentRow) => {
     // Filtre pour la recherche de texte (nom ou email)
     const matchesSearch =
       (stu.name?.toLowerCase() || '').includes(search.toLowerCase()) ||
@@ -65,9 +83,9 @@ const AllStudentList: React.FC = () => {
     // Filtro per simulazioni minime
     const matchesSimulations = minSimulations ? stu.simulations >= parseInt(minSimulations) : true;
     // Filtro per cliente
-    const matchesClient = clientFilter ? stu.chatbot_name === clientFilter : true;
+    const matchesClient = clientFilter ? (stu.client_name || stu.chatbot_name) === clientFilter : true;
     return matchesSearch && matchesScore && matchesSimulations && matchesClient;
-  });
+  }) : [];
 
   // Funzione per parsing data formato giorno/mese/anno
   function parseDMY(dateStr: string) {
@@ -85,9 +103,15 @@ const AllStudentList: React.FC = () => {
         let aValue = a[sortConfig.key as keyof StudentRow];
         let bValue = b[sortConfig.key as keyof StudentRow];
         // Gestione speciale per le colonne
-        if (sortConfig.key === 'name' || sortConfig.key === 'chatbot_name' || sortConfig.key === 'group') {
-          aValue = String(aValue || '').toLowerCase();
-          bValue = String(bValue || '').toLowerCase();
+        if (sortConfig.key === 'name' || sortConfig.key === 'chatbot_name' || sortConfig.key === 'client_name' || sortConfig.key === 'group') {
+          // Per client_name, usa il valore effettivo o fallback su chatbot_name
+          if (sortConfig.key === 'client_name') {
+            aValue = String((aValue as string) || (a as any).chatbot_name || '').toLowerCase();
+            bValue = String((bValue as string) || (b as any).chatbot_name || '').toLowerCase();
+          } else {
+            aValue = String(aValue || '').toLowerCase();
+            bValue = String(bValue || '').toLowerCase();
+          }
           if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
           if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
           return 0;
@@ -178,8 +202,8 @@ const AllStudentList: React.FC = () => {
                 <th className="th-name" onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
                   Nom <span className="sort-arrow">{sortConfig?.key === 'name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
                 </th>
-                <th className="th-client" onClick={() => requestSort('chatbot_name')} style={{ cursor: 'pointer' }}>
-                  Client <span className="sort-arrow">{sortConfig?.key === 'chatbot_name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
+                <th className="th-client" onClick={() => requestSort('client_name')} style={{ cursor: 'pointer' }}>
+                  Client <span className="sort-arrow">{sortConfig?.key === 'client_name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
                 </th>
                 <th className="th-group">
                   Groupe <span className="sort-arrow">⇅</span>
@@ -203,7 +227,7 @@ const AllStudentList: React.FC = () => {
                 sortedStudents.map(stu => (
                   <tr key={stu.id}>
                     <td className="td-name">{stu.name || 'N/A'}</td>
-                    <td className="td-client">{stu.chatbot_name || 'N/A'}</td>
+                    <td className="td-client">{stu.client_name || stu.chatbot_name || 'N/A'}</td>
                     <td className="td-group">{stu.group || '-'}</td>
                     <td className="td-simulations">{stu.simulations}</td>
                     <td className="td-score">
@@ -243,7 +267,7 @@ const AllStudentList: React.FC = () => {
             {paginatedCards.map(stu => (
               <div className="student-card" key={stu.id}>
                 <div><strong>Nom:</strong> {stu.name || 'N/A'}</div>
-                <div><strong>Client:</strong> {stu.chatbot_name || 'N/A'}</div>
+                <div><strong>Client:</strong> {stu.client_name || stu.chatbot_name || 'N/A'}</div>
                 <div><strong>Groupe:</strong> {stu.group || '-'}</div>
                 <div><strong>Simulations:</strong> {stu.simulations}</div>
                 <div>
