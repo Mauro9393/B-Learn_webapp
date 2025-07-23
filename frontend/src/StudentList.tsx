@@ -39,7 +39,6 @@ const StudentList: React.FC = () => {
   const [minSimulations, setMinSimulations] = useState('');
   const [yearFilter, setYearFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
-  const [groupFilter, setGroupFilter] = useState('');
   // Stato per la paginazione mobile
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 5;
@@ -137,13 +136,10 @@ const StudentList: React.FC = () => {
       }
     }
 
-    // Filtro per gruppo (input text)
-    const matchesGroupFilter = groupFilter ? stu.usergroup.toLowerCase().includes(groupFilter.toLowerCase()) : true;
-    
     // Filtro per gruppo selezionato (etichette)
     const matchesSelectedGroup = selectedGroup === 'all' || stu.usergroup === selectedGroup;
 
-    return matchesSearch && matchesScore && matchesSimulations && matchesYear && matchesMonth && matchesGroupFilter && matchesSelectedGroup;
+    return matchesSearch && matchesScore && matchesSimulations && matchesYear && matchesMonth && matchesSelectedGroup;
   });
 
   // Funzione per parsing data formato giorno/mese/anno
