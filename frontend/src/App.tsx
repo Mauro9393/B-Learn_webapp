@@ -23,6 +23,7 @@ import Breadcrumbs from "./Breadcrumbs";
 import "./assets/css/breadcrumbs.css";
 import './App.css'
 import { BreadcrumbProvider } from "./BreadcrumbContext";
+import { SettingsProvider } from "./SettingsContext";
 
 // Componente per proteggere le route che richiedono autenticazione
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -196,12 +197,14 @@ function AppLayout() {
 
 function App() {
   return (
-    <BreadcrumbProvider>
-      <Router basename="/">
-        <BreadcrumbsWrapper />
-        <AppLayout />
-      </Router>
-    </BreadcrumbProvider>
+    <SettingsProvider>
+      <BreadcrumbProvider>
+        <Router basename="/">
+          <BreadcrumbsWrapper />
+          <AppLayout />
+        </Router>
+      </BreadcrumbProvider>
+    </SettingsProvider>
   )
 }
 

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 // @ts-ignore
 import jsPDF from 'jspdf';
 import { useBreadcrumbContext } from './BreadcrumbContext';
+import { useSettings } from './SettingsContext';
 
 // Definisci un'interfaccia per i dati
 interface DataItem {
@@ -51,6 +52,18 @@ function List() {
   // Calcola le card da mostrare in base alla pagina
   const paginatedCards = filteredData.slice((currentPage - 1) * cardsPerPage, currentPage * cardsPerPage);
   const { addBreadcrumb } = useBreadcrumbContext();
+  const { settings } = useSettings();
+  
+  // Stato per i gruppi
+  const [groups, setGroups] = useState<string[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<string>('all');
+
+  // Funzione per gestire il cambio di gruppo
+  const handleGroupChange = (group: string) => {
+    setSelectedGroup(group);
+    // Salva il gruppo selezionato nel localStorage
+    localStorage.setItem(`selectedGroup_${chatbotName}`, group);
+  };
 
   // Salva le informazioni del tenant nel localStorage quando arrivano dallo stato
   if (location.state?.tenant_name) {
@@ -76,9 +89,26 @@ function List() {
       const data = await response.json();
       setData(data || []);
       setFilteredData(data || []);
+      
+      // Estrai i gruppi unici dai dati
+      const uniqueGroups = Array.from(new Set(data.map((item: DataItem) => item.usergroup || 'Groupe par défaut'))) as string[];
+      setGroups(uniqueGroups);
+      
+      // Se c'è un gruppo selezionato nello state, impostalo
+      if (location.state?.selectedGroup) {
+        setSelectedGroup(location.state.selectedGroup);
+      }
     };
     fetchData();
-  }, [chatbotName]);
+  }, [chatbotName, location.state?.selectedGroup]);
+
+  // Carica il gruppo selezionato dal localStorage quando il componente si monta
+  useEffect(() => {
+    const savedGroup = localStorage.getItem(`selectedGroup_${chatbotName}`);
+    if (savedGroup && !location.state?.selectedGroup) {
+      setSelectedGroup(savedGroup);
+    }
+  }, [chatbotName, location.state?.selectedGroup]);
 
   useEffect(() => {
     setFilteredData(
@@ -113,10 +143,12 @@ function List() {
           const month = item.created_at.substring(5, 7); // Estrae MM da YYYY-MM-DD
           matchesMonth = month === monthFilter;
         }
-        return matchesName && matchesScore && matchesYear && matchesMonth;
+        // Filtro per gruppo
+        const matchesGroup = selectedGroup === 'all' || (item.usergroup || 'Groupe par défaut') === selectedGroup;
+        return matchesName && matchesScore && matchesYear && matchesMonth && matchesGroup;
       })
     );
-  }, [filter, scoreFilter, yearFilter, monthFilter, showAllLaunches, data]);
+  }, [filter, scoreFilter, yearFilter, monthFilter, showAllLaunches, data, selectedGroup]);
 
   // Ordina i dati filtrati in base a sortColumn e sortDirection
   const sortedData = [...filteredData].sort((a, b) => {
@@ -228,6 +260,26 @@ function List() {
         </span> &gt;
         <span className='current'>Liste des simulations</span>
       </div>*/}
+      {/* Etichette gruppi */}
+      {settings.showGroups && groups.length > 0 && (
+        <div className="groups-container">
+          <div 
+            className={`group-tag all-groups ${selectedGroup === 'all' ? 'active' : ''}`}
+            onClick={() => handleGroupChange('all')}
+          >
+            Tous les groupes
+          </div>
+          {groups.map((group, index) => (
+            <div 
+              key={group}
+              className={`group-tag group-${index % 10} ${selectedGroup === group ? 'active' : ''}`}
+              onClick={() => handleGroupChange(group)}
+            >
+              {group}
+            </div>
+          ))}
+        </div>
+      )}
       {/* Filtri comme in simulations-list.html */}
       <div className="filters">
         <input
@@ -286,7 +338,7 @@ function List() {
       {/* Etichetta Lancement */}
       <div className="lancement-label-container">
         <div className="lancement-label">
-          {showAllLaunches ? 'Formations terminées / non terminées' : 'Formations terminées'} : {showAllLaunches ? data.length : data.filter(item => item.score >= 0).length}
+          {showAllLaunches ? 'Formations terminées / non terminées' : 'Formations terminées'} : {showAllLaunches ? filteredData.length : filteredData.filter(item => item.score >= 0).length}
         </div>
       </div>
       <div className="simulations-container">
@@ -295,7 +347,7 @@ function List() {
             <tr>
               <th className="sortable-header" onClick={() => handleSort('name')}>Nom {getArrow('name')}</th>
               <th className="sortable-header" onClick={() => handleSort('created_at')}>Date simulation {getArrow('created_at')}</th>
-              <th>Groupe</th>
+              {settings.showGroups && <th>Groupe</th>}
               <th className="sortable-header" onClick={() => handleSort('score')}>Score {getArrow('score')}</th>
               <th>Temps</th>
               <th>Historique chat</th>
@@ -324,7 +376,7 @@ function List() {
                   </span>
                 </td>
                 <td className="date-cell">{formatDate(item.created_at)}</td>
-                <td>{item.usergroup || 'Groupe par défaut'}</td>
+                {settings.showGroups && <td>{item.usergroup || 'Groupe par défaut'}</td>}
                 <td>
                   {item.score === -1 ? (
                     <span>N/A</span>
@@ -411,7 +463,7 @@ function List() {
               </span>
             </div>
             <div><strong>Date simulation:</strong> {formatDate(item.created_at)}</div>
-            <div><strong>Group:</strong> {item.usergroup || 'Groupe par défaut'}</div>
+            {settings.showGroups && <div><strong>Group:</strong> {item.usergroup || 'Groupe par défaut'}</div>}
             <div>
               <strong>Score:</strong>
               {item.score === -1 ? (

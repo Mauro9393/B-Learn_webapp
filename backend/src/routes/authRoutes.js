@@ -425,12 +425,12 @@ router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
             return res.status(404).json({ message: 'Chatbot non trovato' });
         }
         const chatbot = chatbotRes.rows[0];
-        // Prendi stats da userlist
+        // Prendi stats da userlist - simulazioni completate per avg_score, tutti i learners per il conteggio
         const statsRes = await pool.query(`
             SELECT 
-                COUNT(*) AS simulations,
+                COUNT(CASE WHEN score >= 0 THEN 1 END) AS simulations,
                 COUNT(DISTINCT user_email) AS learners,
-                COALESCE(AVG(score),0) AS avg_score
+                COALESCE(AVG(CASE WHEN score >= 0 THEN score END),0) AS avg_score
             FROM userlist
             WHERE chatbot_name = $1
         `, [storyline_key]);

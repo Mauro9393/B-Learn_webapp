@@ -147,6 +147,10 @@
         color: #ff9800;
     }
     
+    .completion-rate {
+        color: #7F53F5;
+    }
+    
     .simulations-history {
         margin-top: 24px;
         overflow-x: auto;

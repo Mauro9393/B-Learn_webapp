@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import './assets/css/studentList.css';
 import { useBreadcrumbContext } from './BreadcrumbContext';
+import { useSettings } from './SettingsContext';
 
 interface StudentRow {
   name: string;
@@ -49,6 +50,18 @@ const StudentList: React.FC = () => {
   useEffect(() => { setCurrentPage(1); }, [students]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   const { addBreadcrumb } = useBreadcrumbContext();
+  const { settings } = useSettings();
+  
+  // Stato per i gruppi
+  const [groups, setGroups] = useState<string[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<string>('all');
+
+  // Funzione per gestire il cambio di gruppo
+  const handleGroupChange = (group: string) => {
+    setSelectedGroup(group);
+    // Salva il gruppo selezionato nel localStorage
+    localStorage.setItem(`selectedGroup_${storyline_key}`, group);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +69,15 @@ const StudentList: React.FC = () => {
         const res = await fetch(`/api/learners-list-maxscore?storyline_key=${storyline_key}`);
         const data = await res.json();
         setStudents(data);
+        
+        // Estrai i gruppi unici dai dati
+        const uniqueGroups = Array.from(new Set(data.map((student: StudentRow) => student.usergroup))) as string[];
+        setGroups(uniqueGroups);
+        
+        // Se c'è un gruppo selezionato nello state, impostalo
+        if (location.state?.selectedGroup) {
+          setSelectedGroup(location.state.selectedGroup);
+        }
       } catch (e) {
         setStudents([]);
       } finally {
@@ -63,7 +85,15 @@ const StudentList: React.FC = () => {
       }
     };
     fetchData();
-  }, [storyline_key]);
+  }, [storyline_key, location.state?.selectedGroup]);
+
+  // Carica il gruppo selezionato dal localStorage quando il componente si monta
+  useEffect(() => {
+    const savedGroup = localStorage.getItem(`selectedGroup_${storyline_key}`);
+    if (savedGroup && !location.state?.selectedGroup) {
+      setSelectedGroup(savedGroup);
+    }
+  }, [storyline_key, location.state?.selectedGroup]);
 
   const filteredStudents = (Array.isArray(students) ? students : []).filter(stu => {
     // Filtre pour la recherche de texte (nom ou email)
@@ -107,10 +137,13 @@ const StudentList: React.FC = () => {
       }
     }
 
-    // Filtro per gruppo
-    const matchesGroup = groupFilter ? stu.usergroup.toLowerCase().includes(groupFilter.toLowerCase()) : true;
+    // Filtro per gruppo (input text)
+    const matchesGroupFilter = groupFilter ? stu.usergroup.toLowerCase().includes(groupFilter.toLowerCase()) : true;
+    
+    // Filtro per gruppo selezionato (etichette)
+    const matchesSelectedGroup = selectedGroup === 'all' || stu.usergroup === selectedGroup;
 
-    return matchesSearch && matchesScore && matchesSimulations && matchesYear && matchesMonth && matchesGroup;
+    return matchesSearch && matchesScore && matchesSimulations && matchesYear && matchesMonth && matchesGroupFilter && matchesSelectedGroup;
   });
 
   // Funzione per parsing data formato giorno/mese/anno
@@ -182,6 +215,26 @@ const StudentList: React.FC = () => {
           <span className="breadcrumb-link" onClick={() => navigate(`/chatbot/${storyline_key}`)}>Chatbot</span> &gt;
           <span className="current">Liste des learners</span>
         </div>*/}
+        {/* Etichette gruppi */}
+        {settings.showGroups && groups.length > 0 && (
+          <div className="groups-container">
+            <div 
+              className={`group-tag all-groups ${selectedGroup === 'all' ? 'active' : ''}`}
+              onClick={() => handleGroupChange('all')}
+            >
+              Tous les groupes
+            </div>
+            {groups.map((group, index) => (
+              <div 
+                key={group}
+                className={`group-tag group-${index % 10} ${selectedGroup === group ? 'active' : ''}`}
+                onClick={() => handleGroupChange(group)}
+              >
+                {group}
+              </div>
+            ))}
+          </div>
+        )}
         {/* Statistiche generali learners (placeholder, puoi aggiungere dati reali) */}
         {/* <div className="student-list-stats">
           <div className="stat-card"><span className="stat-icon">👥</span> <span className="stat-label">Total learners :</span> <span className="stat-value">{students.length}</span></div>
@@ -242,12 +295,6 @@ const StudentList: React.FC = () => {
                   <option key={year} value={year}>{year}</option>
                 ))}
             </select>
-            <input
-              type="text"
-              placeholder="Filtrer par groupe..."
-              value={groupFilter}
-              onChange={e => setGroupFilter(e.target.value)}
-            />
           </div>
           {/* Tabella desktop/tablet */}
           <table className="student-table styled-table no-vertical-lines">
@@ -256,9 +303,11 @@ const StudentList: React.FC = () => {
                 <th className="th-name" onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
                   Nom <span className="sort-arrow">{sortConfig?.key === 'name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
                 </th>
-                <th className="th-group" onClick={() => requestSort('usergroup')} style={{ cursor: 'pointer' }}>
-                  Groupe <span className="sort-arrow">{sortConfig?.key === 'usergroup' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
-                </th>
+                {settings.showGroups && (
+                  <th className="th-group" onClick={() => requestSort('usergroup')} style={{ cursor: 'pointer' }}>
+                    Groupe <span className="sort-arrow">{sortConfig?.key === 'usergroup' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
+                  </th>
+                )}
                 <th className="th-simulations">Simulations</th>
                 <th className="th-score" onClick={() => requestSort('score')} style={{ cursor: 'pointer' }}>
                   Score max <span className="sort-arrow">{sortConfig?.key === 'score' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
@@ -278,10 +327,14 @@ const StudentList: React.FC = () => {
                 sortedStudents.map(stu => (
                   <tr key={stu.email}>
                     <td className="td-name" title={stu.name}>{stu.name}</td>
-                    <td className="td-group">{stu.usergroup}</td>
+                    {settings.showGroups && <td className="td-group">{stu.usergroup}</td>}
                     <td className="td-simulations">{stu.simulations}</td>
                     <td className="td-score">
-                      <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
+                      {stu.score === -1 ? (
+                        <span>N/A</span>
+                      ) : (
+                        <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
+                      )}
                     </td>
                     <td className="td-date">
                       <span className="date-badge">{stu.last_date}</span>
@@ -308,11 +361,15 @@ const StudentList: React.FC = () => {
             {paginatedCards.map(stu => (
               <div className="student-card" key={stu.email}>
                 <div><strong>Nom:</strong> {stu.name}</div>
-                <div><strong>Groupe:</strong> {stu.usergroup}</div>
+                {settings.showGroups && <div><strong>Groupe:</strong> {stu.usergroup}</div>}
                 <div><strong>Simulations:</strong> {stu.simulations}</div>
                 <div>
                   <strong>Score max:</strong>
-                  <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
+                  {stu.score === -1 ? (
+                    <span>N/A</span>
+                  ) : (
+                    <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
+                  )}
                 </div>
                 <div><strong>Dernière simulation:</strong> <span className="date-badge">{stu.last_date}</span></div>
                 <div className="card-buttons">

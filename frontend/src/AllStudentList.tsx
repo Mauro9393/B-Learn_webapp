@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/studentList.css';
 import { useBreadcrumbContext } from './BreadcrumbContext';
+import { useSettings } from './SettingsContext';
 
 interface StudentRow {
   id: number;
@@ -26,6 +27,7 @@ const AllStudentList: React.FC = () => {
   const [clientFilter, setClientFilter] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   const { addBreadcrumb } = useBreadcrumbContext();
+  const { settings } = useSettings();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -205,9 +207,11 @@ const AllStudentList: React.FC = () => {
                 <th className="th-client" onClick={() => requestSort('client_name')} style={{ cursor: 'pointer' }}>
                   Client <span className="sort-arrow">{sortConfig?.key === 'client_name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
                 </th>
-                <th className="th-group">
-                  Groupe <span className="sort-arrow">⇅</span>
-                </th>
+                {settings.showGroups && (
+                  <th className="th-group">
+                    Groupe <span className="sort-arrow">⇅</span>
+                  </th>
+                )}
                 <th className="th-simulations">Simulations</th>
                 <th className="th-score" onClick={() => requestSort('score')} style={{ cursor: 'pointer' }}>
                   Score max <span className="sort-arrow">{sortConfig?.key === 'score' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
@@ -228,7 +232,7 @@ const AllStudentList: React.FC = () => {
                   <tr key={stu.id}>
                     <td className="td-name">{stu.name || 'N/A'}</td>
                     <td className="td-client">{stu.client_name || stu.chatbot_name || 'N/A'}</td>
-                    <td className="td-group">{stu.group || '-'}</td>
+                    {settings.showGroups && <td className="td-group">{stu.group || '-'}</td>}
                     <td className="td-simulations">{stu.simulations}</td>
                     <td className="td-score">
                       <span className={`score-badge score-badge-table ${stu.score >= 90 ? 'score-high' : stu.score >= 80 ? 'score-medium' : 'score-low'}`}>{stu.score}</span>
@@ -268,7 +272,7 @@ const AllStudentList: React.FC = () => {
               <div className="student-card" key={stu.id}>
                 <div><strong>Nom:</strong> {stu.name || 'N/A'}</div>
                 <div><strong>Client:</strong> {stu.client_name || stu.chatbot_name || 'N/A'}</div>
-                <div><strong>Groupe:</strong> {stu.group || '-'}</div>
+                {settings.showGroups && <div><strong>Groupe:</strong> {stu.group || '-'}</div>}
                 <div><strong>Simulations:</strong> {stu.simulations}</div>
                 <div>
                   <strong>Score max:</strong>

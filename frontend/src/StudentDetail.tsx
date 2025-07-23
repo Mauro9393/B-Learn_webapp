@@ -4,6 +4,7 @@ import './assets/css/studentDetail.css';
 // @ts-ignore
 import jsPDF from 'jspdf';
 import { useBreadcrumbContext } from './BreadcrumbContext';
+import { useSettings } from './SettingsContext';
 
 interface Simulation {
   id: number;
@@ -109,7 +110,7 @@ const StudentDetail: React.FC = () => {
   // Filtra le simulazioni in base al toggle
   const filteredSimulations = showAllLaunches 
     ? simulations 
-    : simulations.filter(sim => sim.score !== -1);
+    : simulations.filter(sim => typeof sim.score === 'number' && sim.score >= 0);
   
   // Ordina le simulazioni filtrate secondo lo stato
   const sortedSimulations = sortSimulations(filteredSimulations, sortField, sortDirection);
@@ -123,6 +124,7 @@ const StudentDetail: React.FC = () => {
   const goToNextPage = () => setCurrentPage(p => Math.min(totalPages, p + 1));
   useEffect(() => { setCurrentPage(1); }, [sortedSimulations]);
   const { addBreadcrumb } = useBreadcrumbContext();
+  const { settings } = useSettings();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -151,9 +153,17 @@ const StudentDetail: React.FC = () => {
 
   const learner = simulations[0];
   const initials = getInitials(learner.name);
-  const numSimulations = simulations.length;
-  const bestScore = Math.max(...simulations.map(s => s.score));
-  const avgScore = Math.round(simulations.reduce((acc, s) => acc + s.score, 0) / numSimulations);
+  const completedSimulations = simulations.filter(sim => typeof sim.score === 'number' && sim.score >= 0);
+  const numSimulations = showAllLaunches ? simulations.length : completedSimulations.length;
+  const bestScore = showAllLaunches ? Math.max(...simulations.map(s => s.score)) : Math.max(...completedSimulations.map(s => s.score));
+  const avgScore = showAllLaunches 
+    ? Math.round(simulations.reduce((acc, s) => acc + s.score, 0) / simulations.length)
+    : Math.round(completedSimulations.reduce((acc, s) => acc + s.score, 0) / completedSimulations.length);
+  
+  // Calcolo del taux de complétion
+  const completionRate = simulations.length > 0 
+    ? Math.round((completedSimulations.length / simulations.length) * 100) 
+    : 0;
 
   // Gestione click sulle colonne
   const handleSort = (field: 'created_at' | 'score') => {
@@ -202,9 +212,11 @@ const StudentDetail: React.FC = () => {
             <div className="avatar-circle">{initials}</div>
           </div>
           <h1 className="student-name" style={{textAlign: 'center', marginTop: '12px'}}>{learner.name}</h1>
-          <div className="student-group" style={{textAlign: 'center', marginTop: '8px', color: '#6a6af6', fontSize: '1.1rem', fontWeight: '600'}}>
-            {learner.usergroup || 'Groupe par défaut'}
-          </div>
+          {settings.showGroups && (
+            <div className="student-group" style={{textAlign: 'center', marginTop: '8px', color: '#6a6af6', fontSize: '1.1rem', fontWeight: '600'}}>
+              {learner.usergroup || 'Groupe par défaut'}
+            </div>
+          )}
           {/* Informazioni del cliente */}
           <div className="client-info">
             <span className="client-name">{tenant_name}</span>
@@ -232,8 +244,13 @@ const StudentDetail: React.FC = () => {
       <div className="student-stats">
         <div className="stat-card">
           <span className="stat-icon">🎯</span>
-          <span className="stat-label">Tous les lancements :</span>
+          <span className="stat-label">Simulations terminées :</span>
           <span className="stat-value">{numSimulations}</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-icon">📊</span>
+          <span className="stat-label">Taux de complétion :</span>
+          <span className="stat-value completion-rate">{completionRate}%</span>
         </div>
         <div className="stat-card">
           <span className="stat-icon">🏆</span>
@@ -247,7 +264,7 @@ const StudentDetail: React.FC = () => {
         </div>
       </div>
       
-      {/* Toggle "Tous les lancements" */}
+      {/* Toggle "Simulations terminées" */}
       <div className="toggle-container" style={{display: 'flex', justifyContent: 'center', marginBottom: '20px'}}>
         <label className="toggle-switch">
           <input
@@ -271,7 +288,7 @@ const StudentDetail: React.FC = () => {
           fontWeight: '600',
           color: '#6a6af6'
         }}>
-          {showAllLaunches ? 'Formations terminées / non terminées' : 'Formations terminées'} : {showAllLaunches ? simulations.length : simulations.filter(sim => sim.score >= 0).length}
+          {showAllLaunches ? 'Toutes les simulations' : 'Simulations terminées'} : {showAllLaunches ? simulations.length : simulations.filter(sim => typeof sim.score === 'number' && sim.score >= 0).length}
         </div>
       </div>
       
