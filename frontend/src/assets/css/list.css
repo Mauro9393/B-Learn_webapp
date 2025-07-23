@@ -175,6 +175,12 @@ h1 {
     justify-content: center;
 }
 
+.group-label {
+    font-size: 1rem;
+    color: #7F53F5;
+    font-weight: bold;
+}
+
 .group-tag {
     padding: 4px 8px;
     border-radius: 6px;

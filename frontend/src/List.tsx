@@ -263,6 +263,7 @@ function List() {
       {/* Etichette gruppi */}
       {settings.showGroups && groups.length > 0 && (
         <div className="groups-container">
+          <div className="group-label">Groupes : </div>
           <div 
             className={`group-tag all-groups ${selectedGroup === 'all' ? 'active' : ''}`}
             onClick={() => handleGroupChange('all')}
@@ -281,6 +282,7 @@ function List() {
         </div>
       )}
       {/* Filtri comme in simulations-list.html */}
+      <br />
       <div className="filters">
         <input
           type="text"
