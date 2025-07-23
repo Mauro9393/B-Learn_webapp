@@ -283,6 +283,7 @@ const ChatbotDetail: React.FC = () => {
             {/* Etichette gruppi */}
             {settings.showGroups && groups.length > 0 && (
               <div className="groups-container">
+                <div className="group-label">Groupes : </div>
                 <div 
                   className={`group-tag all-groups ${selectedGroup === 'all' ? 'active' : ''}`}
                   onClick={() => handleGroupChange('all')}
