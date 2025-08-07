@@ -848,8 +848,15 @@ router.get('/verify-reset-token', async(req, res) => {
             return res.json({ success: false, message: 'Token invalide ou expiré.' });
         }
 
-        console.log('Token valid, redirecting to frontend');
-        // Reindirizza al frontend con il token
+        console.log('Token valid');
+
+        // Se la richiesta viene dal frontend (AJAX), restituisci JSON
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.json({ success: true, message: 'Token valide.' });
+        }
+
+        // Altrimenti reindirizza (per i link diretti nell'email)
+        console.log('Redirecting to frontend');
         res.redirect(`${process.env.FRONTEND_URL || process.env.PROD_URL}/reset-password?token=${token}`);
     } catch (error) {
         console.error('Error verifying reset token:', error);
