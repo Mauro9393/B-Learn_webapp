@@ -36,7 +36,11 @@ function ResetPassword() {
 
   const verifyToken = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-reset-token?token=${token}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-reset-token?token=${token}`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
       const result = await response.json();
       setIsValidToken(result.success);
     } catch (error) {
