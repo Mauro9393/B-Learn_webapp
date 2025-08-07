@@ -63,7 +63,7 @@ const ChatbotDetail: React.FC = () => {
   const [totalSimulations, setTotalSimulations] = useState<number>(0);
 
   // Stato per i dati del grafico criteri
-  const [criteresData, setCriteresData] = useState<{ name: string; average: number; count: number }[]>([]);
+  const [criteresData, setCriteresData] = useState<{ name: string; average: number; count: number; description?: string }[]>([]);
 
   // Stato per il filtro mese
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
@@ -92,6 +92,12 @@ const ChatbotDetail: React.FC = () => {
     }
     
     return criteres;
+  };
+
+  // Funzione per troncare il testo se troppo lungo (identica a Analysis.tsx)
+  const truncateText = (text: string, maxLength: number = 15) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
   };
 
   // Funzione per calcolare le medie dei criteri per questo chatbot
@@ -127,13 +133,28 @@ const ChatbotDetail: React.FC = () => {
       });
       
       // Calcola la media per ogni criterio
-      const averages: { name: string; average: number; count: number }[] = [];
+      const averages: { name: string; average: number; count: number; description?: string }[] = [];
       criteresMap.forEach((notes, name) => {
         const average = Math.round((notes.reduce((sum, note) => sum + note, 0) / notes.length) * 10) / 10;
+        
+        // Trova la descrizione del criterio dalla prima simulazione che lo contiene
+        let description = '';
+        for (const sim of filteredSims) {
+          if (sim.chat_analysis) {
+            const criteres = parseCriteres(sim.chat_analysis);
+            const critere = criteres.find(c => c.name === name);
+            if (critere?.description) {
+              description = critere.description;
+              break;
+            }
+          }
+        }
+        
         averages.push({
           name,
           average,
-          count: notes.length
+          count: notes.length,
+          description
         });
       });
       
@@ -538,7 +559,14 @@ const ChatbotDetail: React.FC = () => {
                           </svg>
                           <div className="bar-value">{critere.average}</div>
                         </div>
-                        <div className="chart-label">{critere.name}</div>
+                        <div className="chart-label">
+                          {critere.name}
+                          {critere.description && (
+                            <div className="chart-label-description">
+                              {truncateText(critere.description, 12)}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
