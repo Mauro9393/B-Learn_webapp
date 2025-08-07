@@ -64,6 +64,9 @@ const ChatbotDetail: React.FC = () => {
 
   // Stato per i dati del grafico criteri
   const [criteresData, setCriteresData] = useState<{ name: string; average: number; count: number; description?: string }[]>([]);
+  const [tooltipText, setTooltipText] = useState<string>('');
+  const [tooltipVisible, setTooltipVisible] = useState<boolean>(false);
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Stato per il filtro mese
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
@@ -187,6 +190,16 @@ const ChatbotDetail: React.FC = () => {
     setSelectedGroup(group);
     // Salva il gruppo selezionato nel localStorage
     localStorage.setItem(`selectedGroup_${storyline_key}`, group);
+  };
+
+  const handleTooltipShow = (text: string, event: React.MouseEvent) => {
+    setTooltipText(text);
+    setTooltipVisible(true);
+    setTooltipPosition({ x: event.clientX, y: event.clientY });
+  };
+
+  const handleTooltipHide = () => {
+    setTooltipVisible(false);
   };
 
   useEffect(() => {
@@ -562,7 +575,11 @@ const ChatbotDetail: React.FC = () => {
                         <div className="chart-label">
                           {critere.name}
                           {critere.description && (
-                            <div className="chart-label-description">
+                            <div 
+                              className="chart-label-description"
+                              onMouseEnter={(e) => handleTooltipShow(critere.description!, e)}
+                              onMouseLeave={handleTooltipHide}
+                            >
                               {truncateText(critere.description, 12)}
                             </div>
                           )}
@@ -639,6 +656,21 @@ const ChatbotDetail: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Tooltip */}
+      {tooltipVisible && (
+        <div 
+          className="custom-tooltip"
+          style={{
+            position: 'fixed',
+            left: tooltipPosition.x + 10,
+            top: tooltipPosition.y - 40,
+            zIndex: 1000
+          }}
+        >
+          {tooltipText}
         </div>
       )}
     </div>
