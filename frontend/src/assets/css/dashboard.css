@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap');
+/* Rimossa importazione font duplicata - ora gestita in index.css */
+
 body {
     font-family: 'Montserrat', Arial, sans-serif;
     background: linear-gradient(135deg, #5B6DF6 0%, #7F53F5 100%);
@@ -296,15 +297,46 @@ body {
 
 .card .chatbot-client {
     position: absolute;
-    top: 1rem;
-    left: 1rem;
+    top: 12px;
+    left: 12px;
     background: rgba(127, 83, 245, 0.1);
     color: #7F53F5;
-    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
     font-weight: 600;
-    padding: 0.25rem 0.5rem;
+    border: 1px solid rgba(127, 83, 245, 0.2);
+    transition: all 0.2s ease;
+}
+
+.card .chatbot-client:hover {
+    background: rgba(127, 83, 245, 0.15);
+    transform: scale(1.02);
+}
+
+.card .chatbot-client select {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    min-width: 120px;
+}
+
+.card .chatbot-client select:focus {
+    background: rgba(127, 83, 245, 0.2);
     border-radius: 4px;
-    letter-spacing: 0.3px;
+    padding: 2px 4px;
+}
+
+.card .chatbot-client select option {
+    background: white;
+    color: #333;
+    padding: 4px 8px;
 }
 
 .card .chatbot-meta {
@@ -1205,6 +1237,7 @@ h2 input {
 }
 
 h2 input:focus {
-    border-color: #5B6DF6;
+    outline: none;
+    border-color: #7F53F5;
     box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
 }

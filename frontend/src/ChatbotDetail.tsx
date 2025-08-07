@@ -62,6 +62,95 @@ const ChatbotDetail: React.FC = () => {
   const [engagementRate, setEngagementRate] = useState<number>(0);
   const [totalSimulations, setTotalSimulations] = useState<number>(0);
 
+  // Stato per i dati del grafico criteri
+  const [criteresData, setCriteresData] = useState<{ name: string; average: number; count: number }[]>([]);
+
+  // Stato per il filtro mese
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
+
+  // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx)
+  const parseCriteres = (analysis: string) => {
+    if (!analysis) return [];
+    
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*20/gi;
+    const criteres = [];
+    let match;
+    
+    while ((match = criterePattern.exec(analysis)) !== null) {
+      const critereNumber = match[1];
+      const description = match[2]?.trim();
+      const note = match[3] ? parseInt(match[3]) : null;
+      
+      if (note !== null) {
+        criteres.push({
+          name: `Critère n°${critereNumber}`,
+          description: description,
+          note: note,
+          fullMatch: match[0]
+        });
+      }
+    }
+    
+    return criteres;
+  };
+
+  // Funzione per calcolare le medie dei criteri per questo chatbot
+  const calculateCriteresAverages = async () => {
+    try {
+      // Fetch tutte le simulazioni per questo chatbot
+      const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`);
+      const allSims = await res.json();
+      
+      // Filtra per mese se selezionato
+      let filteredSims = allSims;
+      if (selectedMonth !== 'all') {
+        filteredSims = allSims.filter((sim: any) => {
+          if (!sim.created_at) return false;
+          const month = sim.created_at.substring(5, 7); // Estrae MM da YYYY-MM-DD
+          return month === selectedMonth;
+        });
+      }
+      
+      const criteresMap = new Map<string, number[]>();
+      
+      // Raccogli tutti i criteri da tutte le simulazioni filtrate
+      filteredSims.forEach((sim: any) => {
+        if (sim.chat_analysis) {
+          const criteres = parseCriteres(sim.chat_analysis);
+          criteres.forEach(critere => {
+            if (!criteresMap.has(critere.name)) {
+              criteresMap.set(critere.name, []);
+            }
+            criteresMap.get(critere.name)!.push(critere.note);
+          });
+        }
+      });
+      
+      // Calcola la media per ogni criterio
+      const averages: { name: string; average: number; count: number }[] = [];
+      criteresMap.forEach((notes, name) => {
+        const average = Math.round((notes.reduce((sum, note) => sum + note, 0) / notes.length) * 10) / 10;
+        averages.push({
+          name,
+          average,
+          count: notes.length
+        });
+      });
+      
+      // Ordina per numero di criterio
+      const sortedAverages = averages.sort((a, b) => {
+        const numA = parseInt(a.name.match(/\d+/)?.[0] || '0');
+        const numB = parseInt(b.name.match(/\d+/)?.[0] || '0');
+        return numA - numB;
+      });
+      
+      setCriteresData(sortedAverages);
+    } catch (error) {
+      console.error('Errore nel calcolo delle medie dei criteri:', error);
+      setCriteresData([]);
+    }
+  };
+
   // Funzione per gestire il cambio delle impostazioni
   const handleSettingChange = (setting: keyof Settings) => {
     updateSettings({ [setting]: !settings[setting] });
@@ -255,6 +344,13 @@ const ChatbotDetail: React.FC = () => {
     }
   }, [selectedGroup, data]);
 
+  // Effetto per calcolare le medie dei criteri
+  useEffect(() => {
+    if (storyline_key) {
+      calculateCriteresAverages();
+    }
+  }, [storyline_key, monthStats.simulations, selectedMonth]); // Si aggiorna quando cambiano le simulazioni o il mese
+
   if (loading) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Charging...</div></div>;
   if (!data) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Chatbot not found.</div></div>;
 
@@ -384,6 +480,73 @@ const ChatbotDetail: React.FC = () => {
             </span>
           </div>
         </div>
+        {/* Grafico criteri */}
+        {criteresData.length > 0 && (
+          <div className="criteres-chart-container">
+            <div className="criteres-chart-header">
+              <h3 className="criteres-chart-title">📊 Performance moyenne par Critères</h3>
+              <select 
+                className="month-filter"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+              >
+                <option value="all">Tous les mois</option>
+                <option value="01">Janvier</option>
+                <option value="02">Février</option>
+                <option value="03">Mars</option>
+                <option value="04">Avril</option>
+                <option value="05">Mai</option>
+                <option value="06">Juin</option>
+                <option value="07">Juillet</option>
+                <option value="08">Août</option>
+                <option value="09">Septembre</option>
+                <option value="10">Octobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Décembre</option>
+              </select>
+            </div>
+            <div className="criteres-chart">
+              <div className="chart-y-axis">
+                <div className="y-label">20</div>
+                <div className="y-label">15</div>
+                <div className="y-label">10</div>
+                <div className="y-label">5</div>
+                <div className="y-label">0</div>
+              </div>
+              <div className="chart-content">
+                <div className="chart-grid">
+                  {[20, 15, 10, 5, 0].map((value) => (
+                    <div key={value} className="grid-line" style={{ bottom: `${(value / 20) * 100}%` }}></div>
+                  ))}
+                </div>
+                <div className="chart-bars">
+                  {criteresData.map((critere, index) => {
+                    // Calcolo corretto: 9 dovrebbe arrivare esattamente sotto il valore 10 dell'asse Y
+                    const height = (critere.average / 20) * 100; // Altezza in percentuale
+                    const gradientId = `gradient-${index}`;
+                    return (
+                      <div key={critere.name} className="chart-bar-container">
+                        <div className="chart-bar" style={{ height: `${height}%` }}>
+                          <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
+                            <defs>
+                              <linearGradient id={gradientId} x1="0%" y1="100%" x2="0%" y2="0%">
+                                <stop offset="0%" stopColor="#B8A9E8" />
+                                <stop offset="100%" stopColor="#D4C7F7" />
+                              </linearGradient>
+                            </defs>
+                            <rect width="100%" height="100%" fill={`url(#${gradientId})`} />
+                          </svg>
+                          <div className="bar-value">{critere.average}</div>
+                        </div>
+                        <div className="chart-label">{critere.name}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Bottoni azione */}
         <div className="action-buttons">
           <button className="action-btn primary" onClick={() => {

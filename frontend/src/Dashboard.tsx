@@ -53,186 +53,9 @@ function Dashboard() {
   const [editingChatbot, setEditingChatbot] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
 
-  // Funzione per calcolare i chatbot creati nel mese corrente
-  const calculateChatbotsThisMonth = (chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Filtra i chatbot in base al ruolo e al cliente selezionato
-    const filteredChatbots = userRole === '1'
-      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
-      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
-    
-    // Conta quanti chatbot sono stati creati nel mese corrente
-    const chatbotsThisMonth = filteredChatbots.filter(bot => {
-      const createdDate = new Date(bot.created_at);
-      return createdDate.getMonth() === currentMonth && createdDate.getFullYear() === currentYear;
-    }).length;
-    
-    return chatbotsThisMonth;
-  };
-
-  // Funzione per calcolare i nuovi learners del mese corrente
-  const calculateNewLearnersThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Filtra i chatbot in base al ruolo e al cliente selezionato
-    const filteredChatbots = userRole === '1'
-      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
-      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
-    
-    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
-    
-    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato
-    const tenantUserlist = userlist.filter(row => tenantStorylineKeys.includes(row.chatbot_name));
-    
-    // Raggruppa le simulazioni per learner e trova la prima simulazione di ciascuno
-    const learnerFirstSimulation: Record<string, Date> = {};
-    
-    tenantUserlist.forEach(row => {
-      const simulationDate = new Date(row.created_at);
-      
-      if (!learnerFirstSimulation[row.user_email] || simulationDate < learnerFirstSimulation[row.user_email]) {
-        learnerFirstSimulation[row.user_email] = simulationDate;
-      }
-    });
-    
-    // Conta quanti learners hanno fatto la prima simulazione nel mese corrente
-    const newLearnersThisMonth = Object.values(learnerFirstSimulation).filter(date => {
-      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-    }).length;
-    
-    return newLearnersThisMonth;
-  };
-
-  // Funzione per calcolare le simulazioni del mese corrente
-  const calculateSimulationsThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Filtra i chatbot in base al ruolo e al cliente selezionato
-    const filteredChatbots = userRole === '1'
-      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
-      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
-    
-    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
-    
-    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato
-    const tenantUserlist = userlist.filter(row => tenantStorylineKeys.includes(row.chatbot_name));
-    
-    // Conta le simulazioni fatte nel mese corrente basandosi su created_at
-    const simulationsThisMonth = tenantUserlist.filter(row => {
-      const simulationDate = new Date(row.created_at);
-      return simulationDate.getMonth() === currentMonth && simulationDate.getFullYear() === currentYear;
-    }).length;
-    
-    return simulationsThisMonth;
-  };
-
-  // Funzione per calcolare i top chatbot del mese corrente
-  const calculateTopChatbotsThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Filtra i chatbot in base al ruolo e al cliente selezionato
-    const filteredChatbots = userRole === '1'
-      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
-      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
-    
-    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
-    
-    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato e del mese corrente
-    const tenantUserlist = userlist.filter(row => {
-      const simulationDate = new Date(row.created_at);
-      return tenantStorylineKeys.includes(row.chatbot_name) && 
-             simulationDate.getMonth() === currentMonth && 
-             simulationDate.getFullYear() === currentYear;
-    });
-    
-    // Conta le simulazioni per ogni chatbot
-    const chatbotCount: Record<string, number> = {};
-    tenantUserlist.forEach(row => {
-      chatbotCount[row.chatbot_name] = (chatbotCount[row.chatbot_name] || 0) + 1;
-    });
-    
-    // Ordina i chatbot per numero di simulazioni (decrescente) e prendi i top 5
-    const topChatbots = Object.entries(chatbotCount)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 5)
-      .map(([storylineKey, count], index) => {
-        const chatbot = chatbots.find(bot => bot.storyline_key === storylineKey);
-        return {
-          name: chatbot?.name || storylineKey,
-          storylineKey,
-          count,
-          rank: index + 1
-        };
-      });
-    
-    return topChatbots;
-  };
-
-  // Funzione per calcolare le nuove simulazioni del mese corrente
-  const calculateNewSimulationsThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Filtra i chatbot in base al ruolo e al cliente selezionato
-    const filteredChatbots = userRole === '1'
-      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
-      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
-    
-    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
-    
-    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato e del mese corrente
-    const simulationsThisMonth = userlist.filter(row => {
-      const simulationDate = new Date(row.created_at);
-      return tenantStorylineKeys.includes(row.chatbot_name) && 
-             simulationDate.getMonth() === currentMonth && 
-             simulationDate.getFullYear() === currentYear;
-    }).length;
-    
-    return simulationsThisMonth;
-  };
-
-  // Funzione per calcolare il punteggio medio del mese corrente
-  const calculateAverageScoreThisMonth = (userlist: UserlistRow[], chatbots: Chatbot[], userRole: string, tenantId: string, selectedClient: string) => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Filtra i chatbot in base al ruolo e al cliente selezionato
-    const filteredChatbots = userRole === '1'
-      ? chatbots.filter(bot => selectedClient === '' || String(bot.tenant_id) === selectedClient)
-      : chatbots.filter(bot => String(bot.tenant_id) === tenantId);
-    
-    const tenantStorylineKeys = filteredChatbots.map(bot => bot.storyline_key);
-    
-    // Filtra le simulazioni per i chatbot del tenant/cliente selezionato e del mese corrente
-    const simulationsThisMonth = userlist.filter(row => {
-      const simulationDate = new Date(row.created_at);
-      return tenantStorylineKeys.includes(row.chatbot_name) && 
-             simulationDate.getMonth() === currentMonth && 
-             simulationDate.getFullYear() === currentYear;
-    });
-    
-    // Calcola il punteggio medio (assumendo che il campo score esista)
-    if (simulationsThisMonth.length === 0) return 0;
-    
-    const totalScore = simulationsThisMonth.reduce((sum, row) => {
-      // Assumendo che il campo score sia numerico, altrimenti usa 0
-      const score = typeof row.score === 'number' ? row.score : 0;
-      return sum + score;
-    }, 0);
-    
-    return Math.round(totalScore / simulationsThisMonth.length); // Arrotonda all'intero più vicino
-  };
+  // Stato per editing del tenant
+  const [editingTenant, setEditingTenant] = useState<number | null>(null);
+  const [editingTenantId, setEditingTenantId] = useState<number>(0);
 
   const saveChatbotName = async (chatbotId: number, newName: string) => {
     try {
@@ -251,6 +74,26 @@ function Dashboard() {
         }
     } catch (error) {
         console.error('Errore aggiornamento nome:', error);
+    }
+  };
+
+  const saveChatbotTenant = async (chatbotId: number, newTenantId: number) => {
+    try {
+        const response = await fetch(`/api/chatbots/${chatbotId}/tenant`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tenant_id: newTenantId })
+        });
+        
+        if (response.ok) {
+            // Aggiorna lo stato locale
+            setChatbots(prev => prev.map(bot => 
+                bot.id === chatbotId ? { ...bot, tenant_id: newTenantId } : bot
+            ));
+            setEditingTenant(null);
+        }
+    } catch (error) {
+        console.error('Errore aggiornamento tenant:', error);
     }
   };
 
@@ -314,22 +157,22 @@ function Dashboard() {
     }
 
     // Calcola i chatbot creati nel mese corrente
-    const chatbotsThisMonth = calculateChatbotsThisMonth(chatbots, userRole || '', tenantId || '', selectedClient);
+    const chatbotsThisMonth = 0; // No longer calculating
 
     // Calcola i nuovi learners del mese corrente
-    const newLearnersThisMonth = calculateNewLearnersThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+    const newLearnersThisMonth = 0; // No longer calculating
 
     // Calcola le simulazioni del mese corrente
-    const simulationsThisMonth = calculateSimulationsThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+    const simulationsThisMonth = 0; // No longer calculating
 
     // Calcola i top chatbot del mese corrente
-    const topChatbotsThisMonth = calculateTopChatbotsThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+    const topChatbotsThisMonth = [] as { name: string; storylineKey: string; count: number; rank: number }[]; // No longer calculating
 
     // Calcola le nuove simulazioni del mese corrente
-    const newSimulationsThisMonth = calculateNewSimulationsThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+    const newSimulationsThisMonth = 0; // No longer calculating
 
     // Calcola il punteggio medio del mese corrente
-    const averageScoreThisMonth = calculateAverageScoreThisMonth(userlist, chatbots, userRole || '', tenantId || '', selectedClient);
+    const averageScoreThisMonth = 0; // No longer calculating
 
     setStats(s => ({
       ...s,
@@ -546,7 +389,44 @@ function Dashboard() {
               data-client={userRole === '1' ? tenant?.name : undefined}
             >
               {tenant && (
-                <div className="chatbot-client">{tenant.name}</div>
+                <div className="chatbot-client">
+                  {userRole === '1' && editingTenant === bot.id ? (
+                    <select
+                      value={editingTenantId}
+                      onChange={(e) => setEditingTenantId(Number(e.target.value))}
+                      onBlur={() => saveChatbotTenant(bot.id, editingTenantId)}
+                      onKeyPress={(e) => e.key === 'Enter' && saveChatbotTenant(bot.id, editingTenantId)}
+                      autoFocus
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'inherit',
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        cursor: 'pointer',
+                        outline: 'none'
+                      }}
+                    >
+                      {tenants.map(t => (
+                        <option key={t.id} value={t.id}>{t.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span 
+                      onClick={() => {
+                        if (userRole === '1') {
+                          setEditingTenant(bot.id);
+                          setEditingTenantId(bot.tenant_id);
+                        }
+                      }}
+                      style={{ cursor: userRole === '1' ? 'pointer' : 'default' }}
+                      title={userRole === '1' ? 'Clicca per modificare il cliente' : ''}
+                    >
+                      {tenant.name}
+                      {userRole === '1' && <span style={{ marginLeft: '4px', fontSize: '0.8em' }}>✏️</span>}
+                    </span>
+                  )}
+                </div>
               )}
               <div className="chatbot-id">
                 <span

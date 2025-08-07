@@ -58,6 +58,57 @@ function List() {
   const [groups, setGroups] = useState<string[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
 
+  // Stato per mostrare i criteri
+  const [showCriteres, setShowCriteres] = useState(false);
+
+  // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx)
+  const parseCriteres = (analysis: string) => {
+    if (!analysis) return [];
+    
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*20/gi;
+    const criteres = [];
+    let match;
+    
+    while ((match = criterePattern.exec(analysis)) !== null) {
+      const critereNumber = match[1];
+      const description = match[2]?.trim();
+      const note = match[3] ? parseInt(match[3]) : null;
+      
+      if (note !== null) {
+        criteres.push({
+          name: `Critère n°${critereNumber}`,
+          description: description,
+          note: note,
+          fullMatch: match[0]
+        });
+      }
+    }
+    
+    return criteres;
+  };
+
+  // Stato per il numero massimo di criteri
+  const [maxCriteres, setMaxCriteres] = useState(0);
+
+  // Calcola il numero massimo di criteri quando cambiano i dati filtrati
+  useEffect(() => {
+    let max = 0;
+    filteredData.forEach(item => {
+      if (item.chat_analysis) {
+        const criteres = parseCriteres(item.chat_analysis);
+        max = Math.max(max, criteres.length);
+      }
+    });
+    setMaxCriteres(max);
+  }, [filteredData]);
+
+  // Funzione per determinare la classe CSS del criterio in base al punteggio
+  const getCritereClass = (note: number) => {
+    if (note <= 10) return 'critere-red';
+    if (note <= 15) return 'critere-yellow';
+    return 'critere-green';
+  };
+
   // Funzione per gestire il cambio di gruppo
   const handleGroupChange = (group: string) => {
     setSelectedGroup(group);
@@ -335,6 +386,19 @@ function List() {
           </label>
           <span className="toggle-label">Tous les lancements</span>
         </div>
+        {maxCriteres > 0 && (
+          <div className="toggle-container">
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={showCriteres}
+                onChange={(e) => setShowCriteres(e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+            <span className="toggle-label">Afficher les critères</span>
+          </div>
+        )}
       </div>
       
       {/* Etichetta Lancement */}
@@ -352,6 +416,9 @@ function List() {
               {settings.showGroups && <th>Groupe</th>}
               <th className="sortable-header" onClick={() => handleSort('score')}>Score {getArrow('score')}</th>
               <th>Temps</th>
+              {showCriteres && maxCriteres > 0 && Array.from({ length: maxCriteres }, (_, i) => (
+                <th key={`critere-${i + 1}`}>Critère n°{i + 1}</th>
+              ))}
               <th>Historique chat</th>
               <th>Analyse chat</th>
             </tr>
@@ -387,6 +454,23 @@ function List() {
                   )}
                 </td>
                 <td>{item.temp || '-'}</td>
+                {showCriteres && maxCriteres > 0 && (() => {
+                  const criteres = parseCriteres(item.chat_analysis);
+                  return Array.from({ length: maxCriteres }, (_, i) => {
+                    const critere = criteres.find(c => c.name === `Critère n°${i + 1}`);
+                    return (
+                      <td key={`critere-${i + 1}`} className="critere-cell">
+                        {critere ? (
+                          <span className={`critere-note ${getCritereClass(critere.note)}`} title={critere.description}>
+                            {critere.note}/20
+                          </span>
+                        ) : (
+                          <span className="critere-empty">-</span>
+                        )}
+                      </td>
+                    );
+                  });
+                })()}
                 <td>
                   <div className="card-buttons">
                     <button
@@ -495,29 +579,29 @@ function List() {
                 </button>
               </div>
             </div>
-                          <div>
-                <strong>Analyse chat:</strong>
-                <div className="card-buttons">
-                  <button className={`btn-small btn-download ${!item.chat_analysis ? 'btn-disabled' : ''}`} title="Télécharger"
-                    onClick={() => downloadPDF('Rapport', item.chat_analysis, `rapport_${item.name}.pdf`)}
-                    disabled={!item.chat_analysis}>
-                    {/* Icona download */}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  </button>
-                  <button
-                        className={`btn-small btn-view ${!item.chat_analysis ? 'btn-disabled' : ''}`}
-                        title="Visualiser"
-                        onClick={() => {
-                          addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
-                          navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, chat_history: item.chat_history, from: 'simulations-list', storyline_key: chatbotName } });
-                        }}
-                        disabled={!item.chat_analysis}
-                      >
-                        {/* Icona occhio */}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-                      </button>
-                </div>
+            <div>
+              <strong>Analyse chat:</strong>
+              <div className="card-buttons">
+                <button className={`btn-small btn-download ${!item.chat_analysis ? 'btn-disabled' : ''}`} title="Télécharger"
+                  onClick={() => downloadPDF('Rapport', item.chat_analysis, `rapport_${item.name}.pdf`)}
+                  disabled={!item.chat_analysis}>
+                  {/* Icona download */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </button>
+                <button
+                  className={`btn-small btn-view ${!item.chat_analysis ? 'btn-disabled' : ''}`}
+                  title="Visualiser"
+                  onClick={() => {
+                    addBreadcrumb({ label: 'Analyse de Performance', path: '/analysis' });
+                    navigate('/analysis', { state: { name: item.name, date: item.created_at, score: item.score, chat_analysis: item.chat_analysis, chat_history: item.chat_history, from: 'simulations-list', storyline_key: chatbotName } });
+                  }}
+                  disabled={!item.chat_analysis}
+                >
+                  {/* Icona occhio */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
               </div>
+            </div>
           </div>
         ))}
         {/* Paginazione mobile */}
@@ -548,4 +632,4 @@ function List() {
   );
 }
 
-export default List; 
+export default List;

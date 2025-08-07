@@ -576,3 +576,48 @@
     margin-left: 1.5rem;
     padding: 0;
 }
+
+
+/* Stili per i criteri nella sezione Résumé */
+
+.progress-label-critere {
+    font-size: 1rem;
+    color: #5B6DF6;
+    font-style: italic;
+    font-weight: bold;
+}
+
+.critere-description {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 2px;
+    font-style: italic;
+}
+
+.progress-indicator .critere-red {
+    color: #dc2626;
+}
+
+.progress-indicator .critere-yellow {
+    color: #d97706;
+}
+
+.progress-indicator .critere-green {
+    color: #16a34a;
+}
+
+
+/* Separazione dei criteri dalle altre metriche */
+
+.progress-indicator:has(.critere-description) {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+
+/* Margine sinistro per il terzo figlio di chart-info */
+
+.chart-info>*:nth-child(4) {
+    margin-left: 100px;
+}

@@ -150,6 +150,132 @@
     .completion-rate {
         color: #7F53F5;
     }
+    /* Stili per le etichette dei criteri */
+    
+    .criteres-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 24px;
+        padding: 16px;
+        background: rgba(127, 83, 245, 0.02);
+        border-radius: 12px;
+        border: 1px solid rgba(127, 83, 245, 0.1);
+    }
+    
+    .criteres-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #7F53F5;
+        margin-bottom: 12px;
+        text-align: center;
+    }
+    
+    .criteres-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+    
+    .critere-tag {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: default;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        min-width: 120px;
+        text-align: center;
+    }
+    
+    .critere-tag.critere-red {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+    }
+    
+    .critere-tag.critere-yellow {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #d97706;
+        border: 1px solid #fbbf24;
+    }
+    
+    .critere-tag.critere-green {
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        color: #16a34a;
+        border: 1px solid #86efac;
+    }
+    
+    .critere-tag:hover {
+        transform: scale(1.02);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    /* Stili per le colonne dei criteri nella tabella */
+    
+    .critere-cell {
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    .critere-note {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+        cursor: help;
+        transition: all 0.2s ease;
+    }
+    
+    .critere-note.critere-red {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+    }
+    
+    .critere-note.critere-yellow {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #d97706;
+        border: 1px solid #fbbf24;
+    }
+    
+    .critere-note.critere-green {
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        color: #16a34a;
+        border: 1px solid #86efac;
+    }
+    
+    .critere-note:hover {
+        background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(3, 105, 161, 0.2);
+    }
+    
+    .critere-note.critere-red:hover {
+        background: linear-gradient(135deg, #fecaca, #fca5a5);
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+    }
+    
+    .critere-note.critere-yellow:hover {
+        background: linear-gradient(135deg, #fde68a, #fbbf24);
+        box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2);
+    }
+    
+    .critere-note.critere-green:hover {
+        background: linear-gradient(135deg, #bbf7d0, #86efac);
+        box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+    }
+    
+    .critere-empty {
+        color: #ccc;
+        font-style: italic;
+        font-size: 0.8rem;
+    }
     
     .simulations-history {
         margin-top: 24px;
@@ -301,6 +427,19 @@
             padding: 2px 4px;
             font-size: 0.8rem;
         }
+        .criteres-container {
+            padding: 14px;
+            margin-bottom: 20px;
+        }
+        .criteres-label {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        .critere-tag {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            min-width: 110px;
+        }
     }
     /* Smartphone */
     
@@ -353,6 +492,22 @@
             height: 52px;
             font-size: 1.7rem;
         }
+        .criteres-container {
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        .criteres-label {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+        .critere-tag {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            min-width: 100px;
+        }
+        .criteres-tags {
+            gap: 6px;
+        }
     }
     /* Smartphone piccolo */
     
@@ -401,6 +556,22 @@
         }
         .stat-value {
             font-size: 1.2rem;
+        }
+        .criteres-container {
+            padding: 10px;
+            margin-bottom: 14px;
+        }
+        .criteres-label {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        .critere-tag {
+            padding: 3px 6px;
+            font-size: 0.75rem;
+            min-width: 90px;
+        }
+        .criteres-tags {
+            gap: 4px;
         }
         .score-badge {
             padding: 2px 6px;

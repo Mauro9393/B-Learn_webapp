@@ -103,6 +103,12 @@ const StudentDetail: React.FC = () => {
   const [showAllLaunches, setShowAllLaunches] = useState(false);
   const from = location.state?.from;
   
+  // Stato per mostrare i criteri
+  const [showCriteres, setShowCriteres] = useState(false);
+
+  // Stato per il numero massimo di criteri
+  const [maxCriteres, setMaxCriteres] = useState(0);
+
   // Recupera le informazioni del tenant dallo stato di navigazione
   const tenant_name = location.state?.tenant_name || 'Client inconnu';
   const storyline_key_from_state = location.state?.storyline_key || storyline_key;
@@ -111,6 +117,18 @@ const StudentDetail: React.FC = () => {
   const filteredSimulations = showAllLaunches 
     ? simulations 
     : simulations.filter(sim => typeof sim.score === 'number' && sim.score >= 0);
+
+  // Calcola il numero massimo di criteri quando cambiano le simulazioni filtrate
+  useEffect(() => {
+    let max = 0;
+    filteredSimulations.forEach(sim => {
+      if (sim.chat_analysis) {
+        const criteres = parseCriteres(sim.chat_analysis);
+        max = Math.max(max, criteres.length);
+      }
+    });
+    setMaxCriteres(max);
+  }, [filteredSimulations]);
   
   // Ordina le simulazioni filtrate secondo lo stato
   const sortedSimulations = sortSimulations(filteredSimulations, sortField, sortDirection);
@@ -125,6 +143,77 @@ const StudentDetail: React.FC = () => {
   useEffect(() => { setCurrentPage(1); }, [sortedSimulations]);
   const { addBreadcrumb } = useBreadcrumbContext();
   const { settings } = useSettings();
+
+  // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx e List.tsx)
+  const parseCriteres = (analysis: string) => {
+    if (!analysis) return [];
+    
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*20/gi;
+    const criteres = [];
+    let match;
+    
+    while ((match = criterePattern.exec(analysis)) !== null) {
+      const critereNumber = match[1];
+      const description = match[2]?.trim();
+      const note = match[3] ? parseInt(match[3]) : null;
+      
+      if (note !== null) {
+        criteres.push({
+          name: `Critère n°${critereNumber}`,
+          description: description,
+          note: note,
+          fullMatch: match[0]
+        });
+      }
+    }
+    
+    return criteres;
+  };
+
+  // Funzione per calcolare le medie dei criteri per questo studente
+  const calculateCriteresAverages = () => {
+    const criteresMap = new Map<string, number[]>();
+    
+    // Raccogli tutti i criteri da tutte le simulazioni
+    simulations.forEach(sim => {
+      if (sim.chat_analysis) {
+        const criteres = parseCriteres(sim.chat_analysis);
+        criteres.forEach(critere => {
+          if (!criteresMap.has(critere.name)) {
+            criteresMap.set(critere.name, []);
+          }
+          criteresMap.get(critere.name)!.push(critere.note);
+        });
+      }
+    });
+    
+    // Calcola la media per ogni criterio
+    const averages: { name: string; average: number; count: number }[] = [];
+    criteresMap.forEach((notes, name) => {
+      const average = Math.round((notes.reduce((sum, note) => sum + note, 0) / notes.length) * 10) / 10;
+      averages.push({
+        name,
+        average,
+        count: notes.length
+      });
+    });
+    
+    // Ordina per numero di criterio
+    return averages.sort((a, b) => {
+      const numA = parseInt(a.name.match(/\d+/)?.[0] || '0');
+      const numB = parseInt(b.name.match(/\d+/)?.[0] || '0');
+      return numA - numB;
+    });
+  };
+
+  // Funzione per determinare la classe CSS del criterio in base al punteggio
+  const getCritereClass = (average: number) => {
+    if (average <= 10) return 'critere-red';
+    if (average <= 15) return 'critere-yellow';
+    return 'critere-green';
+  };
+
+  const criteresAverages = calculateCriteresAverages();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -264,6 +353,24 @@ const StudentDetail: React.FC = () => {
         </div>
       </div>
       
+      {/* Etichette dei criteri (medie) */}
+      {criteresAverages.length > 0 && (
+        <div className="criteres-container">
+          <div className="criteres-label">Moyennes des critères :</div>
+          <div className="criteres-tags">
+            {criteresAverages.map((critere, index) => (
+              <div 
+                key={critere.name}
+                className={`critere-tag ${getCritereClass(critere.average)}`}
+                title={`${critere.count} simulation${critere.count > 1 ? 's' : ''} évaluée${critere.count > 1 ? 's' : ''}`}
+              >
+                {critere.name}: {critere.average}/20
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
       {/* Toggle "Simulations terminées" */}
       <div className="toggle-container" style={{display: 'flex', justifyContent: 'center', marginBottom: '20px'}}>
         <label className="toggle-switch">
@@ -275,6 +382,19 @@ const StudentDetail: React.FC = () => {
           <span className="toggle-slider"></span>
         </label>
         <span className="toggle-label">Tous les lancements</span>
+        {maxCriteres > 0 && (
+          <>
+            <label className="toggle-switch" style={{marginLeft: '20px'}}>
+              <input
+                type="checkbox"
+                checked={showCriteres}
+                onChange={(e) => setShowCriteres(e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+            <span className="toggle-label">Afficher les critères</span>
+          </>
+        )}
       </div>
       
       {/* Etichetta Lancement */}
@@ -303,6 +423,9 @@ const StudentDetail: React.FC = () => {
               </th>
               <th>N. echanges</th>
               <th>Temps</th>
+              {showCriteres && maxCriteres > 0 && Array.from({ length: maxCriteres }, (_, i) => (
+                <th key={`critere-${i + 1}`}>Critère n°{i + 1}</th>
+              ))}
               <th>Historique conversation</th>
               <th>Analyse conversation</th>
               <th style={{cursor: 'pointer'}} onClick={() => handleSort('score')}>
@@ -316,6 +439,23 @@ const StudentDetail: React.FC = () => {
                 <td>{formatDate(sim.created_at)}</td>
                 <td>{calculateExchanges(sim.chat_history, sim.name)}</td>
                 <td>{sim.temp || '-'}</td>
+                {showCriteres && maxCriteres > 0 && (() => {
+                  const criteres = parseCriteres(sim.chat_analysis);
+                  return Array.from({ length: maxCriteres }, (_, i) => {
+                    const critere = criteres.find(c => c.name === `Critère n°${i + 1}`);
+                    return (
+                      <td key={`critere-${i + 1}`} className="critere-cell">
+                        {critere ? (
+                          <span className={`critere-note ${getCritereClass(critere.note)}`} title={critere.description}>
+                            {critere.note}/20
+                          </span>
+                        ) : (
+                          <span className="critere-empty">-</span>
+                        )}
+                      </td>
+                    );
+                  });
+                })()}
                 <td>
                   {/* Pulsante download PDF storico chat */}
                   <button

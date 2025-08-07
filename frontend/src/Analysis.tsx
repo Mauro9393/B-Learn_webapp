@@ -96,6 +96,48 @@ const Analysis: React.FC = () => {
 
   const { questions, summary } = parseAnalysis(chat_analysis);
 
+  // Funzione per parsare i criteri dal testo dell'analisi
+  const parseCriteres = (analysis: string) => {
+    if (!analysis) return [];
+    
+    // Nuovo pattern che gestisce il formato effettivo
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*20/gi;
+    const criteres = [];
+    let match;
+    
+    while ((match = criterePattern.exec(analysis)) !== null) {
+      const critereNumber = match[1];
+      const description = match[2]?.trim();
+      const note = match[3] ? parseInt(match[3]) : null;
+      
+      if (note !== null) {
+        criteres.push({
+          name: `Critère n°${critereNumber}`,
+          description: description,
+          note: note,
+          fullMatch: match[0]
+        });
+      }
+    }
+    
+    return criteres;
+  };
+
+  // Funzione per determinare la classe CSS del criterio in base al punteggio
+  const getCritereClass = (note: number) => {
+    if (note <= 10) return 'critere-red';
+    if (note <= 15) return 'critere-yellow';
+    return 'critere-green';
+  };
+
+  const criteres = parseCriteres(chat_analysis);
+
+  // Funzione per troncare il testo se troppo lungo
+  const truncateText = (text: string, maxLength: number = 10) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
   // Funzione per schermo intero (identica a ChatHistory, ref su pdf-content)
   const handleFullscreen = () => {
     if (pdfContentRef.current) {
@@ -394,9 +436,23 @@ const Analysis: React.FC = () => {
               <span className="progress-label">Messages</span>
               <span className="progress-value score-style">{(chat_analysis && chat_analysis.match(/Question/g)?.length) || 1} échanges</span>
             </div>
+            {/* Card dei criteri se presenti */}
+            {criteres.map((critere, index) => (
+              <div key={index} className="progress-indicator">
+                <span className="progress-label-critere">{critere.name}</span>
+                {critere.description && (
+                  <div className="critere-description">{truncateText(critere.description)}</div>
+                )}
+                <span className={`progress-value score-style ${getCritereClass(critere.note)}`}>{critere.note}/20</span>
+                
+              </div>
+            ))}
           </div>
           <div className="comparison-text">
             Simulation complète avec un score de {score ? `${score}/100` : '-'} et {(chat_analysis && chat_analysis.match(/Question/g)?.length) || 1} échanges.
+            {criteres.length > 0 && (
+              <span> Évaluée selon {criteres.length} critère{criteres.length > 1 ? 's' : ''}.</span>
+            )}
           </div>
         </div>
       </div>

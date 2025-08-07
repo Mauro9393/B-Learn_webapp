@@ -313,6 +313,40 @@ router.put('/chatbots/:id', async(req, res) => {
     }
 });
 
+// Modifica tenant card chatbot (solo per super admin)
+router.put('/chatbots/:id/tenant', async(req, res) => {
+    try {
+        const { id } = req.params;
+        const { tenant_id } = req.body;
+
+        // Validazione
+        if (!tenant_id || isNaN(tenant_id)) {
+            return res.status(400).json({ success: false, message: 'Tenant ID non valido' });
+        }
+
+        // Verifica che il chatbot esista
+        const checkResult = await pool.query('SELECT id FROM chatbots WHERE id = $1', [id]);
+        if (checkResult.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Chatbot non trovato' });
+        }
+
+        // Verifica che il tenant esista
+        const tenantCheck = await pool.query('SELECT id FROM tenants WHERE id = $1', [tenant_id]);
+        if (tenantCheck.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Tenant non trovato' });
+        }
+
+        await pool.query(
+            'UPDATE chatbots SET tenant_id = $1 WHERE id = $2', [tenant_id, id]
+        );
+
+        res.json({ success: true, message: 'Tenant del chatbot aggiornato con successo!' });
+    } catch (error) {
+        console.error('Errore aggiornamento tenant chatbot:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 router.get('/tenants', async(req, res) => {
     try {
         const result = await pool.query('SELECT id, name FROM tenants');
