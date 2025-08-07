@@ -834,6 +834,8 @@ router.get('/verify-reset-token', async(req, res) => {
     try {
         const { token } = req.query;
         console.log('Verifying reset token:', token ? token.substring(0, 8) + '...' : 'null');
+        console.log('Headers:', req.headers);
+        console.log('Accept header:', req.headers.accept);
 
         if (!token) {
             return res.status(400).json({ success: false, message: 'Token manquant.' });
@@ -852,6 +854,7 @@ router.get('/verify-reset-token', async(req, res) => {
 
         // Se la richiesta viene dal frontend (AJAX), restituisci JSON
         if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            console.log('Returning JSON response for AJAX request');
             return res.json({ success: true, message: 'Token valide.' });
         }
 
