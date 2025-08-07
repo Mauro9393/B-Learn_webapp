@@ -698,34 +698,90 @@ router.post('/change-password', async(req, res) => {
 router.post('/forgot-password', async(req, res) => {
     try {
         const { email } = req.body;
+        console.log('Forgot password request for email:', email);
+
         if (!email) {
             return res.status(400).json({ success: false, message: 'Email manquante.' });
         }
 
+        // Verifica configurazione PROD_URL
+        if (!process.env.PROD_URL) {
+            console.error('❌ PROD_URL non configurato!');
+            return res.status(500).json({ success: false, message: 'Erreur de configuration du serveur.' });
+        }
+
+        console.log('✅ PROD_URL configurato:', process.env.PROD_URL);
+
         // Verifica se l'utente esiste
-        const userRes = await pool.query('SELECT id, user_mail, full_name FROM users WHERE user_mail = $1', [email]);
+        const userRes = await pool.query('SELECT id, user_mail, full_name, reset_password_token, reset_password_expires FROM users WHERE user_mail = $1', [email]);
+        console.log('User found:', userRes.rows.length > 0);
+
         if (userRes.rows.length === 0) {
             return res.json({ success: true, message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.' });
         }
 
         const user = userRes.rows[0];
+
+        // Verifica se esiste già un token valido
+        if (user.reset_password_token && user.reset_password_expires && new Date(user.reset_password_expires) > new Date()) {
+            console.log('User already has a valid reset token, sending existing link');
+
+            // Invia la mail con il token esistente
+            const templateSource = fs.readFileSync(__dirname + '/../../templates/reset-password.html', 'utf8');
+            const template = handlebars.compile(templateSource);
+
+            const resetLink = `${process.env.PROD_URL}/api/verify-reset-token?token=${user.reset_password_token}`;
+            console.log('Using existing token, reset link:', resetLink);
+
+            const html = template({
+                full_name: user.full_name,
+                resetLink: resetLink
+            });
+
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: 'Réinitialisation de votre mot de passe B-Learn',
+                html
+            });
+
+            return res.json({ success: true, message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.' });
+        }
+
+        // Genera un nuovo token
         const resetToken = uuidv4();
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 ore
+
+        console.log('Generated new reset token for user:', user.id);
+
+        const resetLink = `${process.env.PROD_URL}/api/verify-reset-token?token=${resetToken}`;
+        console.log('Reset URL will be:', resetLink);
 
         // Salva il token nel database
         await pool.query(
             'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3', [resetToken, expiresAt, user.id]
         );
+        console.log('Token saved to database');
+
+        // Verifica che il template esista
+        const templatePath = __dirname + '/../../templates/reset-password.html';
+        if (!fs.existsSync(templatePath)) {
+            console.error('Template file not found:', templatePath);
+            return res.status(500).json({ success: false, message: 'Erreur de configuration du serveur.' });
+        }
 
         // Carica il template HTML
-        const templateSource = fs.readFileSync(__dirname + '/../../templates/reset-password.html', 'utf8');
+        const templateSource = fs.readFileSync(templatePath, 'utf8');
         const template = handlebars.compile(templateSource);
 
         // Compila il template con i dati dinamici
         const html = template({
-            full_name: user.full_name, // oppure name: user.full_name, se nel template hai {{name}}
-            resetLink: `${process.env.PROD_URL}/reset-password?token=${resetToken}`
+            full_name: user.full_name,
+            resetLink: resetLink
         });
+
+        console.log('Sending email to:', email);
+        console.log('From email:', process.env.EMAIL_USER);
 
         // Invia la mail
         await transporter.sendMail({
@@ -735,6 +791,7 @@ router.post('/forgot-password', async(req, res) => {
             html
         });
 
+        console.log('Email sent successfully');
         res.json({ success: true, message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.' });
     } catch (error) {
         console.error('Errore forgot-password:', error);
@@ -776,6 +833,8 @@ router.post('/reset-password', async(req, res) => {
 router.get('/verify-reset-token', async(req, res) => {
     try {
         const { token } = req.query;
+        console.log('Verifying reset token:', token ? token.substring(0, 8) + '...' : 'null');
+
         if (!token) {
             return res.status(400).json({ success: false, message: 'Token manquant.' });
         }
@@ -785,11 +844,15 @@ router.get('/verify-reset-token', async(req, res) => {
         );
 
         if (userRes.rows.length === 0) {
+            console.log('Token invalid or expired');
             return res.json({ success: false, message: 'Token invalide ou expiré.' });
         }
 
-        res.json({ success: true, message: 'Token valide.' });
+        console.log('Token valid, redirecting to frontend');
+        // Reindirizza al frontend con il token
+        res.redirect(`${process.env.FRONTEND_URL || process.env.PROD_URL}/reset-password?token=${token}`);
     } catch (error) {
+        console.error('Error verifying reset token:', error);
         res.status(500).json({ success: false, message: 'Erreur lors de la vérification du token.' });
     }
 });
@@ -838,5 +901,4 @@ router.post('/verify-auth', async(req, res) => {
         res.status(500).json({ success: false, message: 'Erreur lors de la vérification de l\'authentification.' });
     }
 });
-
 module.exports = router;
