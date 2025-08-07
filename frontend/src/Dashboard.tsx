@@ -86,14 +86,26 @@ function Dashboard() {
         });
         
         if (response.ok) {
-            // Aggiorna lo stato locale
-            setChatbots(prev => prev.map(bot => 
-                bot.id === chatbotId ? { ...bot, tenant_id: newTenantId } : bot
-            ));
+            // Ricarica i dati dal server per assicurarsi che tutto sia sincronizzato
+            const userId = localStorage.getItem('userId');
+            const userRole = localStorage.getItem('userRole');
+            const tenantId = localStorage.getItem('tenantId');
+            let url = `/api/chatbots`;
+            if (userId && userRole && tenantId) {
+                url += `?user_id=${encodeURIComponent(userId)}&user_role=${encodeURIComponent(userRole)}&tenant_id=${encodeURIComponent(tenantId)}`;
+            }
+            const refreshResponse = await fetch(url);
+            const refreshData = await refreshResponse.json();
+            setChatbots(refreshData);
+            
             setEditingTenant(null);
+            
+            // Feedback per l'utente
+            alert('Chatbot assegnato al nuovo cliente con successo!');
         }
     } catch (error) {
         console.error('Errore aggiornamento tenant:', error);
+        alert('Errore durante l\'assegnazione del chatbot al nuovo cliente.');
     }
   };
 
@@ -111,7 +123,7 @@ function Dashboard() {
       setChatbots(data);
     };
     fetchChatbots();
-  }, []);
+  }, [selectedClient]); // Ricarica quando cambia il cliente selezionato
 
   useEffect(() => {
     if (userRole === '1') {
