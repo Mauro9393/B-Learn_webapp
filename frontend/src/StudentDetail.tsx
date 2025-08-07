@@ -358,7 +358,7 @@ const StudentDetail: React.FC = () => {
         <div className="criteres-container">
           <div className="criteres-label">Moyennes des critères :</div>
           <div className="criteres-tags">
-            {criteresAverages.map((critere, index) => (
+            {criteresAverages.map((critere) => (
               <div 
                 key={critere.name}
                 className={`critere-tag ${getCritereClass(critere.average)}`}
