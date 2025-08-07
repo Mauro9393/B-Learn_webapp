@@ -340,6 +340,20 @@ router.put('/chatbots/:id/tenant', async(req, res) => {
             'UPDATE chatbots SET tenant_id = $1 WHERE id = $2', [tenant_id, id]
         );
 
+        // Aggiungi automaticamente tutti gli utenti del nuovo tenant alla tabella user_chatbots
+        const usersInTenant = await pool.query(
+            'SELECT id FROM users WHERE tenant_id = $1', [tenant_id]
+        );
+
+        console.log(`Aggiungendo ${usersInTenant.rows.length} utenti del tenant ${tenant_id} al chatbot ${id}`);
+
+        for (const user of usersInTenant.rows) {
+            await pool.query(
+                'INSERT INTO user_chatbots (user_id, chatbot_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [user.id, id]
+            );
+            console.log(`Utente ${user.id} aggiunto al chatbot ${id}`);
+        }
+
         res.json({ success: true, message: 'Tenant del chatbot aggiornato con successo!' });
     } catch (error) {
         console.error('Errore aggiornamento tenant chatbot:', error);
