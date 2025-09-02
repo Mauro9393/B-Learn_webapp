@@ -166,7 +166,7 @@ const ChatbotDetail: React.FC = () => {
         
         // Filtra in base al tipo selezionato
         const filteredUserSims: any[] = [];
-        userSimulations.forEach((userSims, userEmail) => {
+        userSimulations.forEach((userSims) => {
           if (simulationType === 'first') {
             // Prendi solo la prima simulazione (più vecchia per data)
             const sortedSims = userSims.sort((a, b) => 
@@ -674,7 +674,7 @@ const ChatbotDetail: React.FC = () => {
                   onChange={(e) => setSelectedGroupForChart(e.target.value)}
                 >
                   <option value="all">Tous les groupes</option>
-                  {groups.length > 0 ? groups.map((group, index) => (
+                  {groups.length > 0 ? groups.map((group) => (
                     <option key={group} value={group}>{group}</option>
                   )) : (
                     <option value="" disabled>Chargement des groupes...</option>
