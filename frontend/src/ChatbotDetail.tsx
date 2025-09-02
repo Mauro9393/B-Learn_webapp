@@ -250,7 +250,7 @@ const ChatbotDetail: React.FC = () => {
           // Calcolo normale della media
           average = Math.round((notes.reduce((sum, note) => sum + note, 0) / notes.length) * 10) / 10;
         } else {
-          // Calcolo del numero di simulazioni che superano la soglia selezionata
+          // Calcolo della media degli score che superano la soglia selezionata
           let threshold: number;
           switch (scoreType) {
             case 'percentage30':
@@ -265,8 +265,13 @@ const ChatbotDetail: React.FC = () => {
             default:
               threshold = 80;
           }
-          const aboveThreshold = notes.filter(note => note >= threshold).length;
-          average = aboveThreshold; // Ora mostra il numero, non la percentuale
+          const aboveThreshold = notes.filter(note => note >= threshold);
+          if (aboveThreshold.length > 0) {
+            // Calcola la media degli score sopra la soglia
+            average = Math.round((aboveThreshold.reduce((sum, note) => sum + note, 0) / aboveThreshold.length) * 10) / 10;
+          } else {
+            average = 0; // Nessuno score sopra la soglia
+          }
         }
         
         // Trova la descrizione del criterio dalla prima simulazione che lo contiene
@@ -296,7 +301,7 @@ const ChatbotDetail: React.FC = () => {
         if (scoreType === 'average') {
           globalAverage = Math.round((globalScores.reduce((sum, score) => sum + score, 0) / globalScores.length) * 10) / 10;
         } else {
-          // Calcolo del numero di simulazioni che superano la soglia selezionata
+          // Calcolo della media degli score che superano la soglia selezionata
           let threshold: number;
           switch (scoreType) {
             case 'percentage30':
@@ -311,8 +316,13 @@ const ChatbotDetail: React.FC = () => {
             default:
               threshold = 80;
           }
-          const aboveThreshold = globalScores.filter(score => score >= threshold).length;
-          globalAverage = aboveThreshold; // Ora mostra il numero, non la percentuale
+          const aboveThreshold = globalScores.filter(score => score >= threshold);
+          if (aboveThreshold.length > 0) {
+            // Calcola la media degli score sopra la soglia
+            globalAverage = Math.round((aboveThreshold.reduce((sum, score) => sum + score, 0) / aboveThreshold.length) * 10) / 10;
+          } else {
+            globalAverage = 0; // Nessuno score sopra la soglia
+          }
         }
       }
       
@@ -329,7 +339,7 @@ const ChatbotDetail: React.FC = () => {
           name: 'Score Global',
           average: globalAverage,
           count: globalScores.length,
-          description: scoreType === 'average' ? 'Moyenne de tous les critères' : `Nombre de simulations au-dessus de ${scoreType === 'percentage30' ? '30%' : scoreType === 'percentage50' ? '50%' : '80%'}`
+          description: scoreType === 'average' ? 'Moyenne de tous les critères' : `Moyenne des scores au-dessus de ${scoreType === 'percentage30' ? '30%' : scoreType === 'percentage50' ? '50%' : '80%'}`
         },
         ...sortedAverages
       ];
@@ -704,7 +714,7 @@ const ChatbotDetail: React.FC = () => {
           <div className="criteres-chart-container">
             <div className="criteres-chart-header">
               <h3 className="criteres-chart-title">
-                📊 {scoreType === 'average' ? 'Evaluation' : `Nombre de simulations au-dessus de ${scoreType === 'percentage30' ? '30%' : scoreType === 'percentage50' ? '50%' : '80%'} par Critères`}
+                📊 {scoreType === 'average' ? 'Evaluation' : `Moyenne des scores au-dessus de ${scoreType === 'percentage30' ? '30%' : scoreType === 'percentage50' ? '50%' : '80%'} par Critères`}
               </h3>
             </div>
             {/* Filtri sopra il grafico */}
@@ -717,9 +727,9 @@ const ChatbotDetail: React.FC = () => {
                   onChange={(e) => setScoreType(e.target.value as 'average' | 'percentage30' | 'percentage50' | 'percentage80')}
                 >
                   <option value="average">Score moyen</option>
-                  <option value="percentage30">Simulations au-dessus de 30%</option>
-                  <option value="percentage50">Simulations au-dessus de 50%</option>
-                  <option value="percentage80">Simulations au-dessus de 80%</option>
+                  <option value="percentage30">Percentage au-dessus de 30%</option>
+                  <option value="percentage50">Percentage au-dessus de 50%</option>
+                  <option value="percentage80">Percentage au-dessus de 80%</option>
                 </select>
               </div>
               
