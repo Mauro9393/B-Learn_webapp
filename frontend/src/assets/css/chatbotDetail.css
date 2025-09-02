@@ -11,7 +11,8 @@
     border-radius: 22px;
     box-shadow: 0 8px 32px rgba(127, 83, 245, 0.18);
     padding: 38px 38px 32px 38px;
-    max-width: 720px;
+    max-width: 1200px;
+    /* Aumentato da 720px a 1200px per il grafico con molte colonne */
     width: 100%;
     margin: 60px auto auto auto;
     display: flex;
@@ -435,7 +436,8 @@
 @media (max-width: 1024px) {
     .chatbot-detail-main {
         padding: 32px 32px 28px 32px;
-        max-width: 650px;
+        max-width: 1000px;
+        /* Aumentato per il grafico più largo */
     }
     .chatbot-name {
         font-size: 2rem;
@@ -463,6 +465,11 @@
         padding: 12px 24px;
         font-size: 1.05rem;
     }
+    .criteres-chart {
+        height: 350px;
+        /* Altezza ridotta per tablet */
+        margin-bottom: 50px;
+    }
 }
 
 
@@ -473,6 +480,8 @@
         padding: 24px 24px 20px 24px;
         border-radius: 18px;
         margin: 16px;
+        max-width: calc(100% - 32px);
+        /* Adatta alla larghezza dello schermo */
     }
     .breadcrumb {
         font-size: 0.95rem;
@@ -539,6 +548,15 @@
         width: 100%;
         padding: 12px 20px;
         font-size: 1rem;
+    }
+    .criteres-chart {
+        height: 300px;
+        /* Altezza ridotta per smartphone */
+        margin-bottom: 40px;
+    }
+    .chart-label {
+        font-size: 0.6rem;
+        bottom: -40px;
     }
 }
 
@@ -614,6 +632,15 @@
     .action-btn {
         padding: 10px 16px;
         font-size: 0.95rem;
+    }
+    .criteres-chart {
+        height: 250px;
+        /* Altezza ridotta per smartphone piccolo */
+        margin-bottom: 30px;
+    }
+    .chart-label {
+        font-size: 0.55rem;
+        bottom: -35px;
     }
 }
 
@@ -765,6 +792,90 @@
     padding: 24px;
     margin-bottom: 40px;
     box-shadow: 0 2px 12px rgba(127, 83, 245, 0.07);
+    overflow: visible;
+    /* Permette alle etichette di essere visibili */
+}
+
+
+/* Stili per i filtri sopra il grafico */
+
+.chart-filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 16px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 150px;
+}
+
+.filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #5B6DF6;
+    margin-bottom: 6px;
+    white-space: nowrap;
+}
+
+.filter-select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.9rem;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: #f7f8fa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    color: #5B6DF6;
+    font-weight: 500;
+    min-width: 140px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #7F53F5;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
+}
+
+
+/* Media queries per i filtri su schermi piccoli */
+
+@media (max-width: 768px) {
+    .chart-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    .filter-group {
+        min-width: auto;
+        width: 100%;
+    }
+    .filter-select {
+        min-width: auto;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-filters {
+        padding: 12px;
+    }
+    .filter-label {
+        font-size: 0.8rem;
+    }
+    .filter-select {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
 }
 
 .criteres-chart-header {
@@ -806,9 +917,11 @@
 .criteres-chart {
     display: flex;
     align-items: flex-end;
-    height: 340px;
-    /* Aumentato per dare spazio alle etichette */
+    height: 380px;
+    /* Aumentato per dare più spazio alle etichette */
     position: relative;
+    margin-bottom: 60px;
+    /* Spazio aggiuntivo sotto per le etichette */
 }
 
 .chart-y-axis {
@@ -860,30 +973,37 @@
 }
 
 
-/* 20 */
+/* 100 */
 
 .grid-line:nth-child(2) {
-    bottom: 75%;
+    bottom: 80%;
 }
 
 
-/* 15 */
+/* 80 */
 
 .grid-line:nth-child(3) {
-    bottom: 50%;
+    bottom: 60%;
 }
 
 
-/* 10 */
+/* 60 */
 
 .grid-line:nth-child(4) {
-    bottom: 25%;
+    bottom: 40%;
 }
 
 
-/* 5 */
+/* 40 */
 
 .grid-line:nth-child(5) {
+    bottom: 20%;
+}
+
+
+/* 20 */
+
+.grid-line:nth-child(6) {
     bottom: 0%;
 }
 
@@ -898,8 +1018,8 @@
     position: relative;
     z-index: 2;
     padding: 0 20px;
-    margin-bottom: 40px;
-    /* Spazio per le etichette sotto */
+    margin-bottom: 0;
+    /* Rimuovo il margin-bottom per le etichette */
 }
 
 .chart-bar-container {
@@ -946,15 +1066,21 @@
 
 .chart-label {
     position: absolute;
-    bottom: -45px;
-    /* Posiziona sotto l'asse X */
-    font-size: 0.6rem;
+    bottom: -50px;
+    /* Posiziona sotto l'asse X con più spazio */
+    font-size: 0.7rem;
+    /* Dimensione font leggermente aumentata */
     color: #666;
     font-weight: 600;
     text-align: center;
     max-width: 100%;
     word-wrap: break-word;
     white-space: nowrap;
+    width: 100%;
+    /* Assicura che l'etichetta occupi tutta la larghezza del container */
+    left: 50%;
+    transform: translateX(-50%);
+    /* Centra perfettamente l'etichetta */
 }
 
 .chart-label-description {
@@ -995,6 +1121,25 @@
     border: 4px solid transparent;
     border-top-color: white;
     margin-top: 2px;
+}
+
+
+/* Stili per la colonna dello score globale */
+
+.global-score-bar {
+    border: 2px solid #FF6B6B;
+    box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+}
+
+.global-score-bar:hover {
+    box-shadow: 0 0 12px rgba(255, 107, 107, 0.5);
+    border-color: #FF5252;
+}
+
+.global-score-label {
+    color: #FF6B6B !important;
+    font-weight: 700 !important;
+    font-size: 0.7rem !important;
 }
 
 

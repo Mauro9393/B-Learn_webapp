@@ -68,8 +68,13 @@ const ChatbotDetail: React.FC = () => {
   const [tooltipVisible, setTooltipVisible] = useState<boolean>(false);
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Stato per il filtro mese
-  const [selectedMonth, setSelectedMonth] = useState<string>('all');
+  // Stato per il filtro periodo
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('all');
+
+  // Nuovi stati per i filtri del grafico
+  const [scoreType, setScoreType] = useState<'average' | 'percentage'>('average');
+  const [selectedGroupForChart, setSelectedGroupForChart] = useState<string>('all');
+  const [simulationType, setSimulationType] = useState<'all' | 'first' | 'last'>('all');
 
   // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx)
   const parseCriteres = (analysis: string) => {
@@ -110,22 +115,94 @@ const ChatbotDetail: React.FC = () => {
       const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`);
       const allSims = await res.json();
       
-      // Filtra per mese se selezionato
+      // Filtra per periodo se selezionato
       let filteredSims = allSims;
-      if (selectedMonth !== 'all') {
+      if (selectedPeriod !== 'all') {
+        const today = new Date();
+        let startDate: Date;
+        
+        switch (selectedPeriod) {
+          case '30':
+            startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          case '90':
+            startDate = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+            break;
+          case '180':
+            startDate = new Date(today.getTime() - 180 * 24 * 60 * 60 * 1000);
+            break;
+          case '365':
+            startDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            startDate = new Date(0); // Depuis le début
+        }
+        
         filteredSims = allSims.filter((sim: any) => {
           if (!sim.created_at) return false;
-          const month = sim.created_at.substring(5, 7); // Estrae MM da YYYY-MM-DD
-          return month === selectedMonth;
+          const simDate = new Date(sim.created_at);
+          return simDate >= startDate;
         });
       }
       
+      // Filtra per gruppo del grafico (separato dal filtro principale)
+      if (selectedGroupForChart !== 'all') {
+        filteredSims = filteredSims.filter((sim: any) => 
+          (sim.usergroup || 'Groupe par défaut') === selectedGroupForChart
+        );
+      }
+      
+      // Filtra per tipo di simulazione
+      if (simulationType !== 'all') {
+        const userSimulations = new Map<string, any[]>();
+        
+        // Raggruppa le simulazioni per utente
+        filteredSims.forEach((sim: any) => {
+          if (!userSimulations.has(sim.user_email)) {
+            userSimulations.set(sim.user_email, []);
+          }
+          userSimulations.get(sim.user_email)!.push(sim);
+        });
+        
+        // Filtra in base al tipo selezionato
+        const filteredUserSims: any[] = [];
+        userSimulations.forEach((userSims, userEmail) => {
+          if (simulationType === 'first') {
+            // Prendi solo la prima simulazione (più vecchia per data)
+            const sortedSims = userSims.sort((a, b) => 
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            );
+            if (sortedSims.length > 0) {
+              filteredUserSims.push(sortedSims[0]);
+            }
+          } else if (simulationType === 'last') {
+            // Prendi solo l'ultima simulazione (più recente per data)
+            const sortedSims = userSims.sort((a, b) => 
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+            if (sortedSims.length > 0) {
+              filteredUserSims.push(sortedSims[0]);
+            }
+          }
+        });
+        
+        filteredSims = filteredUserSims;
+      }
+      
       const criteresMap = new Map<string, number[]>();
+      const globalScores: number[] = [];
       
       // Raccogli tutti i criteri da tutte le simulazioni filtrate
       filteredSims.forEach((sim: any) => {
         if (sim.chat_analysis) {
           const criteres = parseCriteres(sim.chat_analysis);
+          if (criteres.length > 0) {
+            // Calcola lo score globale per questa simulazione (media di tutti i criteri)
+            const totalScore = criteres.reduce((sum, critere) => sum + critere.note, 0);
+            const avgScore = totalScore / criteres.length;
+            globalScores.push(avgScore);
+          }
+          
           criteres.forEach(critere => {
             if (!criteresMap.has(critere.name)) {
               criteresMap.set(critere.name, []);
@@ -138,7 +215,17 @@ const ChatbotDetail: React.FC = () => {
       // Calcola la media per ogni criterio
       const averages: { name: string; average: number; count: number; description?: string }[] = [];
       criteresMap.forEach((notes, name) => {
-        const average = Math.round((notes.reduce((sum, note) => sum + note, 0) / notes.length) * 10) / 10;
+        let average: number;
+        
+        if (scoreType === 'average') {
+          // Calcolo normale della media
+          average = Math.round((notes.reduce((sum, note) => sum + note, 0) / notes.length) * 10) / 10;
+        } else {
+          // Calcolo della percentuale che supera la soglia dell'80%
+          const threshold = 80; // Soglia dell'80%
+          const aboveThreshold = notes.filter(note => note >= threshold).length;
+          average = Math.round((aboveThreshold / notes.length) * 100);
+        }
         
         // Trova la descrizione del criterio dalla prima simulazione che lo contiene
         let description = '';
@@ -161,14 +248,38 @@ const ChatbotDetail: React.FC = () => {
         });
       });
       
-      // Ordina per numero di criterio
+      // Calcola la media dello score globale
+      let globalAverage = 0;
+      if (globalScores.length > 0) {
+        if (scoreType === 'average') {
+          globalAverage = Math.round((globalScores.reduce((sum, score) => sum + score, 0) / globalScores.length) * 10) / 10;
+        } else {
+          // Calcolo della percentuale che supera la soglia dell'80%
+          const threshold = 80;
+          const aboveThreshold = globalScores.filter(score => score >= threshold).length;
+          globalAverage = Math.round((aboveThreshold / globalScores.length) * 100);
+        }
+      }
+      
+      // Aggiungi lo score globale come primo elemento
       const sortedAverages = averages.sort((a, b) => {
         const numA = parseInt(a.name.match(/\d+/)?.[0] || '0');
         const numB = parseInt(b.name.match(/\d+/)?.[0] || '0');
         return numA - numB;
       });
       
-      setCriteresData(sortedAverages);
+      // Inserisci lo score globale all'inizio dell'array
+      const finalData = [
+        {
+          name: 'Score Global',
+          average: globalAverage,
+          count: globalScores.length,
+          description: scoreType === 'average' ? 'Moyenne de tous les critères' : 'Pourcentage au-dessus de 80%'
+        },
+        ...sortedAverages
+      ];
+      
+      setCriteresData(finalData);
     } catch (error) {
       console.error('Errore nel calcolo delle medie dei criteri:', error);
       setCriteresData([]);
@@ -259,10 +370,6 @@ const ChatbotDetail: React.FC = () => {
         const res = await fetch(`/api/userlist/month?chatbot_name=${storyline_key}`);
         const sims = await res.json();
         
-        // Estrai i gruppi unici dalle simulazioni
-        const uniqueGroups = Array.from(new Set(sims.map((s: Simulation) => s.usergroup || 'Groupe par défaut'))) as string[];
-        setGroups(uniqueGroups);
-        
         // learners unici mese
         const learnersSet = new Set(sims.map((s: Simulation) => s.user_email));
         const learnersThisMonth = learnersSet.size;
@@ -287,13 +394,36 @@ const ChatbotDetail: React.FC = () => {
         });
       } catch (e) {
         setMonthStats({ simulations: 0, avgScore: 0, learners: 0, bestLearners: [] });
-        setGroups([]);
       } finally {
         setLoadingSims(false);
       }
     };
     if (storyline_key) fetchSimulations();
   }, [storyline_key]);
+
+  // Nuovo useEffect per caricare tutti i gruppi disponibili per il filtro del grafico
+  useEffect(() => {
+    const fetchAllGroups = async () => {
+      try {
+        // Fetch tutte le simulazioni per questo chatbot per estrarre tutti i gruppi
+        const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`);
+        const allSims = await res.json();
+        
+        // Estrai tutti i gruppi unici disponibili
+        const allGroups = Array.from(new Set(allSims.map((s: Simulation) => s.usergroup || 'Groupe par défaut'))) as string[];
+        setGroups(allGroups);
+        
+        // Se il gruppo selezionato per il grafico non è più disponibile, resetta a 'all'
+        if (selectedGroupForChart !== 'all' && !allGroups.includes(selectedGroupForChart)) {
+          setSelectedGroupForChart('all');
+        }
+      } catch (e) {
+        console.error('Errore nel caricamento dei gruppi:', e);
+        setGroups([]);
+      }
+    };
+    if (storyline_key) fetchAllGroups();
+  }, [storyline_key, selectedGroupForChart]);
 
   // Funzione per filtrare i dati in base al gruppo selezionato
   const filterDataByGroup = async (group: string) => {
@@ -383,7 +513,7 @@ const ChatbotDetail: React.FC = () => {
     if (storyline_key) {
       calculateCriteresAverages();
     }
-  }, [storyline_key, monthStats.simulations, selectedMonth]); // Si aggiorna quando cambiano le simulazioni o il mese
+  }, [storyline_key, monthStats.simulations, selectedPeriod, selectedGroup, selectedGroupForChart, simulationType, scoreType]); // Si aggiorna quando cambiano le simulazioni, il periodo o il gruppo
 
   if (loading) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Charging...</div></div>;
   if (!data) return <div className="chatbot-detail-bg"><div className="chatbot-detail-main">Chatbot not found.</div></div>;
@@ -518,62 +648,120 @@ const ChatbotDetail: React.FC = () => {
         {criteresData.length > 0 && (
           <div className="criteres-chart-container">
             <div className="criteres-chart-header">
-              <h3 className="criteres-chart-title">📊 Performance moyenne par Critères</h3>
-              <select 
-                className="month-filter"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-              >
-                <option value="all">Tous les mois</option>
-                <option value="01">Janvier</option>
-                <option value="02">Février</option>
-                <option value="03">Mars</option>
-                <option value="04">Avril</option>
-                <option value="05">Mai</option>
-                <option value="06">Juin</option>
-                <option value="07">Juillet</option>
-                <option value="08">Août</option>
-                <option value="09">Septembre</option>
-                <option value="10">Octobre</option>
-                <option value="11">Novembre</option>
-                <option value="12">Décembre</option>
-              </select>
+              <h3 className="criteres-chart-title">
+                📊 {scoreType === 'average' ? 'Evaluation' : 'Pourcentage au-dessus de 80% par Critères'}
+              </h3>
             </div>
+            {/* Filtri sopra il grafico */}
+            <div className="chart-filters">
+              <div className="filter-group">
+                <label className="filter-label">Score moyen:</label>
+                <select 
+                  className="filter-select"
+                  value={scoreType}
+                  onChange={(e) => setScoreType(e.target.value as 'average' | 'percentage')}
+                >
+                  <option value="average">Score moyen</option>
+                  <option value="percentage">Pourcentage au-dessus de 80%</option>
+                </select>
+              </div>
+              
+              <div className="filter-group">
+                <label className="filter-label">Groupe:</label>
+                <select 
+                  className="filter-select"
+                  value={selectedGroupForChart}
+                  onChange={(e) => setSelectedGroupForChart(e.target.value)}
+                >
+                  <option value="all">Tous les groupes</option>
+                  {groups.length > 0 ? groups.map((group, index) => (
+                    <option key={group} value={group}>{group}</option>
+                  )) : (
+                    <option value="" disabled>Chargement des groupes...</option>
+                  )}
+                </select>
+              </div>
+              
+              <div className="filter-group">
+                <label className="filter-label">N. simulations:</label>
+                <select 
+                  className="filter-select"
+                  value={simulationType}
+                  onChange={(e) => setSimulationType(e.target.value as 'all' | 'first' | 'last')}
+                >
+                  <option value="all">Toutes les simulations</option>
+                  <option value="first">Première simulation</option>
+                  <option value="last">Dernière simulation</option>
+                </select>
+              </div>
+              
+              <div className="filter-group">
+                <label className="filter-label">Période:</label>
+                <select 
+                  className="filter-select"
+                  value={selectedPeriod}
+                  onChange={(e) => setSelectedPeriod(e.target.value)}
+                >
+                  <option value="all">Depuis le début</option>
+                  <option value="30">Sur les derniers 30 jours</option>
+                  <option value="90">Sur le dernier trimestre</option>
+                  <option value="180">Sur le dernier 6 mois</option>
+                  <option value="365">Sur l'année précédent</option>
+                </select>
+              </div>
+            </div>
+            
             <div className="criteres-chart">
               <div className="chart-y-axis">
+                <div className="y-label">100</div>
+                <div className="y-label">80</div>
+                <div className="y-label">60</div>
+                <div className="y-label">40</div>
                 <div className="y-label">20</div>
-                <div className="y-label">15</div>
-                <div className="y-label">10</div>
-                <div className="y-label">5</div>
                 <div className="y-label">0</div>
               </div>
               <div className="chart-content">
                 <div className="chart-grid">
-                  {[20, 15, 10, 5, 0].map((value) => (
-                    <div key={value} className="grid-line" style={{ bottom: `${(value / 20) * 100}%` }}></div>
+                  {[100, 80, 60, 40, 20, 0].map((value) => (
+                    <div key={value} className="grid-line" style={{ bottom: `${(value / 100) * 100}%` }}></div>
                   ))}
                 </div>
                 <div className="chart-bars">
                   {criteresData.map((critere, index) => {
-                    // Calcolo corretto: 9 dovrebbe arrivare esattamente sotto il valore 10 dell'asse Y
-                    const height = (critere.average / 20) * 100; // Altezza in percentuale
+                    // Calcolo corretto: ora da 0 a 100 per entrambi i tipi
+                    const height = (critere.average / 100) * 100; // Altezza in percentuale
                     const gradientId = `gradient-${index}`;
+                    const isGlobalScore = critere.name === 'Score Global';
+                    
                     return (
                       <div key={critere.name} className="chart-bar-container">
-                        <div className="chart-bar" style={{ height: `${height}%` }}>
+                        <div className={`chart-bar ${isGlobalScore ? 'global-score-bar' : ''}`} style={{ height: `${height}%` }}>
                           <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
                             <defs>
                               <linearGradient id={gradientId} x1="0%" y1="100%" x2="0%" y2="0%">
-                                <stop offset="0%" stopColor="#B8A9E8" />
-                                <stop offset="100%" stopColor="#D4C7F7" />
+                                {isGlobalScore ? (
+                                  <>
+                                    <stop offset="0%" stopColor="#FF6B6B" />
+                                    <stop offset="100%" stopColor="#FF8E8E" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <stop offset="0%" stopColor="#B8A9E8" />
+                                    <stop offset="100%" stopColor="#D4C7F7" />
+                                  </>
+                                )}
                               </linearGradient>
                             </defs>
                             <rect width="100%" height="100%" fill={`url(#${gradientId})`} />
                           </svg>
-                          <div className="bar-value">{critere.average}</div>
+                          <div className="bar-value">
+                            {scoreType === 'percentage' ? `${critere.average}%` : critere.average}
+                          </div>
                         </div>
                         <div className="chart-label">
-                          {critere.name}
+                          <span className={isGlobalScore ? 'global-score-label' : ''}>
+                            {critere.name}
+                          </span>
                           {critere.description && (
                             <div 
                               className="chart-label-description"

@@ -67,70 +67,110 @@ const Analysis: React.FC = () => {
 
   const { name, date, score, chat_analysis } = analysisState;
 
+  // Normalizza spazi/punteggiatura "strani" (francese) e slash Unicode
+  const normalizeForParsing = (s: string = '') => {
+    return s
+      // compat: converte i fullwidth (es. "：" ) in ASCII
+      .normalize('NFKC')
+      // NBSP, narrow-NBSP, figure space, thin space, zero-width → spazio normale
+      .replace(/[\u00A0\u202F\u2007\u2009\u200A\u200B]+/g, ' ')
+      // varianti di slash Unicode → /
+      .replace(/[⁄∕⧸⟋]/g, '/')
+      // varianti di colon Unicode → :
+      .replace(/[：﹕꞉︓]/g, ':')
+      // bug sorgente: a volte va a capo prima dei due punti
+      .replace(/\n\s*:\s*/g, ' : ');
+  };
+
+  // Porta qualsiasi "Note: X/10" a "Note: X/100" (senza cambiare X)
+  // + normalizza punteggiatura/spazi prima
+  const cleanAnalysisText = (text: string) => {
+    if (!text) return text;
+    let t = normalizeForParsing(text);
+
+    // accetta "Note: 50/10", "Note : 50 / 10", "NOTE : 50⁄10", ecc.
+    t = t.replace(/Note\s*[ :]\s*(\d+)\s*\/\s*10(?!\d)/giu, 'Note: $1/100');
+
+    return t;
+  };
+
+  const analysisClean = cleanAnalysisText(chat_analysis || '');
+
   // Funzione per parsare l'analisi e separare le domande e il riepilogo
   const parseAnalysis = (analysis: string) => {
     if (!analysis) return { questions: [], summary: '' };
     let cleaned = analysis.replace(/^Analyse IA\s*/i, '');
+
+    // eventuale riassunto finale
     const summaryMatch = cleaned.match(/(La somme de tes notes obtenues est de[\s\S]*)/i);
     let summary = '';
     if (summaryMatch) {
       summary = summaryMatch[1].trim();
       cleaned = cleaned.replace(summaryMatch[1], '').trim();
     }
-    // Dividi per 'Question n°1,' o 'Question n°2,' ecc.
-    const blocks = cleaned.split(/(?=Question\s*n[°ºo]?\s*\d+,?)/gi).filter(Boolean);
-    // Estrai titolo e contenuto
+
+    // Split sia su "Question n°..." sia su "Critère n°..."
+    const blocks = cleaned
+      .split(/(?=(?:Question|Crit[eè]re)\s*n[°ºo]?\s*\d+[,:\-]?\s*)/gi)
+      .filter(Boolean);
+
+    // titolo = intestazione completa (es: "Critère n°1 : Détection et démarche commerciale")
     const questions = blocks.map(block => {
-      const match = block.match(/^(Question\s*n[°ºo]?\s*\d+,?)([\s\S]*)/i);
+      const match = block.match(/^((?:Question|Crit[eè]re)\s*n[°ºo]?\s*\d+[,:\-]?\s*[^\n]*?)\s*\n?([\s\S]*)/i);
       if (match) {
-        return {
-          title: match[1].trim(),
-          content: match[2].trim()
-        };
+        return { title: match[1].trim(), content: match[2].trim() };
       } else {
         return { title: '', content: block.trim() };
       }
     });
+
     return { questions, summary };
   };
 
-  const { questions, summary } = parseAnalysis(chat_analysis);
+
+
+  const { questions, summary } = parseAnalysis(analysisClean);
 
   // Funzione per parsare i criteri dal testo dell'analisi
   const parseCriteres = (analysis: string) => {
     if (!analysis) return [];
-    
-    // Nuovo pattern che gestisce il formato effettivo
-    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*20/gi;
-    const criteres = [];
-    let match;
-    
+
+    // cattura anche il denominatore
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+?)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*(10|100)/gi;
+    const criteres: Array<{name:string;description:string;note:number;maxNote:number;fullNote:string}> = [];
+    let match: RegExpExecArray | null;
+
     while ((match = criterePattern.exec(analysis)) !== null) {
-      const critereNumber = match[1];
-      const description = match[2]?.trim();
-      const note = match[3] ? parseInt(match[3]) : null;
-      
-      if (note !== null) {
-        criteres.push({
-          name: `Critère n°${critereNumber}`,
-          description: description,
-          note: note,
-          fullMatch: match[0]
-        });
-      }
+      const num = match[1];
+      const description = (match[2] || '').trim();
+      const raw = parseInt(match[3], 10);
+      const denom = parseInt(match[4], 10);
+
+      // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
+      // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
+      const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
+
+      criteres.push({
+        name: `Critère n°${num}`,
+        description,
+        note,
+        maxNote: 100,
+        fullNote: `${note}/100`
+      });
     }
-    
     return criteres;
   };
 
   // Funzione per determinare la classe CSS del criterio in base al punteggio
   const getCritereClass = (note: number) => {
-    if (note <= 10) return 'critere-red';
-    if (note <= 15) return 'critere-yellow';
+    // Per note su 100: rosso 0-49, giallo 50-79, verde 80-100
+    // Usa le stesse soglie delle note per coerenza visiva
+    if (note < 50) return 'critere-red';
+    if (note < 80) return 'critere-yellow';
     return 'critere-green';
   };
 
-  const criteres = parseCriteres(chat_analysis);
+  const criteres = parseCriteres(analysisClean);
 
   // Funzione per troncare il testo se troppo lungo
   const truncateText = (text: string, maxLength: number = 10) => {
@@ -140,7 +180,7 @@ const Analysis: React.FC = () => {
 
   // Funzione per schermo intero (identica a ChatHistory, ref su pdf-content)
   const handleFullscreen = () => {
-    if (pdfContentRef.current) {
+    if (pdfContentRef.current) { 
       if (pdfContentRef.current.requestFullscreen) {
         pdfContentRef.current.requestFullscreen();
       } else if ((pdfContentRef.current as any).webkitRequestFullscreen) {
@@ -164,7 +204,9 @@ const Analysis: React.FC = () => {
     const lineHeight = 7; // Altezza di una riga
     const pageHeight = doc.internal.pageSize.getHeight();
     const bottomMargin = 20;
-    const lines = doc.splitTextToSize(chat_analysis || '', 180);
+    
+    // Usa il testo pulito con le note su 100
+    const lines = doc.splitTextToSize(analysisClean, 180);
     lines.forEach((line: string) => {
       if (y + lineHeight > pageHeight - bottomMargin) {
         doc.addPage();
@@ -178,6 +220,7 @@ const Analysis: React.FC = () => {
 
   // Funzione per formattare un blocco di analisi in React, senza dangerouslySetInnerHTML
   const formatAnalysisBlock = (block: string) => {
+    block = cleanAnalysisText(block); // <-- aggiungi questa riga
     const patterns = [
       { label: 'La question de Christophe:', className: 'analysis-label analysis-label-blue', clean: /^(La question de Christophe:|question de Christophe:|question:)/i },
       { label: 'Ma réponse:', className: 'analysis-label analysis-label-blue', clean: /^(Ma réponse:|réponse:)/i },
@@ -190,22 +233,29 @@ const Analysis: React.FC = () => {
     const result: React.ReactNode[] = [];
 
     lines.forEach((line, idx) => {
-      // Gestione Note ovunque nella riga
-      const noteMatch = line.match(/Note\s*:\s*(\d+)\s*\/10/i);
+      // Gestione Note ovunque nella riga (gestisce sia /10 che /100)
+      const noteMatch = line.match(/Note\s*[ :]\s*(\d+)\s*\/\s*(10|100)\b/iu);
       if (noteMatch) {
         const n = parseInt(noteMatch[1].replace(/[^0-9]/g, ''), 10);
+        const maxNote = parseInt(noteMatch[2], 10);
         let colorClass = 'analysis-note-num-red';
-        if (n >= 8) colorClass = 'analysis-note-num-green';
-        else if (n >= 5) colorClass = 'analysis-note-num-yellow';
+        
+        // Adatta i colori per note su 100
+        if (maxNote === 100) {
+          if (n >= 80) colorClass = 'analysis-note-num-green';
+          else if (n >= 50 && n < 80) colorClass = 'analysis-note-num-yellow'
+          else if (n < 50) colorClass = 'analysis-note-num-red';
+        }
+        
         result.push(
-          <div key={idx} className="analysis-block-content-indent" style={{marginBottom: 2}}>
+          <div key={`${idx}-note`} className="analysis-block-content-indent" style={{marginBottom: 2}}>
             <span className={colorClass}>
-              Note: {n}/10
+              Note: {n}/{maxNote}
             </span>
           </div>
         );
         // Rimuovi la nota dal resto della riga, se c'è altro testo
-        line = line.replace(/Note\s*:\s*\d+\s*\/10,?\s*/i, '').trim();
+        line = line.replace(/Note\s*:\s*\d+\s*\/\d+,?\s*/i, '').trim();
         if (!line) return;
         // Se c'è altro testo dopo la nota, continua a processare la riga
       }
@@ -219,7 +269,7 @@ const Analysis: React.FC = () => {
           content = content.replace(pattern.clean, '').trim();
         }
         result.push(
-          <div key={idx} className="analysis-block-content-indent" style={{marginBottom: 2}}>
+          <div key={`${idx}-label`} className="analysis-block-content-indent" style={{marginBottom: 2}}>
             <span className={pattern.className}>{pattern.label}</span>
             {content ? ' ' + content : ''}
           </div>
@@ -227,7 +277,7 @@ const Analysis: React.FC = () => {
       } else if (line) {
         // Riga normale
         result.push(
-          <div key={idx} className="analysis-block-content-indent" style={{marginBottom: 2}}>
+          <div key={`${idx}-text`} className="analysis-block-content-indent" style={{marginBottom: 2}}>
             {line}
           </div>
         );
@@ -238,6 +288,7 @@ const Analysis: React.FC = () => {
 
   // Funzione per determinare la classe della pillola score
   const getScoreBadgeClass = (score: number) => {
+    // Usa le stesse soglie dei criteri per coerenza visiva
     if (score >= 80) return 'score-badge score-green';
     if (score >= 50) return 'score-badge score-yellow';
     return 'score-badge score-red';
@@ -387,9 +438,9 @@ const Analysis: React.FC = () => {
                           {question.title && (
                             <div className="analysis-question-title">{question.title}</div>
                           )}
-                          <div className="analysis-block-content-indent pdf-message-content" style={{whiteSpace: 'pre-wrap', textAlign: 'left'}}>
-                            {formatAnalysisBlock(question.content)}
-                          </div>
+                                                                                 <div className="analysis-block-content-indent pdf-message-content" style={{whiteSpace: 'pre-wrap', textAlign: 'left'}}>
+                              {formatAnalysisBlock(question.content)}
+                            </div>
                         </div>
                       ))}
                       {summary && (
@@ -400,12 +451,14 @@ const Analysis: React.FC = () => {
                         </div>
                       )}
                     </>
-                  ) : chat_analysis ? (
-                    // Fallback: se non riesce a parsare, mostra tutto il contenuto
-                    <div className="pdf-message assistant">
-                      <div className="pdf-message-content" style={{whiteSpace: 'pre-wrap', textAlign: 'left'}}>{chat_analysis}</div>
-                    </div>
-                  ) : (
+                                     ) : chat_analysis ? (
+                     // Fallback: se non riesce a parsare, mostra tutto il contenuto
+                     <div className="pdf-message assistant">
+                                               <div className="pdf-message-content" style={{whiteSpace: 'pre-wrap', textAlign: 'left'}}>
+                          {analysisClean}
+                        </div>
+                     </div>
+                   ) : (
                     <div style={{color: '#888', textAlign: 'center', padding: '2rem'}}>Nessuna analisi disponibile.</div>
                   )}
                 </div>
@@ -443,7 +496,9 @@ const Analysis: React.FC = () => {
                 {critere.description && (
                   <div className="critere-description">{truncateText(critere.description)}</div>
                 )}
-                <span className={`progress-value score-style ${getCritereClass(critere.note)}`}>{critere.note}/20</span>
+                <span className={`progress-value score-style ${getCritereClass(critere.note)}`}>
+                  {critere.note}/{critere.maxNote}
+                </span>
                 
               </div>
             ))}

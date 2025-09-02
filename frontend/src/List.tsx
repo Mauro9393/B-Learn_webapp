@@ -65,14 +65,28 @@ function List() {
   const parseCriteres = (analysis: string) => {
     if (!analysis) return [];
     
-    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*20/gi;
+    // Normalizza il testo per gestire spazi e caratteri Unicode strani
+    let normalizedAnalysis = analysis
+      .normalize('NFKC')
+      .replace(/[\u00A0\u202F\u2007\u2009\u200A\u200B]+/g, ' ')
+      .replace(/[⁄∕⧸⟋]/g, '/')
+      .replace(/[：﹕꞉︓]/g, ':')
+      .replace(/\n\s*:\s*/g, ' : ');
+    
+    // cattura anche il denominatore (10 o 100)
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+?)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*(10|100)/gi;
     const criteres = [];
     let match;
     
-    while ((match = criterePattern.exec(analysis)) !== null) {
+    while ((match = criterePattern.exec(normalizedAnalysis)) !== null) {
       const critereNumber = match[1];
       const description = match[2]?.trim();
-      const note = match[3] ? parseInt(match[3]) : null;
+      const raw = parseInt(match[3], 10);
+      const denom = parseInt(match[4], 10);
+      
+      // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
+      // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
+      const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
       
       if (note !== null) {
         criteres.push({
@@ -96,6 +110,13 @@ function List() {
     filteredData.forEach(item => {
       if (item.chat_analysis) {
         const criteres = parseCriteres(item.chat_analysis);
+        console.log(`=== DEBUG List.tsx: ${item.name} ===`);
+        console.log(`Chat analysis length: ${item.chat_analysis.length}`);
+        console.log(`Criteri trovati: ${criteres.length}`);
+        if (criteres.length > 0) {
+          console.log('Primo criterio:', criteres[0]);
+        }
+        console.log('=== FINE DEBUG ===');
         max = Math.max(max, criteres.length);
       }
     });
@@ -104,8 +125,10 @@ function List() {
 
   // Funzione per determinare la classe CSS del criterio in base al punteggio
   const getCritereClass = (note: number) => {
-    if (note <= 10) return 'critere-red';
-    if (note <= 15) return 'critere-yellow';
+    // Per note su 100: rosso 0-49, giallo 50-79, verde 80-100
+    // Usa le stesse soglie di Analysis.tsx per coerenza visiva
+    if (note < 50) return 'critere-red';
+    if (note < 80) return 'critere-yellow';
     return 'critere-green';
   };
 
@@ -462,7 +485,7 @@ function List() {
                       <td key={`critere-${i + 1}`} className="critere-cell">
                         {critere ? (
                           <span className={`critere-note ${getCritereClass(critere.note)}`} title={critere.description}>
-                            {critere.note}/20
+                            {critere.note}/100
                           </span>
                         ) : (
                           <span className="critere-empty">-</span>
