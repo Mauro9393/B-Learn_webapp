@@ -61,6 +61,10 @@ function List() {
   // Stato per mostrare i criteri
   const [showCriteres, setShowCriteres] = useState(false);
 
+  // Stato per la selezione multipla
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+
   // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx)
   const parseCriteres = (analysis: string) => {
     if (!analysis) return [];
@@ -73,28 +77,38 @@ function List() {
       .replace(/[：﹕꞉︓]/g, ':')
       .replace(/\n\s*:\s*/g, ' : ');
     
-    // cattura anche il denominatore (10 o 100)
-    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+?)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*(10|100)/gi;
+    // cattura anche il denominatore - modifica per catturare tutto il contenuto tra titolo e nota
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([\s\S]*?)(?=Note\s*:\s*\d+\s*\/\s*(?:10|100))/gi;
     const criteres = [];
     let match;
     
     while ((match = criterePattern.exec(normalizedAnalysis)) !== null) {
       const critereNumber = match[1];
-      const description = match[2]?.trim();
-      const raw = parseInt(match[3], 10);
-      const denom = parseInt(match[4], 10);
+      let description = (match[2] || '').trim();
       
-      // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
-      // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
-      const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
+      // Pulisci la descrizione rimuovendo righe vuote eccessive e spazi
+      description = description.replace(/\n\s*\n/g, '\n').replace(/^\s+|\s+$/g, '');
       
-      if (note !== null) {
-        criteres.push({
-          name: `Critère n°${critereNumber}`,
-          description: description,
-          note: note,
-          fullMatch: match[0]
-        });
+      // Trova la nota per questo criterio
+      const notePattern = new RegExp(`Critère\\s*n[°ºo]?\\s*${critereNumber}[\\s\\S]*?Note\\s*:\\s*(\\d+)\\s*\\/\\s*(10|100)`, 'gi');
+      const noteMatch = notePattern.exec(normalizedAnalysis);
+      
+      if (noteMatch) {
+        const raw = parseInt(noteMatch[1], 10);
+        const denom = parseInt(noteMatch[2], 10);
+        
+        // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
+        // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
+        const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
+        
+        if (note !== null) {
+          criteres.push({
+            name: `Critère n°${critereNumber}`,
+            description: description,
+            note: note,
+            fullMatch: match[0]
+          });
+        }
       }
     }
     
@@ -123,6 +137,8 @@ function List() {
     setMaxCriteres(max);
   }, [filteredData]);
 
+
+
   // Funzione per determinare la classe CSS del criterio in base al punteggio
   const getCritereClass = (note: number) => {
     // Per note su 100: rosso 0-49, giallo 50-79, verde 80-100
@@ -137,6 +153,63 @@ function List() {
     setSelectedGroup(group);
     // Salva il gruppo selezionato nel localStorage
     localStorage.setItem(`selectedGroup_${chatbotName}`, group);
+  };
+
+  // Funzioni per la selezione multipla
+  const handleSelectRow = (id: number) => {
+    const newSelected = new Set(selectedRows);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedRows(new Set());
+      setSelectAll(false);
+    } else {
+      setSelectedRows(new Set(sortedData.map(item => item.id)));
+      setSelectAll(true);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedRows.size === 0) return;
+    
+    if (!confirm(`Sei sicuro di voler eliminare ${selectedRows.size} simulazione/i?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/userlist/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ids: Array.from(selectedRows),
+          chatbot_name: chatbotName
+        }),
+      });
+
+      if (response.ok) {
+        // Rimuovi le righe eliminate dai dati locali
+        const newData = data.filter(item => !selectedRows.has(item.id));
+        setData(newData);
+        setFilteredData(newData);
+        setSelectedRows(new Set());
+        setSelectAll(false);
+        alert(`${selectedRows.size} simulazione/i eliminate con successo!`);
+      } else {
+        throw new Error('Errore durante l\'eliminazione');
+      }
+    } catch (error) {
+      console.error('Errore eliminazione:', error);
+      alert('Errore durante l\'eliminazione delle simulazioni');
+    }
   };
 
   // Salva le informazioni del tenant nel localStorage quando arrivano dallo stato
@@ -161,6 +234,13 @@ function List() {
       }
       const response = await fetch(url);
       const data = await response.json();
+      console.log('=== DEBUG List.tsx - Dati ricevuti dal backend ===');
+      console.log('Totale elementi:', data?.length);
+      if (data && data.length > 0) {
+        console.log('Primo elemento:', data[0]);
+        console.log('Campi disponibili:', Object.keys(data[0]));
+      }
+      console.log('=== FINE DEBUG ===');
       setData(data || []);
       setFilteredData(data || []);
       
@@ -429,19 +509,57 @@ function List() {
         <div className="lancement-label">
           {showAllLaunches ? 'Formations terminées / non terminées' : 'Formations terminées'} : {showAllLaunches ? filteredData.length : filteredData.filter(item => item.score >= 0).length}
         </div>
+        {selectedRows.size > 0 && (
+          <button 
+            className="delete-selected-btn"
+            onClick={handleDeleteSelected}
+            title={`Elimina ${selectedRows.size} simulazione/i selezionata/e`}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3,6 5,6 21,6"></polyline>
+              <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+            </svg>
+            Elimina ({selectedRows.size})
+          </button>
+        )}
       </div>
       <div className="simulations-container">
         <table className="simulations-table" id="simulations-table">
           <thead>
             <tr>
+              <th className="checkbox-header">
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                  title="Seleziona/Deseleziona tutto"
+                />
+              </th>
               <th className="sortable-header" onClick={() => handleSort('name')}>Nom {getArrow('name')}</th>
               <th className="sortable-header" onClick={() => handleSort('created_at')}>Date simulation {getArrow('created_at')}</th>
               {settings.showGroups && <th>Groupe</th>}
               <th className="sortable-header" onClick={() => handleSort('score')}>Score {getArrow('score')}</th>
               <th>Temps</th>
-              {showCriteres && maxCriteres > 0 && Array.from({ length: maxCriteres }, (_, i) => (
-                <th key={`critere-${i + 1}`}>Critère n°{i + 1}</th>
-              ))}
+              {showCriteres && maxCriteres > 0 && Array.from({ length: maxCriteres }, (_, i) => {
+                // Trova la descrizione del criterio dal primo elemento che ha criteri
+                const firstItemWithCriteres = sortedData.find(item => {
+                  const criteres = parseCriteres(item.chat_analysis);
+                  return criteres.length > i;
+                });
+                const critereDescription = firstItemWithCriteres ? 
+                  parseCriteres(firstItemWithCriteres.chat_analysis)[i]?.description : '';
+                
+                return (
+                  <th key={`critere-${i + 1}`}>
+                    <div>Critère n°{i + 1}</div>
+                    {critereDescription && (
+                      <div style={{ fontSize: '0.7rem', fontWeight: 'normal', color: '#666', marginTop: '2px' }}>
+                        {critereDescription.split('\n')[0].trim()}
+                      </div>
+                    )}
+                  </th>
+                );
+              })}
               <th>Historique chat</th>
               <th>Analyse chat</th>
             </tr>
@@ -449,11 +567,19 @@ function List() {
           <tbody id="simulationTableBody">
             {sortedData.map(item => (
               <tr key={item.id} data-student={item.name} data-date={item.created_at || ''} data-score={item.score}>
+                <td className="checkbox-cell">
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.has(item.id)}
+                    onChange={() => handleSelectRow(item.id)}
+                    title="Seleziona questa riga"
+                  />
+                </td>
                 <td>
                   <span 
                     className="clickable-name"
                     onClick={() => {
-                      addBreadcrumb({ label: item.name, path: `/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}` });
+                      addBreadcrumb({ label: item.name || (item.user_email ? item.user_email.split('@')[0] : '') || 'Utilisateur inconnu', path: `/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}` });
                       navigate(`/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}`, { 
                         state: { 
                           from: 'simulations-list',
@@ -464,7 +590,7 @@ function List() {
                     }}
                     title="Voir le profil"
                   >
-                    {item.name}
+                    {item.name || (item.user_email ? item.user_email.split('@')[0] : '') || 'Utilisateur inconnu'}
                   </span>
                 </td>
                 <td className="date-cell">{formatDate(item.created_at)}</td>
@@ -484,7 +610,7 @@ function List() {
                     return (
                       <td key={`critere-${i + 1}`} className="critere-cell">
                         {critere ? (
-                          <span className={`critere-note ${getCritereClass(critere.note)}`} title={critere.description}>
+                          <span className={`critere-note ${getCritereClass(critere.note)}`}>
                             {critere.note}/100
                           </span>
                         ) : (
@@ -552,12 +678,20 @@ function List() {
       <div className="simulations-cards">
         {paginatedCards.map(item => (
           <div className="simulation-card" key={item.id}>
+            <div className="card-checkbox">
+              <input
+                type="checkbox"
+                checked={selectedRows.has(item.id)}
+                onChange={() => handleSelectRow(item.id)}
+                title="Seleziona questa simulazione"
+              />
+            </div>
             <div>
               <strong>Nom:</strong> 
               <span 
                 className="clickable-name"
                 onClick={() => {
-                  addBreadcrumb({ label: item.name, path: `/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}` });
+                  addBreadcrumb({ label: item.name || (item.user_email ? item.user_email.split('@')[0] : '') || 'Utilisateur inconnu', path: `/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}` });
                   navigate(`/chatbot/${encodeURIComponent(chatbotName || '')}/learners/${encodeURIComponent(item.user_email)}`, { 
                     state: { 
                       from: 'simulations-list',
@@ -568,7 +702,7 @@ function List() {
                 }}
                 title="Voir le profil"
               >
-                {item.name}
+                {item.name || (item.user_email ? item.user_email.split('@')[0] : '') || 'Utilisateur inconnu'}
               </span>
             </div>
             <div><strong>Date simulation:</strong> {formatDate(item.created_at)}</div>

@@ -55,11 +55,71 @@ const StudentList: React.FC = () => {
   const [groups, setGroups] = useState<string[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
 
+  // Stato per la selezione multipla
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+
   // Funzione per gestire il cambio di gruppo
   const handleGroupChange = (group: string) => {
     setSelectedGroup(group);
     // Salva il gruppo selezionato nel localStorage
     localStorage.setItem(`selectedGroup_${storyline_key}`, group);
+  };
+
+  // Funzioni per la selezione multipla
+  const handleSelectRow = (email: string) => {
+    const newSelected = new Set(selectedRows);
+    if (newSelected.has(email)) {
+      newSelected.delete(email);
+    } else {
+      newSelected.add(email);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedRows(new Set());
+      setSelectAll(false);
+    } else {
+      setSelectedRows(new Set(sortedStudents.map(student => student.email)));
+      setSelectAll(true);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedRows.size === 0) return;
+    
+    if (!confirm(`Sei sicuro di voler eliminare ${selectedRows.size} learner/i?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/learners/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          emails: Array.from(selectedRows),
+          storyline_key: storyline_key
+        }),
+      });
+
+      if (response.ok) {
+        // Rimuovi i learners eliminati dai dati locali
+        const newStudents = students.filter(student => !selectedRows.has(student.email));
+        setStudents(newStudents);
+        setSelectedRows(new Set());
+        setSelectAll(false);
+        alert(`${selectedRows.size} learner/i eliminati con successo!`);
+      } else {
+        throw new Error('Errore durante l\'eliminazione');
+      }
+    } catch (error) {
+      console.error('Errore eliminazione learners:', error);
+      alert('Errore durante l\'eliminazione dei learners');
+    }
   };
 
   useEffect(() => {
@@ -236,6 +296,21 @@ const StudentList: React.FC = () => {
         {/* <div className="student-list-stats">
           <div className="stat-card"><span className="stat-icon">👥</span> <span className="stat-label">Total learners :</span> <span className="stat-value">{students.length}</span></div>
         </div> */}
+        {selectedRows.size > 0 && (
+          <div className="delete-selected-container">
+            <button 
+              className="delete-selected-btn"
+              onClick={handleDeleteSelected}
+              title={`Elimina ${selectedRows.size} learner/i selezionato/i`}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3,6 5,6 21,6"></polyline>
+                <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+              </svg>
+              Elimina ({selectedRows.size})
+            </button>
+          </div>
+        )}
         {/* Tabella learners */}
         <div className="student-list-table-card">
           <div className="filters">
@@ -297,6 +372,14 @@ const StudentList: React.FC = () => {
           <table className="student-table styled-table no-vertical-lines">
             <thead>
               <tr>
+                <th className="checkbox-header">
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    title="Seleziona/Deseleziona tutto"
+                  />
+                </th>
                 <th className="th-name" onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
                   Nom <span className="sort-arrow">{sortConfig?.key === 'name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}</span>
                 </th>
@@ -317,12 +400,20 @@ const StudentList: React.FC = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7}>Chargement...</td></tr>
+                <tr><td colSpan={8}>Chargement...</td></tr>
               ) : sortedStudents.length === 0 ? (
-                <tr><td colSpan={7}>Nothing found.</td></tr>
+                <tr><td colSpan={8}>Nothing found.</td></tr>
               ) : (
                 sortedStudents.map(stu => (
                   <tr key={stu.email}>
+                    <td className="checkbox-cell">
+                      <input
+                        type="checkbox"
+                        checked={selectedRows.has(stu.email)}
+                        onChange={() => handleSelectRow(stu.email)}
+                        title="Seleziona questo learner"
+                      />
+                    </td>
                     <td className="td-name" title={stu.name}>{stu.name}</td>
                     {settings.showGroups && <td className="td-group">{stu.usergroup}</td>}
                     <td className="td-simulations">{stu.simulations}</td>
@@ -357,6 +448,14 @@ const StudentList: React.FC = () => {
           <div className="student-cards">
             {paginatedCards.map(stu => (
               <div className="student-card" key={stu.email}>
+                <div className="card-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.has(stu.email)}
+                    onChange={() => handleSelectRow(stu.email)}
+                    title="Seleziona questo learner"
+                  />
+                </div>
                 <div><strong>Nom:</strong> {stu.name}</div>
                 {settings.showGroups && <div><strong>Groupe:</strong> {stu.usergroup}</div>}
                 <div><strong>Simulations:</strong> {stu.simulations}</div>

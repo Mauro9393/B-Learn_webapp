@@ -135,28 +135,38 @@ const Analysis: React.FC = () => {
   const parseCriteres = (analysis: string) => {
     if (!analysis) return [];
 
-    // cattura anche il denominatore
-    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+?)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*(10|100)/gi;
+    // cattura anche il denominatore - modifica per catturare tutto il contenuto tra titolo e nota
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([\s\S]*?)(?=Note\s*:\s*\d+\s*\/\s*(?:10|100))/gi;
     const criteres: Array<{name:string;description:string;note:number;maxNote:number;fullNote:string}> = [];
     let match: RegExpExecArray | null;
 
     while ((match = criterePattern.exec(analysis)) !== null) {
       const num = match[1];
-      const description = (match[2] || '').trim();
-      const raw = parseInt(match[3], 10);
-      const denom = parseInt(match[4], 10);
+      let description = (match[2] || '').trim();
+      
+      // Pulisci la descrizione rimuovendo righe vuote eccessive e spazi
+      description = description.replace(/\n\s*\n/g, '\n').replace(/^\s+|\s+$/g, '');
+      
+      // Trova la nota per questo criterio
+      const notePattern = new RegExp(`Critère\\s*n[°ºo]?\\s*${num}[\\s\\S]*?Note\\s*:\\s*(\\d+)\\s*\\/\\s*(10|100)`, 'gi');
+      const noteMatch = notePattern.exec(analysis);
+      
+      if (noteMatch) {
+        const raw = parseInt(noteMatch[1], 10);
+        const denom = parseInt(noteMatch[2], 10);
+        
+        // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
+        // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
+        const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
 
-      // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
-      // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
-      const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
-
-      criteres.push({
-        name: `Critère n°${num}`,
-        description,
-        note,
-        maxNote: 100,
-        fullNote: `${note}/100`
-      });
+        criteres.push({
+          name: `Critère n°${num}`,
+          description,
+          note,
+          maxNote: 100,
+          fullNote: `${note}/100`
+        });
+      }
     }
     return criteres;
   };
@@ -173,7 +183,7 @@ const Analysis: React.FC = () => {
   const criteres = parseCriteres(analysisClean);
 
   // Funzione per troncare il testo se troppo lungo
-  const truncateText = (text: string, maxLength: number = 10) => {
+  const truncateText = (text: string, maxLength: number = 8) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
@@ -494,7 +504,13 @@ const Analysis: React.FC = () => {
               <div key={index} className="progress-indicator">
                 <span className="progress-label-critere">{critere.name}</span>
                 {critere.description && (
-                  <div className="critere-description">{truncateText(critere.description)}</div>
+                  <div 
+                    className="critere-description" 
+                    title={critere.description}
+                    style={{ cursor: 'help' }}
+                  >
+                    {truncateText(critere.description)}
+                  </div>
                 )}
                 <span className={`progress-value score-style ${getCritereClass(critere.note)}`}>
                   {critere.note}/{critere.maxNote}

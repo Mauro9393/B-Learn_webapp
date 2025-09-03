@@ -64,9 +64,6 @@ const ChatbotDetail: React.FC = () => {
 
   // Stato per i dati del grafico criteri
   const [criteresData, setCriteresData] = useState<{ name: string; average: number; count: number; description?: string }[]>([]);
-  const [tooltipText, setTooltipText] = useState<string>('');
-  const [tooltipVisible, setTooltipVisible] = useState<boolean>(false);
-  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Stato per il filtro periodo
   const [selectedPeriod, setSelectedPeriod] = useState<string>('all');
@@ -74,7 +71,7 @@ const ChatbotDetail: React.FC = () => {
   // Nuovi stati per i filtri del grafico
   const [scoreType, setScoreType] = useState<'average' | 'percentage30' | 'percentage50' | 'percentage80'>('average');
   const [selectedGroupForChart, setSelectedGroupForChart] = useState<string>('all');
-  const [simulationType, setSimulationType] = useState<'all' | 'first' | 'last'>('all');
+  const [simulationType, setSimulationType] = useState<'all' | 'first' | 'last' | 'average_per_user'>('all');
 
   // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx)
   const parseCriteres = (analysis: string) => {
@@ -88,39 +85,45 @@ const ChatbotDetail: React.FC = () => {
       .replace(/[：﹕꞉︓]/g, ':')
       .replace(/\n\s*:\s*/g, ' : ');
     
-    // cattura anche il denominatore (10 o 100)
-    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([^\n]+?)(?:[\s\S]*?)Note\s*:\s*(\d+)\s*\/\s*(10|100)/gi;
+    // cattura anche il denominatore - modifica per catturare tutto il contenuto tra titolo e nota
+    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([\s\S]*?)(?=Note\s*:\s*\d+\s*\/\s*(?:10|100))/gi;
     const criteres = [];
     let match;
     
     while ((match = criterePattern.exec(normalizedAnalysis)) !== null) {
       const critereNumber = match[1];
-      const description = match[2]?.trim();
-      const raw = parseInt(match[3], 10);
-      const denom = parseInt(match[4], 10);
+      let description = (match[2] || '').trim();
       
-      // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
-      // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
-      const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
+      // Pulisci la descrizione rimuovendo righe vuote eccessive e spazi
+      description = description.replace(/\n\s*\n/g, '\n').replace(/^\s+|\s+$/g, '');
       
-      if (note !== null) {
-        criteres.push({
-          name: `Critère n°${critereNumber}`,
-          description: description,
-          note: note,
-          fullMatch: match[0]
-        });
+      // Trova la nota per questo criterio
+      const notePattern = new RegExp(`Critère\\s*n[°ºo]?\\s*${critereNumber}[\\s\\S]*?Note\\s*:\\s*(\\d+)\\s*\\/\\s*(10|100)`, 'gi');
+      const noteMatch = notePattern.exec(normalizedAnalysis);
+      
+      if (noteMatch) {
+        const raw = parseInt(noteMatch[1], 10);
+        const denom = parseInt(noteMatch[2], 10);
+        
+        // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
+        // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
+        const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
+        
+        if (note !== null) {
+          criteres.push({
+            name: `Critère n°${critereNumber}`,
+            description: description,
+            note: note,
+            fullMatch: match[0]
+          });
+        }
       }
     }
     
     return criteres;
   };
 
-  // Funzione per troncare il testo se troppo lungo (identica a Analysis.tsx)
-  const truncateText = (text: string, maxLength: number = 15) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
+
 
   // Funzione per calcolare le medie dei criteri per questo chatbot
   const calculateCriteresAverages = async () => {
@@ -197,6 +200,46 @@ const ChatbotDetail: React.FC = () => {
             if (sortedSims.length > 0) {
               filteredUserSims.push(sortedSims[0]);
             }
+          } else if (simulationType === 'average_per_user') {
+            // Calcola la media per ogni utente e crea una simulazione "virtuale" con la media
+            if (userSims.length > 0) {
+              const userAverages: { [key: string]: number[] } = {};
+              
+              // Raccogli tutti i criteri di questo utente
+              userSims.forEach((sim: any) => {
+                if (sim.chat_analysis) {
+                  const criteres = parseCriteres(sim.chat_analysis);
+                  criteres.forEach(critere => {
+                    if (!userAverages[critere.name]) {
+                      userAverages[critere.name] = [];
+                    }
+                    userAverages[critere.name].push(critere.note);
+                  });
+                }
+              });
+              
+              // Calcola la media per ogni criterio di questo utente
+              const averagedCriteres: any[] = [];
+              Object.keys(userAverages).forEach(critereName => {
+                const notes = userAverages[critereName];
+                const average = notes.reduce((sum, note) => sum + note, 0) / notes.length;
+                averagedCriteres.push({
+                  name: critereName,
+                  note: Math.round(average * 10) / 10,
+                  description: userSims[0].chat_analysis ? parseCriteres(userSims[0].chat_analysis).find(c => c.name === critereName)?.description : ''
+                });
+              });
+              
+              // Crea una simulazione virtuale con le medie
+              const virtualSim = {
+                ...userSims[0], // Usa i dati della prima simulazione come base
+                chat_analysis: averagedCriteres.map(c => 
+                  `${c.name}: ${c.description}\nNote: ${c.note}/100`
+                ).join('\n\n')
+              };
+              
+              filteredUserSims.push(virtualSim);
+            }
           }
         });
         
@@ -206,7 +249,7 @@ const ChatbotDetail: React.FC = () => {
       const criteresMap = new Map<string, number[]>();
       const globalScores: number[] = [];
       
-      // Raccogli tutti i criteri da tutte le simulazioni filtrate
+      // Prima raccogli tutti i criteri e calcola gli score globali
       filteredSims.forEach((sim: any) => {
         if (sim.chat_analysis) {
           console.log(`=== DEBUG ChatbotDetail: ${sim.name} ===`);
@@ -225,7 +268,45 @@ const ChatbotDetail: React.FC = () => {
           } else {
             console.log('Nessun criterio trovato, score globale non calcolato');
           }
-          
+        }
+      });
+      
+      // Ora filtra le simulazioni in base al tipo di score selezionato
+      let finalFilteredSims = filteredSims;
+      if (scoreType !== 'average') {
+        let threshold: number;
+        switch (scoreType) {
+          case 'percentage30':
+            threshold = 30;
+            break;
+          case 'percentage50':
+            threshold = 50;
+            break;
+          case 'percentage80':
+            threshold = 80;
+            break;
+          default:
+            threshold = 80;
+        }
+        
+        // Filtra le simulazioni che hanno score globale sopra la soglia
+        finalFilteredSims = filteredSims.filter((sim: any) => {
+          if (sim.chat_analysis) {
+            const criteres = parseCriteres(sim.chat_analysis);
+            if (criteres.length > 0) {
+              const totalScore = criteres.reduce((sum, critere) => sum + critere.note, 0);
+              const avgScore = totalScore / criteres.length;
+              return avgScore >= threshold;
+            }
+          }
+          return false;
+        });
+      }
+      
+      // Ora raccogli i criteri solo dalle simulazioni filtrate per la soglia
+      finalFilteredSims.forEach((sim: any) => {
+        if (sim.chat_analysis) {
+          const criteres = parseCriteres(sim.chat_analysis);
           criteres.forEach(critere => {
             if (!criteresMap.has(critere.name)) {
               criteresMap.set(critere.name, []);
@@ -241,7 +322,7 @@ const ChatbotDetail: React.FC = () => {
       console.log(`Criteri unici trovati: ${criteresMap.size}`);
       console.log(`Criteri map:`, Array.from(criteresMap.entries()));
       
-      // Calcola la media per ogni criterio
+      // Calcola la media o percentuale per ogni criterio
       const averages: { name: string; average: number; count: number; description?: string }[] = [];
       criteresMap.forEach((notes, name) => {
         let average: number;
@@ -250,7 +331,7 @@ const ChatbotDetail: React.FC = () => {
           // Calcolo normale della media
           average = Math.round((notes.reduce((sum, note) => sum + note, 0) / notes.length) * 10) / 10;
         } else {
-          // Calcolo della media degli score che superano la soglia selezionata
+          // Calcolo percentuale: simulazioni con questo criterio sopra la soglia / totale simulazioni con questo criterio
           let threshold: number;
           switch (scoreType) {
             case 'percentage30':
@@ -265,18 +346,16 @@ const ChatbotDetail: React.FC = () => {
             default:
               threshold = 80;
           }
-          const aboveThreshold = notes.filter(note => note >= threshold);
-          if (aboveThreshold.length > 0) {
-            // Calcola la media degli score sopra la soglia
-            average = Math.round((aboveThreshold.reduce((sum, note) => sum + note, 0) / aboveThreshold.length) * 10) / 10;
-          } else {
-            average = 0; // Nessuno score sopra la soglia
-          }
+          
+          // Conta quante simulazioni hanno questo criterio sopra la soglia
+          const aboveThreshold = notes.filter(note => note >= threshold).length;
+          // Percentuale = (simulazioni sopra soglia / totale simulazioni con questo criterio) * 100
+          average = Math.round((aboveThreshold / notes.length) * 100);
         }
         
         // Trova la descrizione del criterio dalla prima simulazione che lo contiene
         let description = '';
-        for (const sim of filteredSims) {
+        for (const sim of finalFilteredSims) {
           if (sim.chat_analysis) {
             const criteres = parseCriteres(sim.chat_analysis);
             const critere = criteres.find(c => c.name === name);
@@ -295,35 +374,34 @@ const ChatbotDetail: React.FC = () => {
         });
       });
       
-      // Calcola la media dello score globale
+      // Calcola la media o percentuale dello score globale
       let globalAverage = 0;
-      if (globalScores.length > 0) {
-        if (scoreType === 'average') {
+      if (scoreType === 'average') {
+        // Per "Score moyen": usa tutti gli score globali
+        if (globalScores.length > 0) {
           globalAverage = Math.round((globalScores.reduce((sum, score) => sum + score, 0) / globalScores.length) * 10) / 10;
-        } else {
-          // Calcolo della media degli score che superano la soglia selezionata
-          let threshold: number;
-          switch (scoreType) {
-            case 'percentage30':
-              threshold = 30;
-              break;
-            case 'percentage50':
-              threshold = 50;
-              break;
-            case 'percentage80':
-              threshold = 80;
-              break;
-            default:
-              threshold = 80;
-          }
-          const aboveThreshold = globalScores.filter(score => score >= threshold);
-          if (aboveThreshold.length > 0) {
-            // Calcola la media degli score sopra la soglia
-            globalAverage = Math.round((aboveThreshold.reduce((sum, score) => sum + score, 0) / aboveThreshold.length) * 10) / 10;
-          } else {
-            globalAverage = 0; // Nessuno score sopra la soglia
-          }
         }
+      } else {
+        // Per "Percentage au-dessus de X%": calcola la percentuale di simulazioni sopra la soglia
+        let threshold: number;
+        switch (scoreType) {
+          case 'percentage30':
+            threshold = 30;
+            break;
+          case 'percentage50':
+            threshold = 50;
+            break;
+          case 'percentage80':
+            threshold = 80;
+            break;
+          default:
+            threshold = 80;
+        }
+        
+        // Conta quante simulazioni hanno score globale sopra la soglia
+        const aboveThreshold = globalScores.filter(score => score >= threshold).length;
+        // Percentuale = (simulazioni sopra soglia / totale simulazioni) * 100
+        globalAverage = Math.round((aboveThreshold / globalScores.length) * 100);
       }
       
       // Aggiungi lo score globale come primo elemento
@@ -336,10 +414,10 @@ const ChatbotDetail: React.FC = () => {
       // Inserisci lo score globale all'inizio dell'array
       const finalData = [
         {
-          name: 'Score Global',
+          name: 'Général',
           average: globalAverage,
           count: globalScores.length,
-          description: scoreType === 'average' ? 'Moyenne de tous les critères' : `Moyenne des scores au-dessus de ${scoreType === 'percentage30' ? '30%' : scoreType === 'percentage50' ? '50%' : '80%'}`
+          description: scoreType === 'average' ? 'Moyenne' : `Pourcentage`
         },
         ...sortedAverages
       ];
@@ -368,15 +446,7 @@ const ChatbotDetail: React.FC = () => {
     localStorage.setItem(`selectedGroup_${storyline_key}`, group);
   };
 
-  const handleTooltipShow = (text: string, event: React.MouseEvent) => {
-    setTooltipText(text);
-    setTooltipVisible(true);
-    setTooltipPosition({ x: event.clientX, y: event.clientY });
-  };
 
-  const handleTooltipHide = () => {
-    setTooltipVisible(false);
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -714,22 +784,22 @@ const ChatbotDetail: React.FC = () => {
           <div className="criteres-chart-container">
             <div className="criteres-chart-header">
               <h3 className="criteres-chart-title">
-                📊 {scoreType === 'average' ? 'Evaluation' : `Moyenne des scores au-dessus de ${scoreType === 'percentage30' ? '30%' : scoreType === 'percentage50' ? '50%' : '80%'} par Critères`}
+                📊 {scoreType === 'average' ? 'Evaluation' : `Pourcentage des simulations au-dessus de ${scoreType === 'percentage30' ? '30%' : scoreType === 'percentage50' ? '50%' : '80%'} par Critères`}
               </h3>
             </div>
             {/* Filtri sopra il grafico */}
             <div className="chart-filters">
               <div className="filter-group">
-                <label className="filter-label">Score moyen:</label>
+                <label className="filter-label">Information:</label>
                 <select 
                   className="filter-select"
                   value={scoreType}
                   onChange={(e) => setScoreType(e.target.value as 'average' | 'percentage30' | 'percentage50' | 'percentage80')}
                 >
                   <option value="average">Score moyen</option>
-                  <option value="percentage30">Percentage au-dessus de 30%</option>
-                  <option value="percentage50">Percentage au-dessus de 50%</option>
-                  <option value="percentage80">Percentage au-dessus de 80%</option>
+                  <option value="percentage30">Pourcentage au-dessus de 30%</option>
+                  <option value="percentage50">Pourcentage au-dessus de 50%</option>
+                  <option value="percentage80">Pourcentage au-dessus de 80%</option>
                 </select>
               </div>
               
@@ -754,11 +824,12 @@ const ChatbotDetail: React.FC = () => {
                 <select 
                   className="filter-select"
                   value={simulationType}
-                  onChange={(e) => setSimulationType(e.target.value as 'all' | 'first' | 'last')}
+                  onChange={(e) => setSimulationType(e.target.value as 'all' | 'first' | 'last' | 'average_per_user')}
                 >
                   <option value="all">Toutes les simulations</option>
                   <option value="first">Première simulation</option>
                   <option value="last">Dernière simulation</option>
+                  <option value="average_per_user">Moyenne par apprenant</option>
                 </select>
               </div>
               
@@ -798,7 +869,20 @@ const ChatbotDetail: React.FC = () => {
                     // Calcolo corretto: ora da 0 a 100 per entrambi i tipi
                     const height = (critere.average / 100) * 100; // Altezza in percentuale
                     const gradientId = `gradient-${index}`;
-                    const isGlobalScore = critere.name === 'Score Global';
+                    const isGlobalScore = critere.name === 'Général';
+                    
+                    // Determina il colore in base al punteggio
+                    const getScoreColor = (score: number) => {
+                      if (score >= 80) {
+                        return { start: '#4CAF50', end: '#66BB6A' }; // Verde
+                      } else if (score >= 50) {
+                        return { start: '#FFC107', end: '#FFD54F' }; // Giallo
+                      } else {
+                        return { start: '#F44336', end: '#EF5350' }; // Rosso
+                      }
+                    };
+                    
+                    const colors = getScoreColor(critere.average);
                     
                     return (
                       <div key={critere.name} className="chart-bar-container">
@@ -806,23 +890,14 @@ const ChatbotDetail: React.FC = () => {
                           <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
                             <defs>
                               <linearGradient id={gradientId} x1="0%" y1="100%" x2="0%" y2="0%">
-                                {isGlobalScore ? (
-                                  <>
-                                    <stop offset="0%" stopColor="#FF6B6B" />
-                                    <stop offset="100%" stopColor="#FF8E8E" />
-                                  </>
-                                ) : (
-                                  <>
-                                    <stop offset="0%" stopColor="#B8A9E8" />
-                                    <stop offset="100%" stopColor="#D4C7F7" />
-                                  </>
-                                )}
+                                <stop offset="0%" stopColor={colors.start} />
+                                <stop offset="100%" stopColor={colors.end} />
                               </linearGradient>
                             </defs>
                             <rect width="100%" height="100%" fill={`url(#${gradientId})`} />
                           </svg>
                           <div className="bar-value">
-                            {scoreType === 'average' ? critere.average : critere.average}
+                            {scoreType === 'average' ? critere.average : `${critere.average}%`}
                           </div>
                         </div>
                         <div className="chart-label">
@@ -830,12 +905,8 @@ const ChatbotDetail: React.FC = () => {
                             {critere.name}
                           </span>
                           {critere.description && (
-                            <div 
-                              className="chart-label-description"
-                              onMouseEnter={(e) => handleTooltipShow(critere.description!, e)}
-                              onMouseLeave={handleTooltipHide}
-                            >
-                              {truncateText(critere.description, 12)}
+                            <div className="chart-label-description">
+                              {critere.description.split('\n')[0].trim()}
                             </div>
                           )}
                         </div>
@@ -914,20 +985,7 @@ const ChatbotDetail: React.FC = () => {
         </div>
       )}
 
-      {/* Tooltip */}
-      {tooltipVisible && (
-        <div 
-          className="custom-tooltip"
-          style={{
-            position: 'fixed',
-            left: tooltipPosition.x + 10,
-            top: tooltipPosition.y - 40,
-            zIndex: 1000
-          }}
-        >
-          {tooltipText}
-        </div>
-      )}
+
     </div>
   );
 };

@@ -1078,24 +1078,29 @@
     white-space: nowrap;
     width: 100%;
     /* Assicura che l'etichetta occupi tutta la larghezza del container */
-    left: 50%;
-    transform: translateX(-50%);
-    /* Centra perfettamente l'etichetta */
+    left: 0;
+    right: 0;
+    /* Centra perfettamente l'etichetta rispetto alla colonna */
 }
 
 .chart-label-description {
     font-size: 0.65rem;
     color: #888;
-    font-weight: 400;
+    font-weight: 700;
     margin-top: 6px;
     line-height: 1.2;
     max-width: 100%;
     word-wrap: break-word;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: unset;
     cursor: help;
     position: relative;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .custom-tooltip {

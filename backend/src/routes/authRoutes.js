@@ -410,6 +410,43 @@ router.get('/userlist', async(req, res) => {
     }
 });
 
+// Endpoint per eliminare simulazioni multiple
+router.delete('/userlist/delete', async(req, res) => {
+    try {
+        const { ids, chatbot_name } = req.body;
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ error: 'IDs mancanti o non validi' });
+        }
+
+        if (!chatbot_name) {
+            return res.status(400).json({ error: 'chatbot_name mancante' });
+        }
+
+        // Elimina le simulazioni selezionate
+        const placeholders = ids.map((_, index) => `$${index + 2}`).join(',');
+        const query = `
+            DELETE FROM userlist 
+            WHERE id IN (${placeholders}) 
+            AND chatbot_name = $1
+        `;
+
+        const params = [chatbot_name, ...ids];
+        const result = await pool.query(query, params);
+
+        console.log(`Eliminate ${result.rowCount} simulazioni per il chatbot ${chatbot_name}`);
+
+        res.status(200).json({
+            success: true,
+            message: `${result.rowCount} simulazione/i eliminate con successo`,
+            deletedCount: result.rowCount
+        });
+    } catch (err) {
+        console.error('Errore eliminazione simulazioni:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Rotta per ottenere le simulazioni del mese corrente per un chatbot
 router.get('/userlist/month', async(req, res) => {
     try {
@@ -551,6 +588,43 @@ router.get('/learners-list-maxscore', async(req, res) => {
     } catch (error) {
         console.error('Errore in /learners-list-maxscore:', error);
         res.status(500).json({ message: error.message });
+    }
+});
+
+// Endpoint per eliminare learners multiple
+router.delete('/learners/delete', async(req, res) => {
+    try {
+        const { emails, storyline_key } = req.body;
+
+        if (!emails || !Array.isArray(emails) || emails.length === 0) {
+            return res.status(400).json({ error: 'Emails mancanti o non valide' });
+        }
+
+        if (!storyline_key) {
+            return res.status(400).json({ error: 'storyline_key mancante' });
+        }
+
+        // Elimina tutti i record dei learners selezionati per questo chatbot
+        const placeholders = emails.map((_, index) => `$${index + 2}`).join(',');
+        const query = `
+            DELETE FROM userlist 
+            WHERE user_email IN (${placeholders}) 
+            AND chatbot_name = $1
+        `;
+
+        const params = [storyline_key, ...emails];
+        const result = await pool.query(query, params);
+
+        console.log(`Eliminati ${result.rowCount} record per i learners del chatbot ${storyline_key}`);
+
+        res.status(200).json({
+            success: true,
+            message: `${result.rowCount} record/i eliminati con successo`,
+            deletedCount: result.rowCount
+        });
+    } catch (err) {
+        console.error('Errore eliminazione learners:', err);
+        res.status(500).json({ error: err.message });
     }
 });
 
