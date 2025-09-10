@@ -1,5 +1,5 @@
 import './assets/css/list.css';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 // @ts-ignore
 import jsPDF from 'jspdf';
@@ -54,6 +54,14 @@ function List() {
   const { addBreadcrumb } = useBreadcrumbContext();
   const { settings } = useSettings();
   
+  // Dropdown personalizzati per i filtri (stesso stile del Période)
+  const [isScoreMenuOpen, setIsScoreMenuOpen] = useState(false);
+  const [isMonthMenuOpen, setIsMonthMenuOpen] = useState(false);
+  const [isYearMenuOpen, setIsYearMenuOpen] = useState(false);
+  const scoreDropdownRef = useRef<HTMLDivElement>(null);
+  const monthDropdownRef = useRef<HTMLDivElement>(null);
+  const yearDropdownRef = useRef<HTMLDivElement>(null);
+  
   // Stato per i gruppi
   const [groups, setGroups] = useState<string[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
@@ -64,6 +72,38 @@ function List() {
   // Stato per la selezione multipla
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+
+  // Opzioni dinamiche anni come array (per dropdown custom)
+  const years = React.useMemo(() => (
+    [...new Set(data.map(item => item.created_at ? item.created_at.substring(0,4) : ''))]
+      .filter(y => y)
+      .sort((a, b) => b.localeCompare(a))
+  ), [data]);
+
+  // Click outside handlers
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (scoreDropdownRef.current && !scoreDropdownRef.current.contains(e.target as Node)) setIsScoreMenuOpen(false);
+    };
+    if (isScoreMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isScoreMenuOpen]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (monthDropdownRef.current && !monthDropdownRef.current.contains(e.target as Node)) setIsMonthMenuOpen(false);
+    };
+    if (isMonthMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isMonthMenuOpen]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (yearDropdownRef.current && !yearDropdownRef.current.contains(e.target as Node)) setIsYearMenuOpen(false);
+    };
+    if (isYearMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isYearMenuOpen]);
 
   // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx)
   const parseCriteres = (analysis: string) => {
@@ -124,13 +164,13 @@ function List() {
     filteredData.forEach(item => {
       if (item.chat_analysis) {
         const criteres = parseCriteres(item.chat_analysis);
-        console.log(`=== DEBUG List.tsx: ${item.name} ===`);
-        console.log(`Chat analysis length: ${item.chat_analysis.length}`);
-        console.log(`Criteri trovati: ${criteres.length}`);
+        //console.log(`=== DEBUG List.tsx: ${item.name} ===`);
+        //console.log(`Chat analysis length: ${item.chat_analysis.length}`);
+        //console.log(`Criteri trovati: ${criteres.length}`);
         if (criteres.length > 0) {
-          console.log('Primo criterio:', criteres[0]);
+          //console.log('Primo criterio:', criteres[0]);
         }
-        console.log('=== FINE DEBUG ===');
+        //console.log('=== FINE DEBUG ===');
         max = Math.max(max, criteres.length);
       }
     });
@@ -179,7 +219,7 @@ function List() {
   const handleDeleteSelected = async () => {
     if (selectedRows.size === 0) return;
     
-    if (!confirm(`Sei sicuro di voler eliminare ${selectedRows.size} simulazione/i?`)) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selectedRows.size} simulation(s) ?`)) {
       return;
     }
 
@@ -202,13 +242,13 @@ function List() {
         setFilteredData(newData);
         setSelectedRows(new Set());
         setSelectAll(false);
-        alert(`${selectedRows.size} simulazione/i eliminate con successo!`);
+        alert(`${selectedRows.size} Simulation(s) supprimée(s) avec succès !`);
       } else {
-        throw new Error('Errore durante l\'eliminazione');
+        throw new Error('Error during delection');
       }
     } catch (error) {
-      console.error('Errore eliminazione:', error);
-      alert('Errore durante l\'eliminazione delle simulazioni');
+      console.error('Error during deletion:', error);
+      alert('Error during delection');
     }
   };
 
@@ -234,13 +274,13 @@ function List() {
       }
       const response = await fetch(url);
       const data = await response.json();
-      console.log('=== DEBUG List.tsx - Dati ricevuti dal backend ===');
+      //console.log('=== DEBUG List.tsx - Dati ricevuti dal backend ===');
       console.log('Totale elementi:', data?.length);
       if (data && data.length > 0) {
-        console.log('Primo elemento:', data[0]);
-        console.log('Campi disponibili:', Object.keys(data[0]));
+        //console.log('Primo elemento:', data[0]);
+        //console.log('Campi disponibili:', Object.keys(data[0]));
       }
-      console.log('=== FINE DEBUG ===');
+      //console.log('=== FINE DEBUG ===');
       setData(data || []);
       setFilteredData(data || []);
       
@@ -445,39 +485,52 @@ function List() {
           value={filter}
           onChange={e => setFilter(e.target.value)}
         />
-        <select id="score-filter" value={scoreFilter} onChange={e => setScoreFilter(e.target.value)}>
-          <option value="">Tous les scores</option>
-          <option value="0-20">Score 0-20</option>
-          <option value="20-40">Score 20-40</option>
-          <option value="40-60">Score 40-60</option>
-          <option value="60-80">Score 60-80</option>
-          <option value="80-100">Score 80-100</option>
-        </select>
-        <select id="month-filter" value={monthFilter} onChange={e => setMonthFilter(e.target.value)}>
-          <option value="">Tous les mois</option>
-          <option value="01">Janvier</option>
-          <option value="02">Février</option>
-          <option value="03">Mars</option>
-          <option value="04">Avril</option>
-          <option value="05">Mai</option>
-          <option value="06">Juin</option>
-          <option value="07">Juillet</option>
-          <option value="08">Août</option>
-          <option value="09">Septembre</option>
-          <option value="10">Octobre</option>
-          <option value="11">Novembre</option>
-          <option value="12">Décembre</option>
-        </select>
-        <select id="year-filter" value={yearFilter} onChange={e => setYearFilter(e.target.value)}>
-          <option value="">Toutes les années</option>
-          {/* Opzioni dinamiche pour les années trouvées dans les données */}
-          {[...new Set(data.map(item => item.created_at ? item.created_at.substring(0,4) : ''))]
-            .filter(y => y)
-            .sort((a, b) => b.localeCompare(a))
-            .map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-        </select>
+        <div className="period-dropdown" ref={scoreDropdownRef}>
+          <button type="button" className="period-trigger" onClick={() => setIsScoreMenuOpen(o => !o)}>
+            {scoreFilter === '' ? 'Tous les scores' : `Score ${scoreFilter.replace('-', '-')}`}
+            <span className="chevron">▾</span>
+          </button>
+          {isScoreMenuOpen && (
+            <div className="period-menu">
+              <div className="menu-item" onClick={() => { setScoreFilter(''); setIsScoreMenuOpen(false); }}>Tous les scores</div>
+              <div className="menu-item" onClick={() => { setScoreFilter('0-20'); setIsScoreMenuOpen(false); }}>Score 0-20</div>
+              <div className="menu-item" onClick={() => { setScoreFilter('20-40'); setIsScoreMenuOpen(false); }}>Score 20-40</div>
+              <div className="menu-item" onClick={() => { setScoreFilter('40-60'); setIsScoreMenuOpen(false); }}>Score 40-60</div>
+              <div className="menu-item" onClick={() => { setScoreFilter('60-80'); setIsScoreMenuOpen(false); }}>Score 60-80</div>
+              <div className="menu-item" onClick={() => { setScoreFilter('80-100'); setIsScoreMenuOpen(false); }}>Score 80-100</div>
+            </div>
+          )}
+        </div>
+        <div className="period-dropdown" ref={monthDropdownRef}>
+          <button type="button" className="period-trigger" onClick={() => setIsMonthMenuOpen(o => !o)}>
+            {monthFilter === '' ? 'Tous les mois' : new Date(2000, parseInt(monthFilter, 10) - 1, 1).toLocaleString('fr-FR', { month: 'long' })}
+            <span className="chevron">▾</span>
+          </button>
+          {isMonthMenuOpen && (
+            <div className="period-menu">
+              <div className="menu-item" onClick={() => { setMonthFilter(''); setIsMonthMenuOpen(false); }}>Tous les mois</div>
+              {['01','02','03','04','05','06','07','08','09','10','11','12'].map((m) => (
+                <div key={m} className="menu-item" onClick={() => { setMonthFilter(m); setIsMonthMenuOpen(false); }}>
+                  {new Date(2000, parseInt(m, 10) - 1, 1).toLocaleString('fr-FR', { month: 'long' })}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="period-dropdown" ref={yearDropdownRef}>
+          <button type="button" className="period-trigger" onClick={() => setIsYearMenuOpen(o => !o)}>
+            {yearFilter === '' ? 'Toutes les années' : yearFilter}
+            <span className="chevron">▾</span>
+          </button>
+          {isYearMenuOpen && (
+            <div className="period-menu">
+              <div className="menu-item" onClick={() => { setYearFilter(''); setIsYearMenuOpen(false); }}>Toutes les années</div>
+              {years.map(year => (
+                <div key={year} className="menu-item" onClick={() => { setYearFilter(year as string); setIsYearMenuOpen(false); }}>{year}</div>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="toggle-container">
           <label className="toggle-switch">
             <input
@@ -513,13 +566,13 @@ function List() {
           <button 
             className="delete-selected-btn"
             onClick={handleDeleteSelected}
-            title={`Elimina ${selectedRows.size} simulazione/i selezionata/e`}
+            title={`Supprimer ${selectedRows.size} simulazione/i selezionata/e`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3,6 5,6 21,6"></polyline>
               <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
             </svg>
-            Elimina ({selectedRows.size})
+            Supprimer ({selectedRows.size})
           </button>
         )}
       </div>
@@ -599,7 +652,7 @@ function List() {
                   {item.score === -1 ? (
                     <span>N/A</span>
                   ) : (
-                    <span className={`score-badge ${item.score >= 90 ? 'score-high' : item.score >= 80 ? 'score-medium' : 'score-low'}`}>{item.score}</span>
+                    <span className={`score-badge ${item.score >= 80 ? 'score-high' : item.score >= 50 ? 'score-medium' : 'score-low'}`}>{item.score}</span>
                   )}
                 </td>
                 <td>{item.temp || '-'}</td>
@@ -712,7 +765,7 @@ function List() {
               {item.score === -1 ? (
                 <span>N/A</span>
               ) : (
-                <span className={`score-badge ${item.score >= 90 ? 'score-high' : item.score >= 80 ? 'score-medium' : 'score-low'}`}>{item.score}</span>
+                <span className={`score-badge ${item.score >= 80 ? 'score-high' : item.score >= 50 ? 'score-medium' : 'score-low'}`}>{item.score}</span>
               )}
             </div>
             <div><strong>Temp:</strong> {item.temp || '-'}</div>

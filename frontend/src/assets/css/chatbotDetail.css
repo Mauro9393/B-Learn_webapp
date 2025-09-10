@@ -114,6 +114,132 @@
     gap: 6px;
 }
 
+
+/* Filtro periodo */
+
+.period-filter-container {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.period-filter-label {
+    color: #7F53F5;
+    font-weight: 700;
+}
+
+
+/* Dropdown periodo personalizzato */
+
+.period-dropdown {
+    position: relative;
+}
+
+.period-trigger {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: #f7f8fa;
+    /* come .filter-select */
+    color: #5B6DF6;
+    font-weight: 500;
+    /* come .filter-select */
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: none;
+}
+
+.period-trigger:focus {
+    outline: none;
+    border-color: #7F53F5;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
+    /* come .filter-select */
+}
+
+.period-trigger .chevron {
+    color: #7F53F5;
+}
+
+
+/* Nessun effetto hover/zoom sul filtro periodo */
+
+.period-trigger:hover,
+.period-dropdown:hover .period-trigger {
+    background: #f7f8fa;
+    border-color: #e0e0e0;
+    box-shadow: none;
+    transform: none;
+}
+
+.period-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 1200;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    min-width: 280px;
+    padding: 8px;
+    text-align: left;
+    /* Assicura allineamento a sinistra per tutte le voci */
+}
+
+.menu-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    /* per allineare come "Personnaliser" */
+    align-items: center;
+    justify-content: flex-start;
+    /* allinea il contenuto a sinistra */
+    text-align: left;
+    width: 100%;
+    font-size: 0.95rem;
+}
+
+.menu-item:hover {
+    background: #f5f7ff;
+    /* come hover leggero dei filtri */
+    color: inherit;
+}
+
+.menu-item.custom {
+    position: relative;
+    display: flex;
+}
+
+.menu-item.custom .custom-label {
+    flex: 0 0 auto;
+    color: #5B6DF6;
+    font-weight: 700;
+    padding-right: 8px;
+}
+
+
+/* Pannello calendario a destra dell'opzione Personnaliser */
+
+.calendar-panel {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: 10px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 10px;
+    width: 320px;
+    display: block;
+}
+
 .manager-label {
     font-weight: 600;
     margin-right: 4px;
@@ -132,7 +258,7 @@
 /* Etichette gruppi */
 
 .groups-container {
-    margin-top: 60px;
+    margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -270,6 +396,18 @@
     background-color: #e0e7ff;
 }
 
+
+/* Rendiamo chiaramente cliccabili due card specifiche */
+
+.clickable-card {
+    cursor: pointer;
+}
+
+.clickable-card:hover {
+    background-color: #c2cbff;
+    /* più scuro per evidenziare la cliccabilità */
+}
+
 .main-stat-label {
     color: #7F53F5;
     font-size: 1.18rem;
@@ -369,6 +507,126 @@
     color: #00cc00;
     font-size: 0.7em;
     font-weight: 600;
+}
+
+
+/* Modal calendario personalizzato */
+
+.date-range-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.date-range-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    width: 360px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: #5B6DF6;
+    font-weight: 700;
+}
+
+.cal-nav {
+    background: #f5f7ff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    color: #5B6DF6;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.cal-title {
+    text-transform: capitalize;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.cal-weekday {
+    text-align: center;
+    color: #7F53F5;
+    font-weight: 700;
+    padding: 6px 0;
+}
+
+.cal-cell {
+    border: 1px solid #7F53F5;
+    /* bordi celle violetto */
+    border-radius: 8px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    /* calendario bianco */
+}
+
+.cal-cell.empty {
+    border-color: transparent;
+    background: transparent;
+}
+
+.cal-cell.day {
+    color: #7F53F5;
+    /* numeri e scritte violetto */
+    cursor: pointer;
+}
+
+.cal-cell.day.selected {
+    background: #5B6DF6;
+    /* selezione scura per inizio/fine */
+}
+
+.cal-cell.day.selected .day-number {
+    color: #7F53F5;
+    font-weight: 800;
+}
+
+.cal-cell.day.in-range {
+    background: #e7e2ff;
+    /* in mezzo più chiaro, violetto */
+}
+
+.day-number {
+    font-weight: 700;
+}
+
+.calendar-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.cal-btn {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #7F53F5;
+    color: #5B6DF6;
+    background: #fff;
+    cursor: pointer;
+}
+
+.cal-btn.apply {
+    background: #6a6af6;
+    color: #fff;
+    border-color: #6a6af6;
 }
 
 
@@ -834,16 +1092,36 @@
     font-size: 0.9rem;
     font-family: 'Montserrat', Arial, sans-serif;
     background: #f7f8fa;
+    /* come .period-trigger */
     transition: border-color 0.2s, box-shadow 0.2s;
     color: #5B6DF6;
+    /* come .period-trigger */
     font-weight: 500;
+    /* come .period-trigger */
     min-width: 140px;
+    cursor: pointer;
+    /* come .period-trigger */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .filter-select:focus {
     outline: none;
     border-color: #7F53F5;
     box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.1);
+}
+
+
+/* Nessun effetto hover/zoom per i select, come il trigger del periodo */
+
+.filter-select:hover {
+    background: #f7f8fa;
+    /* statico */
+    border-color: #e0e0e0;
+    /* statico */
+    box-shadow: none;
+    transform: none;
 }
 
 

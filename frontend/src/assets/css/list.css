@@ -66,6 +66,63 @@ h1 {
     flex-wrap: wrap;
 }
 
+
+/* Dropdown personalizzati riuso stile periodo */
+
+.period-dropdown {
+    position: relative;
+}
+
+.period-trigger {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: #f7f8fa;
+    color: #5B6DF6;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.period-trigger .chevron {
+    color: #7F53F5;
+}
+
+.period-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 1200;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    min-width: 220px;
+    padding: 8px;
+    text-align: left;
+}
+
+.menu-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    width: 100%;
+    font-size: 0.95rem;
+}
+
+.menu-item:hover {
+    background: #f5f7ff;
+    color: inherit;
+}
+
 .filters input,
 .filters select {
     padding: 0.6rem 1rem;
@@ -75,6 +132,30 @@ h1 {
     font-family: 'Montserrat', Arial, sans-serif;
     background: #f7f8fa;
     transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+
+/* Stile dei select come il filtro Période */
+
+.filters select {
+    font-size: 0.9rem;
+    /* testo leggermente più piccolo */
+    color: #5B6DF6;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+
+/* Hover statico come per il periodo */
+
+.filters select:hover {
+    background: #f7f8fa;
+    border-color: #e0e0e0;
+    box-shadow: none;
+    transform: none;
 }
 
 .filters input:focus,

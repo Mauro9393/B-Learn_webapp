@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/studentList.css';
 import { useBreadcrumbContext } from './BreadcrumbContext';
@@ -28,6 +28,30 @@ const AllStudentList: React.FC = () => {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   const { addBreadcrumb } = useBreadcrumbContext();
   const { settings } = useSettings();
+
+  // Dropdown personalizzati (stile identico a Période)
+  const [isScoreMenuOpen, setIsScoreMenuOpen] = useState(false);
+  const [isSimMenuOpen, setIsSimMenuOpen] = useState(false);
+  const [isClientMenuOpen, setIsClientMenuOpen] = useState(false);
+  const scoreDropdownRef = useRef<HTMLDivElement>(null);
+  const simDropdownRef = useRef<HTMLDivElement>(null);
+  const clientDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (scoreDropdownRef.current && !scoreDropdownRef.current.contains(e.target as Node)) setIsScoreMenuOpen(false); };
+    if (isScoreMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isScoreMenuOpen]);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (simDropdownRef.current && !simDropdownRef.current.contains(e.target as Node)) setIsSimMenuOpen(false); };
+    if (isSimMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isSimMenuOpen]);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (clientDropdownRef.current && !clientDropdownRef.current.contains(e.target as Node)) setIsClientMenuOpen(false); };
+    if (isClientMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isClientMenuOpen]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -176,26 +200,53 @@ const AllStudentList: React.FC = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <select value={minScore} onChange={e => setMinScore(e.target.value)}>
-            <option value="">Tous les scores</option>
-            <option value="0-20">Score 0-20</option>
-            <option value="20-40">Score 20-40</option>
-            <option value="40-60">Score 40-60</option>
-            <option value="60-80">Score 60-80</option>
-            <option value="80-100">Score 80-100</option>
-          </select>
-          <select value={minSimulations} onChange={e => setMinSimulations(e.target.value)}>
-            <option value="">Toutes les simulations</option>
-            <option value="3">≥ 3 simulations</option>
-            <option value="5">≥ 5 simulations</option>
-            <option value="10">≥ 10 simulations</option>
-          </select>
-          <select value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
-            <option value="">Tous les clients</option>
-            {clientList.map(client => (
-              <option key={client} value={client}>{client}</option>
-            ))}
-          </select>
+
+          <div className="period-dropdown" ref={scoreDropdownRef}>
+            <button type="button" className="period-trigger" onClick={() => setIsScoreMenuOpen(o => !o)}>
+              {minScore === '' ? 'Tous les scores' : `Score ${minScore}`}
+              <span className="chevron">▾</span>
+            </button>
+            {isScoreMenuOpen && (
+              <div className="period-menu">
+                <div className="menu-item" onClick={() => { setMinScore(''); setIsScoreMenuOpen(false); }}>Tous les scores</div>
+                <div className="menu-item" onClick={() => { setMinScore('0-20'); setIsScoreMenuOpen(false); }}>Score 0-20</div>
+                <div className="menu-item" onClick={() => { setMinScore('20-40'); setIsScoreMenuOpen(false); }}>Score 20-40</div>
+                <div className="menu-item" onClick={() => { setMinScore('40-60'); setIsScoreMenuOpen(false); }}>Score 40-60</div>
+                <div className="menu-item" onClick={() => { setMinScore('60-80'); setIsScoreMenuOpen(false); }}>Score 60-80</div>
+                <div className="menu-item" onClick={() => { setMinScore('80-100'); setIsScoreMenuOpen(false); }}>Score 80-100</div>
+              </div>
+            )}
+          </div>
+
+          <div className="period-dropdown" ref={simDropdownRef}>
+            <button type="button" className="period-trigger" onClick={() => setIsSimMenuOpen(o => !o)}>
+              {minSimulations === '' ? 'Toutes les simulations' : `≥ ${minSimulations} simulations`}
+              <span className="chevron">▾</span>
+            </button>
+            {isSimMenuOpen && (
+              <div className="period-menu">
+                <div className="menu-item" onClick={() => { setMinSimulations(''); setIsSimMenuOpen(false); }}>Toutes les simulations</div>
+                <div className="menu-item" onClick={() => { setMinSimulations('3'); setIsSimMenuOpen(false); }}>≥ 3 simulations</div>
+                <div className="menu-item" onClick={() => { setMinSimulations('5'); setIsSimMenuOpen(false); }}>≥ 5 simulations</div>
+                <div className="menu-item" onClick={() => { setMinSimulations('10'); setIsSimMenuOpen(false); }}>≥ 10 simulations</div>
+              </div>
+            )}
+          </div>
+
+          <div className="period-dropdown" ref={clientDropdownRef}>
+            <button type="button" className="period-trigger" onClick={() => setIsClientMenuOpen(o => !o)}>
+              {clientFilter === '' ? 'Tous les clients' : clientFilter}
+              <span className="chevron">▾</span>
+            </button>
+            {isClientMenuOpen && (
+              <div className="period-menu">
+                <div className="menu-item" onClick={() => { setClientFilter(''); setIsClientMenuOpen(false); }}>Tous les clients</div>
+                {clientList.map(client => (
+                  <div key={client} className="menu-item" onClick={() => { setClientFilter(client as string); setIsClientMenuOpen(false); }}>{client}</div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div className="student-list-table-card">
           <table className="student-table styled-table no-vertical-lines">

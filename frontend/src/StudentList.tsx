@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import './assets/css/studentList.css';
 import { useBreadcrumbContext } from './BreadcrumbContext';
@@ -51,6 +51,37 @@ const StudentList: React.FC = () => {
   const { addBreadcrumb } = useBreadcrumbContext();
   const { settings } = useSettings();
   
+  // Dropdown personalizzati (stile identico a Période)
+  const [isScoreMenuOpen, setIsScoreMenuOpen] = useState(false);
+  const [isSimMenuOpen, setIsSimMenuOpen] = useState(false);
+  const [isMonthMenuOpen, setIsMonthMenuOpen] = useState(false);
+  const [isYearMenuOpen, setIsYearMenuOpen] = useState(false);
+  const scoreDropdownRef = useRef<HTMLDivElement>(null);
+  const simDropdownRef = useRef<HTMLDivElement>(null);
+  const monthDropdownRef = useRef<HTMLDivElement>(null);
+  const yearDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (scoreDropdownRef.current && !scoreDropdownRef.current.contains(e.target as Node)) setIsScoreMenuOpen(false); };
+    if (isScoreMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isScoreMenuOpen]);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (simDropdownRef.current && !simDropdownRef.current.contains(e.target as Node)) setIsSimMenuOpen(false); };
+    if (isSimMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isSimMenuOpen]);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (monthDropdownRef.current && !monthDropdownRef.current.contains(e.target as Node)) setIsMonthMenuOpen(false); };
+    if (isMonthMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isMonthMenuOpen]);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (yearDropdownRef.current && !yearDropdownRef.current.contains(e.target as Node)) setIsYearMenuOpen(false); };
+    if (isYearMenuOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isYearMenuOpen]);
+  
   // Stato per i gruppi
   const [groups, setGroups] = useState<string[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
@@ -90,7 +121,7 @@ const StudentList: React.FC = () => {
   const handleDeleteSelected = async () => {
     if (selectedRows.size === 0) return;
     
-    if (!confirm(`Sei sicuro di voler eliminare ${selectedRows.size} learner/i?`)) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selectedRows.size} apprenant(s) ?`)) {
       return;
     }
 
@@ -112,13 +143,13 @@ const StudentList: React.FC = () => {
         setStudents(newStudents);
         setSelectedRows(new Set());
         setSelectAll(false);
-        alert(`${selectedRows.size} learner/i eliminati con successo!`);
+        alert(`${selectedRows.size} apprenant(s) supprimée(s) avec succès !`);
       } else {
-        throw new Error('Errore durante l\'eliminazione');
+        throw new Error('Error during delection');
       }
     } catch (error) {
-      console.error('Errore eliminazione learners:', error);
-      alert('Errore durante l\'eliminazione dei learners');
+      console.error('Error during delection', error);
+      alert('Error during delection');
     }
   };
 
@@ -301,13 +332,13 @@ const StudentList: React.FC = () => {
             <button 
               className="delete-selected-btn"
               onClick={handleDeleteSelected}
-              title={`Elimina ${selectedRows.size} learner/i selezionato/i`}
+              title={`Supprimer ${selectedRows.size} apprenant(s) sélectionné(s)`}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3,6 5,6 21,6"></polyline>
                 <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
               </svg>
-              Elimina ({selectedRows.size})
+              Supprimer ({selectedRows.size})
             </button>
           </div>
         )}
@@ -320,53 +351,77 @@ const StudentList: React.FC = () => {
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            <select value={minScore} onChange={e => setMinScore(e.target.value)}>
-              <option value="">Tous les scores</option>
-              <option value="0-20">Score 0-20</option>
-              <option value="20-40">Score 20-40</option>
-              <option value="40-60">Score 40-60</option>
-              <option value="60-80">Score 60-80</option>
-              <option value="80-100">Score 80-100</option>
-            </select>
-            <select value={minSimulations} onChange={e => setMinSimulations(e.target.value)}>
-              <option value="">Toutes les simulations</option>
-              <option value="3">≥ 3 simulations</option>
-              <option value="5">≥ 5 simulations</option>
-              <option value="10">≥ 10 simulations</option>
-            </select>
-            <select value={monthFilter} onChange={e => setMonthFilter(e.target.value)}>
-              <option value="">Tous les mois</option>
-              <option value="01">Janvier</option>
-              <option value="02">Février</option>
-              <option value="03">Mars</option>
-              <option value="04">Avril</option>
-              <option value="05">Mai</option>
-              <option value="06">Juin</option>
-              <option value="07">Juillet</option>
-              <option value="08">Août</option>
-              <option value="09">Septembre</option>
-              <option value="10">Octobre</option>
-              <option value="11">Novembre</option>
-              <option value="12">Décembre</option>
-            </select>
-            <select value={yearFilter} onChange={e => setYearFilter(e.target.value)}>
-              <option value="">Toutes les années</option>
-              {/* Opzioni dinamiche pour les années trouvées dans les données */}
-              {[...new Set(students.map(stu => {
-                if (stu.last_date) {
-                  const dateParts = stu.last_date.split(/[\/\-]/);
-                  if (dateParts.length >= 3) {
-                    return dateParts[2] || dateParts[0]; // Supporta sia DD/MM/YYYY che YYYY-MM-DD
-                  }
-                }
-                return '';
-              }))]
-                .filter(y => y)
-                .sort((a, b) => b.localeCompare(a))
-                .map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-            </select>
+            <div className="period-dropdown" ref={scoreDropdownRef}>
+              <button type="button" className="period-trigger" onClick={() => setIsScoreMenuOpen(o => !o)}>
+                {minScore === '' ? 'Tous les scores' : `Score ${minScore}`}
+                <span className="chevron">▾</span>
+              </button>
+              {isScoreMenuOpen && (
+                <div className="period-menu">
+                  <div className="menu-item" onClick={() => { setMinScore(''); setIsScoreMenuOpen(false); }}>Tous les scores</div>
+                  <div className="menu-item" onClick={() => { setMinScore('0-20'); setIsScoreMenuOpen(false); }}>Score 0-20</div>
+                  <div className="menu-item" onClick={() => { setMinScore('20-40'); setIsScoreMenuOpen(false); }}>Score 20-40</div>
+                  <div className="menu-item" onClick={() => { setMinScore('40-60'); setIsScoreMenuOpen(false); }}>Score 40-60</div>
+                  <div className="menu-item" onClick={() => { setMinScore('60-80'); setIsScoreMenuOpen(false); }}>Score 60-80</div>
+                  <div className="menu-item" onClick={() => { setMinScore('80-100'); setIsScoreMenuOpen(false); }}>Score 80-100</div>
+                </div>
+              )}
+            </div>
+            <div className="period-dropdown" ref={simDropdownRef}>
+              <button type="button" className="period-trigger" onClick={() => setIsSimMenuOpen(o => !o)}>
+                {minSimulations === '' ? 'Toutes les simulations' : `≥ ${minSimulations} simulations`}
+                <span className="chevron">▾</span>
+              </button>
+              {isSimMenuOpen && (
+                <div className="period-menu">
+                  <div className="menu-item" onClick={() => { setMinSimulations(''); setIsSimMenuOpen(false); }}>Toutes les simulations</div>
+                  <div className="menu-item" onClick={() => { setMinSimulations('3'); setIsSimMenuOpen(false); }}>≥ 3 simulations</div>
+                  <div className="menu-item" onClick={() => { setMinSimulations('5'); setIsSimMenuOpen(false); }}>≥ 5 simulations</div>
+                  <div className="menu-item" onClick={() => { setMinSimulations('10'); setIsSimMenuOpen(false); }}>≥ 10 simulations</div>
+                </div>
+              )}
+            </div>
+            <div className="period-dropdown" ref={monthDropdownRef}>
+              <button type="button" className="period-trigger" onClick={() => setIsMonthMenuOpen(o => !o)}>
+                {monthFilter === '' ? 'Tous les mois' : new Date(2000, parseInt(monthFilter, 10) - 1, 1).toLocaleString('fr-FR', { month: 'long' })}
+                <span className="chevron">▾</span>
+              </button>
+              {isMonthMenuOpen && (
+                <div className="period-menu">
+                  <div className="menu-item" onClick={() => { setMonthFilter(''); setIsMonthMenuOpen(false); }}>Tous les mois</div>
+                  {['01','02','03','04','05','06','07','08','09','10','11','12'].map((m) => (
+                    <div key={m} className="menu-item" onClick={() => { setMonthFilter(m); setIsMonthMenuOpen(false); }}>
+                      {new Date(2000, parseInt(m, 10) - 1, 1).toLocaleString('fr-FR', { month: 'long' })}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="period-dropdown" ref={yearDropdownRef}>
+              <button type="button" className="period-trigger" onClick={() => setIsYearMenuOpen(o => !o)}>
+                {yearFilter === '' ? 'Toutes les années' : yearFilter}
+                <span className="chevron">▾</span>
+              </button>
+              {isYearMenuOpen && (
+                <div className="period-menu">
+                  <div className="menu-item" onClick={() => { setYearFilter(''); setIsYearMenuOpen(false); }}>Toutes les années</div>
+                  {[...new Set(students.map(stu => {
+                    if (stu.last_date) {
+                      const dateParts = stu.last_date.split(/[\/\-]/);
+                      if (dateParts.length >= 3) {
+                        return dateParts[2] || dateParts[0];
+                      }
+                    }
+                    return '';
+                  }))]
+                    .filter(y => y)
+                    .sort((a, b) => b.localeCompare(a))
+                    .map(year => (
+                      <div key={year} className="menu-item" onClick={() => { setYearFilter(year); setIsYearMenuOpen(false); }}>{year}</div>
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
           {/* Tabella desktop/tablet */}
           <table className="student-table styled-table no-vertical-lines">
