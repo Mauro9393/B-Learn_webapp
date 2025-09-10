@@ -168,23 +168,54 @@ function Dashboard() {
       if (count > topChatbot.count) topChatbot = { name, count };
     }
 
-    // Calcola i chatbot creati nel mese corrente
-    const chatbotsThisMonth = 0; // No longer calculating
+    // Limiti del mese corrente
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const parseDate = (s: string) => {
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    };
 
-    // Calcola i nuovi learners del mese corrente
-    const newLearnersThisMonth = 0; // No longer calculating
+    // Chatbot creati nel mese corrente (tra quelli visibili all'utente)
+    const chatbotsThisMonth = tenantChatbots.filter(bot => {
+      const d = parseDate(bot.created_at);
+      return d && d >= monthStart && d < nextMonthStart;
+    }).length;
 
-    // Calcola le simulazioni del mese corrente
-    const simulationsThisMonth = 0; // No longer calculating
+    // Dati del mese corrente
+    const monthlyUserlist = tenantUserlist.filter(row => {
+      const d = parseDate(row.created_at);
+      return d && d >= monthStart && d < nextMonthStart;
+    });
 
-    // Calcola i top chatbot del mese corrente
-    const topChatbotsThisMonth = [] as { name: string; storylineKey: string; count: number; rank: number }[]; // No longer calculating
+    const simulationsThisMonth = monthlyUserlist.length;
+    const newLearnersThisMonth = new Set(monthlyUserlist.map(r => r.user_email)).size;
 
-    // Calcola le nuove simulazioni del mese corrente
-    const newSimulationsThisMonth = 0; // No longer calculating
+    // Media punteggio del mese corrente (considera solo score validi >= 0)
+    const validMonthlyScores = monthlyUserlist.map(r => r.score).filter(s => typeof s === 'number' && s >= 0);
+    const averageScoreThisMonth = validMonthlyScores.length > 0
+      ? Math.round(validMonthlyScores.reduce((a, b) => a + b, 0) / validMonthlyScores.length)
+      : 0;
 
-    // Calcola il punteggio medio del mese corrente
-    const averageScoreThisMonth = 0; // No longer calculating
+    // Top chatbot del mese corrente (per numero di simulazioni)
+    const countsPerChatbot: Record<string, number> = {};
+    monthlyUserlist.forEach(r => { countsPerChatbot[r.chatbot_name] = (countsPerChatbot[r.chatbot_name] || 0) + 1; });
+    const topChatbotsThisMonth = Object.entries(countsPerChatbot)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([storylineKey, count], idx) => {
+        const bot = tenantChatbots.find(b => b.storyline_key === storylineKey);
+        return {
+          name: bot ? bot.name : storylineKey,
+          storylineKey,
+          count,
+          rank: idx + 1,
+        } as { name: string; storylineKey: string; count: number; rank: number };
+      });
+
+    // Valore mostrato nel widget "Nouvelles simulations"
+    const newSimulationsThisMonth = simulationsThisMonth;
 
     setStats(s => ({
       ...s,
