@@ -131,17 +131,15 @@ const Analysis: React.FC = () => {
 
   const { questions, summary } = parseAnalysis(analysisClean);
 
-  // Funzione per parsare i criteri dal testo dell'analisi
+  // Funzione per parsare i criteri dal testo dell'analisi (etichetta sulla stessa riga)
   const parseCriteres = (analysis: string) => {
     if (!analysis) return [];
 
-    // 1) Trova tutti gli header "Critère n°X" (accetta anche "Critere")
     const headerRegex = /Crit[eè]re\s*n[°ºo]?\s*(\d+)/gi;
     const matches = Array.from(analysis.matchAll(headerRegex));
 
     const criteres: Array<{ name: string; description: string; note: number; maxNote: number; fullNote: string }>=[];
 
-    // 2) Per ogni header, considera il blocco fino al prossimo header (o fine testo)
     for (let i = 0; i < matches.length; i++) {
       const headerMatch = matches[i];
       const num = headerMatch[1];
@@ -149,17 +147,27 @@ const Analysis: React.FC = () => {
       const end = i < matches.length - 1 ? (matches[i + 1].index ?? analysis.length) : analysis.length;
       const block = analysis.slice(start, end);
 
-      // 3) Estrai la nota nel blocco (accetta ":" opzionale e /10 o /100)
+      // Estrai la nota nel blocco
       const noteMatch = block.match(/Note\s*[ :]\s*(\d+)\s*\/\s*(10|100)\b/i);
       if (!noteMatch) continue;
       const raw = parseInt(noteMatch[1], 10);
       const denom = parseInt(noteMatch[2], 10);
       const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
 
-      // 4) Prova a ricavare una descrizione breve: prima riga utile dopo l'header
-      const afterHeader = block.replace(/^.*?\n/, '');
-      const firstUsefulLine = (afterHeader.split(/\n+/).find(l => l.trim() && !/^Note\b/i.test(l.trim())) || '').trim();
-      const description = firstUsefulLine.replace(/^[—–\-]\s*/, '').replace(/\s*:\s*$/, '');
+      // Descrizione: priorità alla stessa riga dell'header dopo separatore
+      const headerLine = block.split(/\n/)[0] || '';
+      let description = '';
+      const sameLineRegex = new RegExp(`Crit[eè]re\\s*n[°ºo]?\\s*${num}\\s*[ ,:—–-]*\\s*(.+)$`, 'i');
+      const sameLineMatch = headerLine.match(sameLineRegex);
+      if (sameLineMatch && sameLineMatch[1]) {
+        description = sameLineMatch[1].trim();
+      }
+      // Fallback: prima riga utile dopo l'header
+      if (!description) {
+        const afterHeader = block.replace(/^.*?\n/, '');
+        const firstUsefulLine = (afterHeader.split(/\n+/).find(l => l.trim() && !/^Note\b/i.test(l.trim())) || '').trim();
+        description = firstUsefulLine.replace(/^[—–\-]\s*/, '').replace(/\s*:\s*$/, '');
+      }
 
       criteres.push({
         name: `Critère n°${num}`,
@@ -184,10 +192,15 @@ const Analysis: React.FC = () => {
 
   const criteres = parseCriteres(analysisClean);
 
-  // Funzione per troncare il testo se troppo lungo
-  const truncateText = (text: string, maxLength: number = 8) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+  // Restituisce solo la prima parola della descrizione seguita da "..."
+  const getCritereShortLabel = (description: string) => {
+    const d = (description || '').trim();
+    if (!d) return '';
+    const firstWord = d
+      .replace(/^[:\-\s]+/, '')
+      .split(/\s+/)[0]
+      .replace(/[.,;:!?)]*$/, '');
+    return firstWord ? `${firstWord}...` : '';
   };
 
   // Funzione per schermo intero (identica a ChatHistory, ref su pdf-content)
@@ -508,7 +521,7 @@ const Analysis: React.FC = () => {
                     title={critere.description}
                     style={{ cursor: 'help' }}
                   >
-                    {truncateText(critere.description)}
+                    {getCritereShortLabel(critere.description)}
                   </div>
                 )}
                 <span className={`progress-value score-style ${getCritereClass(critere.note)}`}>
