@@ -101,11 +101,11 @@ function Dashboard() {
             setEditingTenant(null);
             
             // Feedback per l'utente
-            alert('Chatbot assegnato al nuovo cliente con successo!');
+            alert('Chatbot assigned to new client successfully!');
         }
     } catch (error) {
         console.error('Errore aggiornamento tenant:', error);
-        alert('Errore durante l\'assegnazione del chatbot al nuovo cliente.');
+        alert('Error assigning chatbot to new client.');
     }
   };
 

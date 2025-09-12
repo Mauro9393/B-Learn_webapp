@@ -135,39 +135,41 @@ const Analysis: React.FC = () => {
   const parseCriteres = (analysis: string) => {
     if (!analysis) return [];
 
-    // cattura anche il denominatore - modifica per catturare tutto il contenuto tra titolo e nota
-    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([\s\S]*?)(?=Note\s*:\s*\d+\s*\/\s*(?:10|100))/gi;
-    const criteres: Array<{name:string;description:string;note:number;maxNote:number;fullNote:string}> = [];
-    let match: RegExpExecArray | null;
+    // 1) Trova tutti gli header "Critère n°X" (accetta anche "Critere")
+    const headerRegex = /Crit[eè]re\s*n[°ºo]?\s*(\d+)/gi;
+    const matches = Array.from(analysis.matchAll(headerRegex));
 
-    while ((match = criterePattern.exec(analysis)) !== null) {
-      const num = match[1];
-      let description = (match[2] || '').trim();
-      
-      // Pulisci la descrizione rimuovendo righe vuote eccessive e spazi
-      description = description.replace(/\n\s*\n/g, '\n').replace(/^\s+|\s+$/g, '');
-      
-      // Trova la nota per questo criterio
-      const notePattern = new RegExp(`Critère\\s*n[°ºo]?\\s*${num}[\\s\\S]*?Note\\s*:\\s*(\\d+)\\s*\\/\\s*(10|100)`, 'gi');
-      const noteMatch = notePattern.exec(analysis);
-      
-      if (noteMatch) {
-        const raw = parseInt(noteMatch[1], 10);
-        const denom = parseInt(noteMatch[2], 10);
-        
-        // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
-        // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
-        const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
+    const criteres: Array<{ name: string; description: string; note: number; maxNote: number; fullNote: string }>=[];
 
-        criteres.push({
-          name: `Critère n°${num}`,
-          description,
-          note,
-          maxNote: 100,
-          fullNote: `${note}/100`
-        });
-      }
+    // 2) Per ogni header, considera il blocco fino al prossimo header (o fine testo)
+    for (let i = 0; i < matches.length; i++) {
+      const headerMatch = matches[i];
+      const num = headerMatch[1];
+      const start = headerMatch.index ?? 0;
+      const end = i < matches.length - 1 ? (matches[i + 1].index ?? analysis.length) : analysis.length;
+      const block = analysis.slice(start, end);
+
+      // 3) Estrai la nota nel blocco (accetta ":" opzionale e /10 o /100)
+      const noteMatch = block.match(/Note\s*[ :]\s*(\d+)\s*\/\s*(10|100)\b/i);
+      if (!noteMatch) continue;
+      const raw = parseInt(noteMatch[1], 10);
+      const denom = parseInt(noteMatch[2], 10);
+      const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
+
+      // 4) Prova a ricavare una descrizione breve: prima riga utile dopo l'header
+      const afterHeader = block.replace(/^.*?\n/, '');
+      const firstUsefulLine = (afterHeader.split(/\n+/).find(l => l.trim() && !/^Note\b/i.test(l.trim())) || '').trim();
+      const description = firstUsefulLine.replace(/^[—–\-]\s*/, '').replace(/\s*:\s*$/, '');
+
+      criteres.push({
+        name: `Critère n°${num}`,
+        description,
+        note,
+        maxNote: 100,
+        fullNote: `${note}/100`
+      });
     }
+
     return criteres;
   };
 
@@ -230,62 +232,59 @@ const Analysis: React.FC = () => {
 
   // Funzione per formattare un blocco di analisi in React, senza dangerouslySetInnerHTML
   const formatAnalysisBlock = (block: string) => {
-    block = cleanAnalysisText(block); // <-- aggiungi questa riga
-    const patterns = [
-      { label: 'La question de Christophe:', className: 'analysis-label analysis-label-blue', clean: /^(La question de Christophe:|question de Christophe:|question:)/i },
-      { label: 'Ma réponse:', className: 'analysis-label analysis-label-blue', clean: /^(Ma réponse:|réponse:)/i },
-      { label: 'La réponse idéale:', className: 'analysis-label analysis-label-green', clean: /^(La réponse idéale:|réponse idéale:|idéale:)/i },
-      { label: 'Corrections apportées:', className: 'analysis-label analysis-label-orange', clean: /^(Corrections apportées:|apportées:|portées:)/i },
-      { label: 'Note:', className: '', clean: /^(Note:)/i },
-    ];
-
+    block = cleanAnalysisText(block);
     const lines = block.split(/\n+/).filter(Boolean);
     const result: React.ReactNode[] = [];
 
     lines.forEach((line, idx) => {
-      // Gestione Note ovunque nella riga (gestisce sia /10 che /100)
+      // 1) Evidenzia la nota, ovunque compaia nella riga
       const noteMatch = line.match(/Note\s*[ :]\s*(\d+)\s*\/\s*(10|100)\b/iu);
       if (noteMatch) {
         const n = parseInt(noteMatch[1].replace(/[^0-9]/g, ''), 10);
         const maxNote = parseInt(noteMatch[2], 10);
         let colorClass = 'analysis-note-num-red';
-        
-        // Adatta i colori per note su 100
         if (maxNote === 100) {
           if (n >= 80) colorClass = 'analysis-note-num-green';
-          else if (n >= 50 && n < 80) colorClass = 'analysis-note-num-yellow'
-          else if (n < 50) colorClass = 'analysis-note-num-red';
+          else if (n >= 50 && n < 80) colorClass = 'analysis-note-num-yellow';
+          else colorClass = 'analysis-note-num-red';
         }
-        
         result.push(
           <div key={`${idx}-note`} className="analysis-block-content-indent" style={{marginBottom: 2}}>
-            <span className={colorClass}>
-              Note: {n}/{maxNote}
-            </span>
+            <span className={colorClass}>Note: {n}/{maxNote}</span>
           </div>
         );
-        // Rimuovi la nota dal resto della riga, se c'è altro testo
-        line = line.replace(/Note\s*:\s*\d+\s*\/\d+,?\s*/i, '').trim();
+        // Rimuovi la parte "Note" e continua a processare eventuale testo residuo
+        line = line.replace(/Note\s*[: ]\s*\d+\s*\/\s*(?:10|100)\s*,?\s*/i, '').trim();
         if (!line) return;
-        // Se c'è altro testo dopo la nota, continua a processare la riga
       }
-      // Gestione altre label
-      const pattern = patterns.find(p => line.trim().startsWith(p.label));
-      if (pattern) {
-        const labelLen = pattern.label.length;
-        let content = line.slice(labelLen).trim();
-        // Rimuovi eventuali ripetizioni della label all'inizio del contenuto
-        if (pattern.clean) {
-          content = content.replace(pattern.clean, '').trim();
-        }
+
+      // 1b) Ignora righe isolate che sono solo numeri (es. "0", "0%", "0/100")
+      if (/^\s*\d{1,3}(?:\s*(?:%|\/\s*\d{2,3}))?\s*$/.test(line)) {
+        return;
+      }
+
+      // 2) Evidenzia dinamicamente qualsiasi etichetta seguita da due punti
+      //    Accetta varianti di ":" (incluso fullwidth)
+      const labelMatch = line.match(/^\s*(?:[—–\-]\s*)?([^：:]{1,80}?)\s*[：:]\s*(.*)$/);
+      if (labelMatch) {
+        const rawLabel = labelMatch[1].trim();
+        const content = labelMatch[2].trim();
+        const lower = rawLabel.toLowerCase();
+        let className = 'analysis-label analysis-label-blue';
+        if (/id[ée]ale/.test(lower)) className = 'analysis-label analysis-label-green';
+        else if (/correction|am[ée]liorat/.test(lower)) className = 'analysis-label analysis-label-orange';
+
         result.push(
           <div key={`${idx}-label`} className="analysis-block-content-indent" style={{marginBottom: 2}}>
-            <span className={pattern.className}>{pattern.label}</span>
+            <span className={className}>{rawLabel}:</span>
             {content ? ' ' + content : ''}
           </div>
         );
-      } else if (line) {
-        // Riga normale
+        return;
+      }
+
+      // 3) Riga normale
+      if (line) {
         result.push(
           <div key={`${idx}-text`} className="analysis-block-content-indent" style={{marginBottom: 2}}>
             {line}

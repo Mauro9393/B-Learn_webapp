@@ -105,54 +105,85 @@ function List() {
     return () => document.removeEventListener('mousedown', handler);
   }, [isYearMenuOpen]);
 
-  // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx)
+  // Funzione per parsare i criteri dal testo dell'analisi (robusta e dinamica)
   const parseCriteres = (analysis: string) => {
     if (!analysis) return [];
-    
+
     // Normalizza il testo per gestire spazi e caratteri Unicode strani
-    let normalizedAnalysis = analysis
+    const normalized = analysis
       .normalize('NFKC')
       .replace(/[\u00A0\u202F\u2007\u2009\u200A\u200B]+/g, ' ')
       .replace(/[⁄∕⧸⟋]/g, '/')
       .replace(/[：﹕꞉︓]/g, ':')
       .replace(/\n\s*:\s*/g, ' : ');
-    
-    // cattura anche il denominatore - modifica per catturare tutto il contenuto tra titolo e nota
-    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([\s\S]*?)(?=Note\s*:\s*\d+\s*\/\s*(?:10|100))/gi;
-    const criteres = [];
-    let match;
-    
-    while ((match = criterePattern.exec(normalizedAnalysis)) !== null) {
-      const critereNumber = match[1];
-      let description = (match[2] || '').trim();
-      
-      // Pulisci la descrizione rimuovendo righe vuote eccessive e spazi
-      description = description.replace(/\n\s*\n/g, '\n').replace(/^\s+|\s+$/g, '');
-      
-      // Trova la nota per questo criterio
-      const notePattern = new RegExp(`Critère\\s*n[°ºo]?\\s*${critereNumber}[\\s\\S]*?Note\\s*:\\s*(\\d+)\\s*\\/\\s*(10|100)`, 'gi');
-      const noteMatch = notePattern.exec(normalizedAnalysis);
-      
-      if (noteMatch) {
-        const raw = parseInt(noteMatch[1], 10);
-        const denom = parseInt(noteMatch[2], 10);
-        
-        // Se per caso arrivasse /10 realmente, scala (5/10 -> 50/100).
-        // Se è il tuo caso (50/10 = già su 100 ma denom sbagliato), lo lasciamo 50.
-        const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
-        
-        if (note !== null) {
-          criteres.push({
-            name: `Critère n°${critereNumber}`,
-            description: description,
-            note: note,
-            fullMatch: match[0]
-          });
+
+    // Trova tutti gli header "Critère n°X" (accetta anche "Critere")
+    const headerRegex = /Crit[eè]re\s*n[°ºo]?\s*(\d+)/gi;
+    const headers = Array.from(normalized.matchAll(headerRegex));
+    const criteres: Array<{ name: string; description: string; note: number; fullMatch: string }>=[];
+
+    for (let i = 0; i < headers.length; i++) {
+      const m = headers[i];
+      const num = m[1];
+      const start = m.index ?? 0;
+      const end = i < headers.length - 1 ? (headers[i + 1].index ?? normalized.length) : normalized.length;
+      const block = normalized.slice(start, end);
+
+      // Estrai la nota nel blocco
+      const noteMatch = block.match(/Note\s*[ :]\s*(\d+)\s*\/\s*(10|100)\b/i);
+      if (!noteMatch) continue;
+      const raw = parseInt(noteMatch[1], 10);
+      const denom = parseInt(noteMatch[2], 10);
+      const note = denom === 100 ? raw : (raw <= 10 ? raw * 10 : raw);
+
+      // Ricava una descrizione breve: PRIORITARIO = testo sulla stessa riga dell'header
+      const headerLine = block.split(/\n/)[0] || '';
+      let description = '';
+      const sameLineRegex = new RegExp(`Crit[eè]re\\s*n[°ºo]?\\s*${num}\s*[ ,:—–-]*\s*(.+)$`, 'i');
+      const sameLineMatch = headerLine.match(sameLineRegex);
+      if (sameLineMatch && sameLineMatch[1]) {
+        description = sameLineMatch[1].trim();
+      }
+      // Fallback 1: linea con trattino che introduce il titolo (esclude etichette non titolo)
+      if (!description) {
+        const dashTitleMatch = block.match(/(^|\n)\s*[—–\-]\s*(?!La question|Ma r[ée]ponse|La r[ée]ponse id[ée]ale|Corrections? apportées|Point|Axe|Commentaires?)([^:\n]{1,120}?)\s*:/i);
+        if (dashTitleMatch && dashTitleMatch[2]) {
+          description = dashTitleMatch[2].trim();
         }
       }
+      // Fallback 2: prima riga con ":" che non sia Point/Axe/Commentaire/La question/Ma réponse/La réponse idéale/Corrections apportées
+      if (!description) {
+        const afterHeader = block.slice(headerLine.length);
+        const candidate = (afterHeader.split(/\n+/).find(l => {
+          const s = l.trim();
+          return s && !/^Note\b/i.test(s) && /:/.test(s) && !/^(Point\(s\)?|Point|Axe|Commentaire|Commentaires?|La question|Ma r[ée]ponse|La r[ée]ponse id[ée]ale|Corrections? apportées)/i.test(s);
+        }) || '').trim();
+        if (candidate) {
+          description = candidate.split(':')[0].trim();
+        }
+      }
+      description = description.replace(/^[—–\-]\s*/, '').replace(/\s*[:，]\s*$/, '');
+
+      criteres.push({
+        name: `Critère n°${num}`,
+        description,
+        note,
+        fullMatch: block
+      });
     }
-    
+
     return criteres;
+  };
+
+  // Restituisce solo la prima parola della descrizione seguita da "..."
+  const getCritereShortLabel = (description: string) => {
+    const d = (description || '').trim();
+    if (!d) return '';
+    const firstWord = d
+      .replace(/^[:\-\s]+/, '')
+      .split(/\s+/)[0]
+      .replace(/[.,;:!?)]*$/, '');
+    return firstWord ? `${firstWord}...` : '';
   };
 
   // Stato per il numero massimo di criteri
@@ -607,7 +638,7 @@ function List() {
                     <div>Critère n°{i + 1}</div>
                     {critereDescription && (
                       <div style={{ fontSize: '0.7rem', fontWeight: 'normal', color: '#666', marginTop: '2px' }}>
-                        {critereDescription.split('\n')[0].trim()}
+                        {getCritereShortLabel(critereDescription)}
                       </div>
                     )}
                   </th>
