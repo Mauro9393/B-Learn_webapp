@@ -18,6 +18,8 @@ interface DataItem {
   created_at?: string; // aggiunta per la data
   usergroup?: string; // aggiunta per il gruppo
   temp?: string; // aggiunta per il tempo formattato dal backend
+  stars?: number; // valutazione stelle
+  review?: string; // commento testo libero
 }
 
 function useQuery() {
@@ -42,7 +44,7 @@ function List() {
   const [showAllLaunches, setShowAllLaunches] = useState(false);
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
   // Stato per ordinamento
-  const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score'>('created_at');
+  const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'score' | 'stars'>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
   // Stato per la paginazione mobile
@@ -219,6 +221,14 @@ function List() {
     return 'critere-green';
   };
 
+  // Rendering stelle (0-5)
+  const renderStars = (stars: number | undefined) => {
+    const safeStars = typeof stars === 'number' && isFinite(stars) ? Math.max(0, Math.min(5, Math.round(stars))) : 0;
+    return Array.from({ length: 5 }, (_, i) => (
+      <span key={i} className={`star ${i < safeStars ? 'filled' : ''}`} aria-hidden="true">★</span>
+    ));
+  };
+
   // Funzione per gestire il cambio di gruppo
   const handleGroupChange = (group: string) => {
     setSelectedGroup(group);
@@ -388,6 +398,10 @@ function List() {
       return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
     } else if (sortColumn === 'score') {
       return sortDirection === 'asc' ? a.score - b.score : b.score - a.score;
+    } else if (sortColumn === 'stars') {
+      const starsA = typeof a.stars === 'number' && isFinite(a.stars) ? a.stars : -1;
+      const starsB = typeof b.stars === 'number' && isFinite(b.stars) ? b.stars : -1;
+      return sortDirection === 'asc' ? starsA - starsB : starsB - starsA;
     }
     return 0;
   });
@@ -426,7 +440,7 @@ function List() {
   };
 
   // Gestione click sulle colonne
-  const handleSort = (column: 'name' | 'created_at' | 'score') => {
+  const handleSort = (column: 'name' | 'created_at' | 'score' | 'stars') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -438,7 +452,7 @@ function List() {
   };
 
   // Freccia da mostrare accanto alla colonna ordinata
-  const getArrow = (column: 'name' | 'created_at' | 'score') => {
+  const getArrow = (column: 'name' | 'created_at' | 'score' | 'stars') => {
     if (sortColumn !== column) return <span className="sort-arrow">⇅</span>;
     return <span className="sort-arrow">{sortDirection === 'asc' ? UP_ARROW : DOWN_ARROW}</span>;
   };
@@ -624,6 +638,8 @@ function List() {
               {settings.showGroups && <th>Groupe</th>}
               <th className="sortable-header" onClick={() => handleSort('score')}>Score {getArrow('score')}</th>
               <th>Temps</th>
+              <th className="sortable-header" onClick={() => handleSort('stars')}>Étoiles {getArrow('stars')}</th>
+              <th>Commentaire</th>
               {showCriteres && maxCriteres > 0 && Array.from({ length: maxCriteres }, (_, i) => {
                 // Trova la descrizione del criterio dal primo elemento che ha criteri
                 const firstItemWithCriteres = sortedData.find(item => {
@@ -687,6 +703,23 @@ function List() {
                   )}
                 </td>
                 <td>{item.temp || '-'}</td>
+                <td className="stars-cell" title={typeof item.stars === 'number' ? `${item.stars}/5` : ''}>
+                  <div className="stars" aria-label={typeof item.stars === 'number' ? `${item.stars} su 5 stelle` : 'Nessuna valutazione'}>
+                    {renderStars(item.stars)}
+                  </div>
+                </td>
+                <td className="review-cell">
+                  <div className="card-buttons">
+                    <button
+                      className={`btn-small btn-view ${!item.review ? 'btn-disabled' : ''}`}
+                      title="Visualiser"
+                      onClick={() => { setModalTitle('Commentaire'); setModalContent(item.review || ''); }}
+                      disabled={!item.review}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                </td>
                 {showCriteres && maxCriteres > 0 && (() => {
                   const criteres = parseCriteres(item.chat_analysis);
                   return Array.from({ length: maxCriteres }, (_, i) => {
@@ -800,6 +833,25 @@ function List() {
               )}
             </div>
             <div><strong>Temp:</strong> {item.temp || '-'}</div>
+            <div>
+              <strong>Étoiles:</strong>
+              <span className="stars-inline" title={typeof item.stars === 'number' ? `${item.stars}/5` : ''}>
+                {renderStars(item.stars)}
+              </span>
+            </div>
+            <div>
+              <strong>Commentaire:</strong>
+              <div className="card-buttons">
+                <button
+                  className={`btn-small btn-view ${!item.review ? 'btn-disabled' : ''}`}
+                  title="Visualiser"
+                  onClick={() => { setModalTitle('Commentaire'); setModalContent(item.review || ''); }}
+                  disabled={!item.review}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
             <div>
               <strong>Historique chat:</strong>
               <div className="card-buttons">

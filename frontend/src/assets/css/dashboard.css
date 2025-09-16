@@ -345,6 +345,45 @@ body {
     margin-bottom: 1.2rem;
 }
 
+.chatbot-stars {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: -0.6rem;
+    margin-bottom: 0.8rem;
+}
+
+.stars-label {
+    color: #7F53F5;
+    font-weight: 600;
+}
+
+.stars-avg-mini {
+    position: relative;
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.stars-base-mini {
+    color: #e0e0e0;
+}
+
+.stars-fill-mini {
+    color: #f5c518;
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.stars-value-mini {
+    color: #5B6DF6;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
 button,
 .btn {
     background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);

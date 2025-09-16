@@ -59,6 +59,7 @@ const ChatbotDetail: React.FC = () => {
   // Stato per le nuove statistiche
   const [completionRate, setCompletionRate] = useState<number>(0);
   const [engagementRate, setEngagementRate] = useState<number>(0);
+  const [avgStars, setAvgStars] = useState<number>(0);
 
   // Stato per i dati del grafico criteri
   const [criteresData, setCriteresData] = useState<{ name: string; average: number; count: number; description?: string }[]>([]);
@@ -167,52 +168,69 @@ const ChatbotDetail: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isSimMenuOpen]);
 
-  // Funzione per parsare i criteri dal testo dell'analisi (identica a Analysis.tsx)
+  // Parser criteri robusto (allineato alla logica di List.tsx)
   const parseCriteres = (analysis: string) => {
-    if (!analysis) return [];
-    
-    // Normalizza il testo per gestire spazi e caratteri Unicode strani
-    let normalizedAnalysis = analysis
+    if (!analysis) return [] as Array<{ name: string; description: string; note: number; fullMatch: string }>;
+
+    const normalized = analysis
       .normalize('NFKC')
       .replace(/[\u00A0\u202F\u2007\u2009\u200A\u200B]+/g, ' ')
       .replace(/[⁄∕⧸⟋]/g, '/')
       .replace(/[：﹕꞉︓]/g, ':')
       .replace(/\n\s*:\s*/g, ' : ');
-    
-    // cattura anche il denominatore - e supporta note con decimali (es. 55.5/100)
-    const criterePattern = /Critère\s*n[°ºo]?\s*(\d+)\s*:\s*([\s\S]*?)(?=Note\s*:\s*\d+(?:[\.,]\d+)?\s*\/\s*(?:10|100))/gi;
-    const criteres = [];
-    let match;
-    
-    while ((match = criterePattern.exec(normalizedAnalysis)) !== null) {
-      const critereNumber = match[1];
-      let description = (match[2] || '').trim();
-      
-      // Pulisci la descrizione rimuovendo righe vuote eccessive e spazi
-      description = description.replace(/\n\s*\n/g, '\n').replace(/^\s+|\s+$/g, '');
-      
-      // Trova la nota per questo criterio (supporta decimali)
-      const notePattern = new RegExp(`Critère\\s*n[°ºo]?\\s*${critereNumber}[\\s\\S]*?Note\\s*:\\s*(\\d+(?:[\\.,]\\d+)?)\\s*\\/\\s*(10|100)`, 'gi');
-      const noteMatch = notePattern.exec(normalizedAnalysis);
-      
-      if (noteMatch) {
-        const raw = parseFloat((noteMatch[1] || '').replace(',', '.'));
-        const denom = parseInt(noteMatch[2], 10);
-        
-        // Se per caso arrivasse /10, scala (5.5/10 -> 55/100). Mantieni una cifra decimale quando utile
-        const note = denom === 100 ? Math.round(raw * 10) / 10 : (raw <= 10 ? Math.round(raw * 10) : raw);
-        
-        if (note !== null) {
-          criteres.push({
-            name: `Critère n°${critereNumber}`,
-            description: description,
-            note: note,
-            fullMatch: match[0]
-          });
+
+    const headerRegex = /Crit[eè]re\s*n[°ºo]?\s*(\d+)/gi;
+    const headers = Array.from(normalized.matchAll(headerRegex));
+    const criteres: Array<{ name: string; description: string; note: number; fullMatch: string }> = [];
+
+    for (let i = 0; i < headers.length; i++) {
+      const m = headers[i];
+      const num = m[1];
+      const start = (m.index ?? 0);
+      const end = i < headers.length - 1 ? (headers[i + 1].index ?? normalized.length) : normalized.length;
+      const block = normalized.slice(start, end);
+
+      // Estrai la nota nel blocco (supporto decimali e /10|/100)
+      const noteMatch = block.match(/Note\s*[ :]\s*(\d+(?:[\.,]\d+)?)\s*\/\s*(10|100)\b/i);
+      if (!noteMatch) continue;
+      const raw = parseFloat(noteMatch[1].replace(',', '.'));
+      const denom = parseInt(noteMatch[2], 10);
+      const note = denom === 100 ? Math.round(raw * 10) / 10 : (raw <= 10 ? Math.round(raw * 10) : raw);
+
+      // Ricava una descrizione breve
+      const headerLine = block.split(/\n/)[0] || '';
+      let description = '';
+      const sameLineRegex = new RegExp(`Crit[eè]re\\s*n[°ºo]?\\s*${num}\\s*[ ,:—–-]*\\s*(.+)$`, 'i');
+      const sameLineMatch = headerLine.match(sameLineRegex);
+      if (sameLineMatch && sameLineMatch[1]) {
+        description = sameLineMatch[1].trim();
+      }
+      if (!description) {
+        const dashTitleMatch = block.match(/(^|\n)\s*[—–\-]\s*(?!La question|Ma r[ée]ponse|La r[ée]ponse id[ée]ale|Corrections? apportées|Point|Axe|Commentaires?)([^:\n]{1,120}?)\s*:/i);
+        if (dashTitleMatch && dashTitleMatch[2]) {
+          description = dashTitleMatch[2].trim();
         }
       }
+      if (!description) {
+        const afterHeader = block.slice(headerLine.length);
+        const candidate = (afterHeader.split(/\n+/).find(l => {
+          const s = l.trim();
+          return s && !/^Note\b/i.test(s) && /:/.test(s) && !/^(Point\(s\)?|Point|Axe|Commentaire|Commentaires?|La question|Ma r[ée]ponse|La r[ée]ponse id[ée]ale|Corrections? apportées)/i.test(s);
+        }) || '').trim();
+        if (candidate) {
+          description = candidate.split(':')[0].trim();
+        }
+      }
+      description = description.replace(/^[—–\-]\s*/, '').replace(/\s*[:，]\s*$/, '');
+
+      criteres.push({
+        name: `Critère n°${num}`,
+        description,
+        note,
+        fullMatch: block
+      });
     }
-    
+
     return criteres;
   };
 
@@ -234,6 +252,10 @@ const ChatbotDetail: React.FC = () => {
           (sim.usergroup || 'Groupe par défaut') === selectedGroupForChart
         );
       }
+
+      // Array base per la colonna "Général": usa SEMPRE il campo score della userlist
+      // Considera solo simulazioni con score valido (>= 0)
+      const generalSims = filteredSims.filter((sim: any) => typeof sim.score === 'number' && sim.score >= 0);
       
       // Filtra per tipo di simulazione
       if (simulationType !== 'all') {
@@ -365,9 +387,14 @@ const ChatbotDetail: React.FC = () => {
         }
       });
       
-      // Per il calcolo della percentuale globale, filtra le simulazioni in base al tipo di score selezionato
-      let globalFilteredSims = filteredSims;
-      if (scoreType !== 'average') {
+      // Calcolo per la colonna "Général" basato su score della lista
+      let generalAverage = 0;
+      if (scoreType === 'average') {
+        if (generalSims.length > 0) {
+          const avg = generalSims.reduce((sum: number, sim: any) => sum + Number(sim.score || 0), 0) / generalSims.length;
+          generalAverage = Math.round(avg);
+        }
+      } else {
         let threshold: number;
         switch (scoreType) {
           case 'percentage30':
@@ -382,19 +409,8 @@ const ChatbotDetail: React.FC = () => {
           default:
             threshold = 80;
         }
-        
-        // Filtra le simulazioni che hanno score globale sopra la soglia (solo per il calcolo globale)
-        globalFilteredSims = filteredSims.filter((sim: any) => {
-          if (sim.chat_analysis) {
-            const criteres = parseCriteres(sim.chat_analysis);
-            if (criteres.length > 0) {
-              const totalScore = criteres.reduce((sum, critere) => sum + critere.note, 0);
-              const avgScore = totalScore / criteres.length;
-              return avgScore >= threshold;
-            }
-          }
-          return false;
-        });
+        const above = generalSims.filter((sim: any) => Number(sim.score || 0) >= threshold).length;
+        generalAverage = generalSims.length > 0 ? Math.round((above / generalSims.length) * 100) : 0;
       }
       
       // Raccogli i criteri da TUTTE le simulazioni (non solo quelle filtrate per la soglia)
@@ -470,19 +486,6 @@ const ChatbotDetail: React.FC = () => {
         });
       });
       
-      // Calcola la media o percentuale dello score globale
-      let globalAverage = 0;
-      if (scoreType === 'average') {
-        // Per "Score moyen": usa tutti gli score globali
-        if (globalScores.length > 0) {
-          globalAverage = Math.round(globalScores.reduce((sum, score) => sum + score, 0) / globalScores.length);
-        }
-      } else {
-        // Per "Percentage au-dessus de X%": usa le simulazioni già filtrate per la soglia
-        // Percentuale = (simulazioni sopra soglia / totale simulazioni) * 100
-        globalAverage = globalScores.length > 0 ? Math.round((globalFilteredSims.length / globalScores.length) * 100) : 0;
-      }
-      
       // Aggiungi lo score globale come primo elemento
       const sortedAverages = averages.sort((a, b) => {
         const numA = parseInt(a.name.match(/\d+/)?.[0] || '0');
@@ -494,8 +497,8 @@ const ChatbotDetail: React.FC = () => {
       const finalData = [
         {
           name: 'Général',
-          average: globalAverage,
-          count: globalScores.length,
+          average: generalAverage,
+          count: generalSims.length,
           description: scoreType === 'average' ? 'Moyenne' : `Pourcentage`
         },
         ...sortedAverages
@@ -511,6 +514,18 @@ const ChatbotDetail: React.FC = () => {
   // Funzione per gestire il cambio delle impostazioni
   const handleSettingChange = (setting: keyof Settings) => {
     updateSettings({ [setting]: !settings[setting] });
+  };
+
+  // Rendering stelle media con riempimento parziale (0-5, supporto mezze)
+  const renderAverageStars = (value: number) => {
+    const clamped = Math.max(0, Math.min(5, value));
+    const widthPercent = (clamped / 5) * 100;
+    return (
+      <div className="stars-avg" aria-label={`${clamped.toFixed(1)} su 5`} title={`${clamped.toFixed(1)} / 5`}>
+        <div className="stars-base">★★★★★</div>
+        <div className="stars-fill" style={{ width: `${widthPercent}%` }}>★★★★★</div>
+      </div>
+    );
   };
 
   // Funzione per chiudere il modal
@@ -554,6 +569,16 @@ const ChatbotDetail: React.FC = () => {
           const totalLearners = new Set(allSims.map((s: Simulation) => s.user_email)).size;
           setCompletionRate(totalSims > 0 ? Math.round((completedSims / totalSims) * 100) : 0);
           setEngagementRate(totalLearners > 0 ? Math.round((completedSims / totalLearners) * 10) / 10 : 0);
+
+          // Calcolo media stelle iniziale (tutte le simulazioni)
+          const starValuesAll = allSims
+            .map((s: any) => Number(s.stars))
+            .filter((n: number) => !isNaN(n) && isFinite(n) && n > 0);
+          const avgAll = starValuesAll.length > 0
+            ? starValuesAll.reduce((sum: number, n: number) => sum + n, 0) / starValuesAll.length
+            : 0;
+          // Arrotonda al mezzo punto
+          setAvgStars(Math.round(avgAll * 2) / 2);
         } catch (e) {
           console.error('Errore nel calcolo delle statistiche:', e);
         }
@@ -745,6 +770,15 @@ const ChatbotDetail: React.FC = () => {
       // Aggiorna le nuove statistiche per il gruppo
       setCompletionRate(completionRateGroup);
       setEngagementRate(engagementRateGroup);
+
+      // Calcola la media stelle per il gruppo/periodo selezionato (tutte le simulazioni del gruppo nel periodo)
+      const starValuesGroup = allGroupSims
+        .map((s: any) => Number(s.stars))
+        .filter((n: number) => !isNaN(n) && isFinite(n) && n > 0);
+      const avgGroup = starValuesGroup.length > 0
+        ? starValuesGroup.reduce((sum: number, n: number) => sum + n, 0) / starValuesGroup.length
+        : 0;
+      setAvgStars(Math.round(avgGroup * 2) / 2);
     } catch (e) {
       console.error('Errore nel filtraggio per gruppo:', e);
     }
@@ -785,6 +819,11 @@ const ChatbotDetail: React.FC = () => {
             </div>
             <br />
             <h1 className="chatbot-name">🤖 {data.name}</h1>
+            <br />
+            <div>
+            {renderAverageStars(avgStars)}
+            </div>
+            <br />
             <div className="manager-info">
               <span className="manager-label">👤 Manager référent :</span>
               <span className="manager-email">{data.manager_email}</span>
@@ -1023,6 +1062,15 @@ const ChatbotDetail: React.FC = () => {
               )}
             </div>
           )}
+        </div>
+        <div className="chatbot-secondary-stats">
+          <div className="main-stat-card">
+            <span className="main-stat-label">Étoiles</span>
+            <div className="avg-stars-wrapper">
+              {renderAverageStars(avgStars)}
+              <span className="avg-stars-value">{avgStars.toFixed(1)} / 5</span>
+            </div>
+          </div>
         </div>
         {/* Grafico criteri */}
         {criteresData.length > 0 && (

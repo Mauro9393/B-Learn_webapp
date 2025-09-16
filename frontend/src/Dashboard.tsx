@@ -18,6 +18,7 @@ interface UserlistRow {
   chatbot_name: string;
   created_at: string;
   score: number;
+  stars?: number;
 }
 
 function Dashboard() {
@@ -264,6 +265,29 @@ function Dashboard() {
   const getSimulationsForChatbot = (storyline_key: string) =>
     userlist.filter(row => row.chatbot_name === storyline_key).length;
 
+  // Media stelle per chatbot, arrotondata al mezzo punto
+  const getAvgStarsForChatbot = (storyline_key: string) => {
+    const values = userlist
+      .filter(row => row.chatbot_name === storyline_key)
+      .map((r: any) => Number(r.stars))
+      .filter((n: number) => !isNaN(n) && isFinite(n) && n > 0);
+    if (values.length === 0) return 0;
+    const avg = values.reduce((a: number, b: number) => a + b, 0) / values.length;
+    return Math.round(avg * 2) / 2;
+  };
+
+  // Render stelle con overlay parziale, versione mini
+  const renderAverageStarsMini = (value: number) => {
+    const clamped = Math.max(0, Math.min(5, value));
+    const widthPercent = (clamped / 5) * 100;
+    return (
+      <span className="stars-avg-mini" aria-label={`${clamped.toFixed(1)} su 5`} title={`${clamped.toFixed(1)} / 5`}>
+        <span className="stars-base-mini">★★★★★</span>
+        <span className="stars-fill-mini" style={{ width: `${widthPercent}%` }}>★★★★★</span>
+      </span>
+    );
+  };
+
   // Recupero il nome du chatbot top (non le tenant)
   let topChatbotName = '';
   if (stats.topChatbot.name) {
@@ -424,6 +448,7 @@ function Dashboard() {
       <div className="content-grid paginated-grid">
         {paginatedChatbots.map(bot => {
           const tenant = tenants.find(t => String(t.id) === String(bot.tenant_id));
+          const avgStars = getAvgStarsForChatbot(bot.storyline_key);
           return (
             <div
               key={bot.id}
@@ -553,6 +578,11 @@ function Dashboard() {
               <p>{bot.description}</p>
               <div className="chatbot-meta">
                 {getLearnersForChatbot(bot.storyline_key)} learners &bull; {getSimulationsForChatbot(bot.storyline_key)} simulations
+              </div>
+              <div className="chatbot-stars">
+                <span className="stars-label">Étoiles:&nbsp;</span>
+                {renderAverageStarsMini(avgStars)}
+                <span className="stars-value-mini">{avgStars.toFixed(1)} / 5</span>
               </div>
               <button
                 className="btn"

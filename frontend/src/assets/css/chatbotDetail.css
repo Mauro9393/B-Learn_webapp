@@ -428,6 +428,41 @@
     justify-content: center;
 }
 
+
+/* Stelle medie */
+
+.avg-stars-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.stars-avg {
+    position: relative;
+    display: inline-block;
+    font-size: 28px;
+    line-height: 1;
+}
+
+.stars-avg .stars-base {
+    color: #e0e0e0;
+}
+
+.stars-avg .stars-fill {
+    color: #f5c518;
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.avg-stars-value {
+    color: #6a6af6;
+    font-weight: 800;
+}
+
 .secondary-stat-card {
     background: #f8f8fa;
     border-radius: 12px;

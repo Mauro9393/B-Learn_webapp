@@ -378,6 +378,7 @@ router.get('/userlist', async(req, res) => {
             SELECT 
                 id, user_email, chatbot_name, name, score, 
                 chat_history, chat_analysis, created_at, usergroup,
+                stars, review,
                 CASE 
                     WHEN timesession IS NULL OR timesession = '00:00:00' THEN '-'
                     WHEN EXTRACT(HOUR FROM timesession) = 0 THEN 
