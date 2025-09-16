@@ -820,15 +820,12 @@ const ChatbotDetail: React.FC = () => {
             <br />
             <h1 className="chatbot-name">🤖 {data.name}</h1>
             <br />
-            <div>
-            {renderAverageStars(avgStars)}
-            </div>
             <br />
             <div className="manager-info">
               <span className="manager-label">👤 Manager référent :</span>
               <span className="manager-email">{data.manager_email}</span>
             </div>
-            <br /><br />
+            <br />
             {/* Filtro Période - dropdown personalizzato */}
             <div className="period-filter-container">
               <label className="period-filter-label">Période:</label>
@@ -976,6 +973,9 @@ const ChatbotDetail: React.FC = () => {
                 ))}
               </div>
             )}
+            <div>
+            {renderAverageStars(avgStars)}
+            </div>
           </div>
         </div>
         {/* Breadcrumb 
@@ -1063,6 +1063,7 @@ const ChatbotDetail: React.FC = () => {
             </div>
           )}
         </div>
+        {/*
         <div className="chatbot-secondary-stats">
           <div className="main-stat-card">
             <span className="main-stat-label">Étoiles</span>
@@ -1072,6 +1073,7 @@ const ChatbotDetail: React.FC = () => {
             </div>
           </div>
         </div>
+        */}
         {/* Grafico criteri */}
         {criteresData.length > 0 && (
           <div className="criteres-chart-container">
