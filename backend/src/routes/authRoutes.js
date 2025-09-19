@@ -157,17 +157,39 @@ router.post('/admins', async(req, res) => {
         const roleRes = await pool.query("SELECT id FROM roles WHERE name = 'admin'");
         const roleId = roleRes.rows[0].id;
 
+        // 2b. Evita duplicati per email
+        const dupCheck = await pool.query('SELECT id FROM users WHERE user_mail = $1', [email]);
+        if (dupCheck.rows.length > 0) {
+            return res.status(409).json({ success: false, message: 'Email déjà enregistrée.' });
+        }
+
         // 3. Hash du mot de passe
         const hashedPw = await bcrypt.hash(password, 10);
 
         // 4. Crée l'utilisateur admin
         await pool.query(
-            'INSERT INTO users (user_mail, user_pw, full_name, tenant_id, role_id, created_at, must_change_password) VALUES ($1, $2, $3, $4, $5, NOW(), true)', [email, hashedPw, full_name, tenantId, roleId]
+            'INSERT INTO users (user_mail, user_pw, full_name, tenant_id, role_id, created_at, must_change_password, active) VALUES ($1, $2, $3, $4, $5, NOW(), true, true)', [email, hashedPw, full_name, tenantId, roleId]
         );
 
-        // (Optionnel) envoie un mail de bienvenue
+        // Envoie un email de bienvenue avec lien de connexion
+        try {
+            const loginUrl = `${process.env.FRONTEND_URL || process.env.PROD_URL || ''}/login`;
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: 'Votre accès admin B-Learn',
+                html: `<p>Bonjour ${full_name || ''},</p>
+                       <p>Un compte administrateur a été créé pour vous sur B-Learn.</p>
+                       <p>Connectez-vous ici: <a href="${loginUrl}">${loginUrl}</a></p>
+                       <p>Email: <b>${email}</b><br/>Mot de passe provisoire: <b>${password}</b></p>
+                       <p>Pour des raisons de sécurité, vous devrez changer le mot de passe à la première connexion.</p>`
+            });
+        } catch (mailErr) {
+            console.error('Erreur envoi email admin:', mailErr);
+            return res.status(500).json({ success: false, message: "Compte créé mais l'email n'a pas pu être envoyée." });
+        }
 
-        res.status(201).json({ success: true, message: 'Admin créé avec succès !' });
+        res.status(201).json({ success: true, message: 'Admin créé avec succès et email envoyée.' });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
