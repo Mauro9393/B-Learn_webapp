@@ -317,8 +317,8 @@ router.get('/chatbots/:id/enabled/stream', async(req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
-    // Se vuoi aprire a domini esterni:
-    // res.setHeader('Access-Control-Allow-Origin', '*');
+    // CORS aperto per lo stream (utile per file:// o domini esterni)
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.flushHeaders && res.flushHeaders();
 
     const key = String(id);
