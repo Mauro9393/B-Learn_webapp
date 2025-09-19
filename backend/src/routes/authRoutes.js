@@ -11,6 +11,19 @@ const fs = require('fs');
 const handlebars = require('handlebars');
 require('dotenv').config();
 
+// SSE clients per chatbot id
+const sseClientsByChatbotId = new Map(); // key: chatbot id (string), value: Set<res>
+
+function broadcastChatbotStatus(chatbotId, payload) {
+    const key = String(chatbotId);
+    const clients = sseClientsByChatbotId.get(key);
+    if (!clients) return;
+    const data = `data: ${JSON.stringify(payload)}\n\n`;
+    for (const res of clients) {
+        try { res.write(data); } catch (_) { /* ignore broken pipes */ }
+    }
+}
+
 router.post('/register', async(req, res) => {
     try {
         const { token, email, password, full_name } = req.body;
@@ -296,6 +309,37 @@ router.get('/chatbots/:id/enabled', async(req, res) => {
     }
 });
 
+// SSE: sottoscrizione allo stato enabled di un chatbot per aggiornamenti live
+router.get('/chatbots/:id/enabled/stream', async(req, res) => {
+    const { id } = req.params;
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders && res.flushHeaders();
+
+    const key = String(id);
+    if (!sseClientsByChatbotId.has(key)) sseClientsByChatbotId.set(key, new Set());
+    const clients = sseClientsByChatbotId.get(key);
+    clients.add(res);
+
+    // invia stato iniziale
+    try {
+        const r = await pool.query('SELECT id, enabled, updated_at, updated_by FROM chatbots WHERE id = $1', [id]);
+        if (r.rows.length > 0) {
+            res.write(`data: ${JSON.stringify({ id: Number(id), enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at, updated_by: r.rows[0].updated_by })}\n\n`);
+        }
+    } catch (_) {}
+
+    req.on('close', () => {
+        const set = sseClientsByChatbotId.get(key);
+        if (set) {
+            set.delete(res);
+            if (set.size === 0) sseClientsByChatbotId.delete(key);
+        }
+        res.end();
+    });
+});
+
 // Toggle ON/OFF (usato dal bottone nella card)
 router.patch('/chatbots/:id/enabled', async(req, res) => {
     try {
@@ -320,7 +364,10 @@ router.patch('/chatbots/:id/enabled', async(req, res) => {
              RETURNING id, enabled, updated_at`, [enabled, updatedBy, id]
         );
         if (r.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trovato' });
-        res.json({ id: Number(id), enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at });
+        const payload = { id: Number(id), enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at, updated_by: updatedBy };
+        // broadcast SSE agli iscritti
+        broadcastChatbotStatus(id, payload);
+        res.json(payload);
     } catch (e) {
         res.status(500).json({ message: e.message });
     }

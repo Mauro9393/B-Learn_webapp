@@ -155,6 +155,26 @@ function Dashboard() {
     fetchChatbots();
   }, [selectedClient]); // Ricarica quando cambia il cliente selezionato
 
+  // SSE: sottoscrizione agli aggiornamenti live dello stato enabled per ogni bot visibile
+  useEffect(() => {
+    const subscriptions: Array<{ id: number; es: EventSource }> = [];
+    const visible = (userRole === '1' ? chatbots : chatbots.filter(bot => String(bot.tenant_id) === tenantId));
+    visible.forEach(bot => {
+      const es = new EventSource(`/api/chatbots/${bot.id}/enabled/stream`);
+      es.onmessage = (ev) => {
+        try {
+          const payload = JSON.parse(ev.data);
+          setChatbots(prev => prev.map(b => b.id === payload.id ? { ...b, enabled: payload.enabled, updated_by: payload.updated_by } : b));
+        } catch {}
+      };
+      es.onerror = () => { /* lascio cadere, il server può chiudere */ };
+      subscriptions.push({ id: bot.id, es });
+    });
+    return () => {
+      subscriptions.forEach(s => { try { s.es.close(); } catch {} });
+    };
+  }, [chatbots.length, userRole, tenantId]);
+
   useEffect(() => {
     if (userRole === '1') {
       fetch(`/api/tenants`)
