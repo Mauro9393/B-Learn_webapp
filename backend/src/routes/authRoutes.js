@@ -284,6 +284,38 @@ router.get('/chatbots', async(req, res) => {
     }
 });
 
+// Stato ON/OFF per SPA (id numerico)
+router.get('/chatbots/:id/enabled', async(req, res) => {
+    try {
+        const { id } = req.params;
+        const r = await pool.query('SELECT id, enabled, updated_at FROM chatbots WHERE id = $1', [id]);
+        if (r.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trovato' });
+        res.json({ id: Number(id), enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
+// Toggle ON/OFF (usato dal bottone nella card)
+router.patch('/chatbots/:id/enabled', async(req, res) => {
+    try {
+        const { id } = req.params;
+        const enabled = !!req.body.enabled;
+        const updatedBy = req.body.updated_by || 'dashboard';
+
+        const r = await pool.query(
+            `UPDATE chatbots
+             SET enabled = $1, updated_at = NOW(), updated_by = $2
+             WHERE id = $3
+             RETURNING id, enabled, updated_at`, [enabled, updatedBy, id]
+        );
+        if (r.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trovato' });
+        res.json({ id: Number(id), enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
 // Modifica nome card chatbot
 
 router.put('/chatbots/:id', async(req, res) => {
@@ -529,6 +561,41 @@ router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+// Preflight CORS per la rotta di stato (aperto)
+router.options('/chatbots/storyline/:storyline_key/status', (req, res) => {
+    res.set({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET,OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+    });
+    return res.sendStatus(204);
+});
+
+// Endpoint che Storyline può leggere tramite storyline_key, con CORS aperto e no-cache
+router.get(
+    '/chatbots/storyline/:storyline_key/status',
+    (req, res, next) => {
+        res.set({
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'no-store'
+        });
+        next();
+    },
+    async(req, res) => {
+        try {
+            const { storyline_key } = req.params;
+            const r = await pool.query('SELECT enabled, updated_at FROM chatbots WHERE storyline_key = $1', [storyline_key]);
+            if (r.rows.length === 0) {
+                // fallback "fail-open": se non c’è record, consideriamo enabled=true
+                return res.json({ chatbot: storyline_key, enabled: true });
+            }
+            res.json({ chatbot: storyline_key, enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at });
+        } catch (e) {
+            res.status(500).json({ message: e.message });
+        }
+    }
+);
 
 // Restituisce la lista degli studenti unici per uno specifico chatbot_name (storyline_key)
 router.get('/learners-list', async(req, res) => {

@@ -11,6 +11,7 @@ interface Chatbot {
   description: string;
   created_at: string;
   client_name: string;
+  enabled: boolean;
 }
 
 interface UserlistRow {
@@ -57,6 +58,32 @@ function Dashboard() {
   // Stato per editing del tenant
   const [editingTenant, setEditingTenant] = useState<number | null>(null);
   const [editingTenantId, setEditingTenantId] = useState<number>(0);
+
+  const [savingId, setSavingId] = useState<number | null>(null);
+
+  const toggleEnabled = async (botId: number, newVal: boolean): Promise<void> => {
+    try {
+      setSavingId(botId);
+      // UI ottimistica
+      setChatbots(prev => prev.map(b => b.id === botId ? { ...b, enabled: newVal } : b));
+
+      const r = await fetch(`/api/chatbots/${botId}/enabled`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enabled: newVal,
+          updated_by: localStorage.getItem('userMail') || 'dashboard'
+        })
+      });
+      if (!r.ok) throw new Error('PATCH failed');
+    } catch (e) {
+      // rollback
+      setChatbots(prev => prev.map(b => b.id === botId ? { ...b, enabled: !newVal } : b));
+      alert('Errore nel salvataggio dello stato ON/OFF.');
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   const saveChatbotName = async (chatbotId: number, newName: string) => {
     try {
@@ -576,6 +603,20 @@ function Dashboard() {
                 )}
               </h2>
               <p>{bot.description}</p>
+              {(userRole === '1' || userRole === '2') && (
+                <div className="card-toggle" style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <label className="switch" title={bot.enabled ? 'Désactiver le chatbot' : 'Activer le chatbot'}>
+                    <input
+                      type="checkbox"
+                      checked={!!bot.enabled}
+                      onChange={() => toggleEnabled(bot.id, !bot.enabled)}
+                      disabled={savingId === bot.id}
+                    />
+                    <span className="slider" />
+                  </label>
+                  <span className="toggle-label">{bot.enabled ? 'Activé' : 'Désactivé'}</span>
+                </div>
+              )}
               <div className="chatbot-meta">
                 {getLearnersForChatbot(bot.storyline_key)} learners &bull; {getSimulationsForChatbot(bot.storyline_key)} simulations
               </div>
