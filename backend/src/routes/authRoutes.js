@@ -301,7 +301,17 @@ router.patch('/chatbots/:id/enabled', async(req, res) => {
     try {
         const { id } = req.params;
         const enabled = !!req.body.enabled;
-        const updatedBy = req.body.updated_by || 'dashboard';
+        const role = req.body.role || null; // '1' superadmin, '2' admin
+        const updatedByBase = req.body.updated_by || 'dashboard';
+        const updatedBy = role === '1' ? `superadmin:${updatedByBase}` : role === '2' ? `admin:${updatedByBase}` : updatedByBase;
+
+        // Regola: se il chatbot è attualmente disattivato da un superadmin, un admin non può modificarlo
+        const curr = await pool.query('SELECT enabled, updated_by FROM chatbots WHERE id = $1', [id]);
+        if (curr.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trovato' });
+        const current = curr.rows[0];
+        if (role !== '1' && current.enabled === false && current.updated_by && String(current.updated_by).startsWith('superadmin')) {
+            return res.status(403).json({ message: 'Bloccato: chatbot disattivato da super admin.' });
+        }
 
         const r = await pool.query(
             `UPDATE chatbots

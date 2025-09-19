@@ -12,6 +12,7 @@ interface Chatbot {
   created_at: string;
   client_name: string;
   enabled: boolean;
+  updated_by?: string;
 }
 
 interface UserlistRow {
@@ -72,7 +73,8 @@ function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           enabled: newVal,
-          updated_by: localStorage.getItem('userMail') || 'dashboard'
+          updated_by: localStorage.getItem('userMail') || 'dashboard',
+          role: userRole
         })
       });
       if (!r.ok) throw new Error('PATCH failed');
@@ -610,7 +612,10 @@ function Dashboard() {
                       type="checkbox"
                       checked={!!bot.enabled}
                       onChange={() => toggleEnabled(bot.id, !bot.enabled)}
-                      disabled={savingId === bot.id}
+                      disabled={
+                        savingId === bot.id ||
+                        (userRole === '2' && !bot.enabled && (bot.updated_by || '').startsWith('superadmin'))
+                      }
                     />
                     <span className="slider" />
                   </label>
