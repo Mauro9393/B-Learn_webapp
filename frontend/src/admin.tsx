@@ -8,6 +8,8 @@ function Admin() {
   const [company, setCompany] = useState('');
   const [message, setMessage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
+  const [canResend, setCanResend] = useState(false);
+  const [resendMsg, setResendMsg] = useState('');
 
   // Sostituisci con il tuo email admin
   const userRole = localStorage.getItem('userRole');
@@ -30,18 +32,48 @@ function Admin() {
         })
       });
       const result = await response.json();
-      if (result.success) {
+      if (response.ok && result.success) {
         setMessage("Compte admin créé avec succès !");
         setEmail('');
         setPassword('');
         setFullName('');
         setCompany('');
         setShowPopup(true);
+        setCanResend(false);
+        setResendMsg('');
       } else {
-        setMessage('Erreur lors de la création du compte : ' + (result.message || ''));
+        const msg = 'Erreur lors de la création du compte : ' + (result.message || '');
+        setMessage(msg);
+        // Se email déjà enregistrée o mail non inviata → proponi rinvio email
+        const lower = (result.message || '').toLowerCase();
+        if (response.status === 409 || lower.includes('email déjà') || lower.includes('deja') || lower.includes("n'a pas pu être envoyée")) {
+          setCanResend(true);
+        } else {
+          setCanResend(false);
+        }
       }
     } catch (error) {
       setMessage('Erreur lors de la création du compte');
+      setCanResend(false);
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      setResendMsg('');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok && (data.success === undefined || data.success === true)) {
+        setResendMsg('Email de connexion renvoyée. Vérifiez votre boîte mail.');
+      } else {
+        setResendMsg("Échec du renvoi de l'email.");
+      }
+    } catch (e) {
+      setResendMsg("Échec du renvoi de l'email.");
     }
   };
 
@@ -104,6 +136,16 @@ function Admin() {
         </button>
       </form>
       {message && <p style={{ color: message.includes('succès') ? 'green' : 'red' }}>{message}</p>}
+      {canResend && (
+        <p style={{ marginTop: '6px' }}>
+          <button type="button" onClick={handleResend} style={{ background: 'none', border: 'none', padding: 0, color: '#1e90ff', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.95rem' }}>
+            Renvoyer l’email de connexion
+          </button>
+          {resendMsg && (
+            <span style={{ marginLeft: 8, color: resendMsg.includes('renvoyée') ? 'green' : 'red' }}>{resendMsg}</span>
+          )}
+        </p>
+      )}
       
       {/* Popup de confirmation - Stile originale da add-admin.html */}
       {showPopup && (
