@@ -312,9 +312,13 @@ router.get('/chatbots/:id/enabled', async(req, res) => {
 // SSE: sottoscrizione allo stato enabled di un chatbot per aggiornamenti live
 router.get('/chatbots/:id/enabled/stream', async(req, res) => {
     const { id } = req.params;
+    console.log(`[SSE] New subscriber for chatbot ${id}`);
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    // Se vuoi aprire a domini esterni:
+    // res.setHeader('Access-Control-Allow-Origin', '*');
     res.flushHeaders && res.flushHeaders();
 
     const key = String(id);
@@ -330,12 +334,19 @@ router.get('/chatbots/:id/enabled/stream', async(req, res) => {
         }
     } catch (_) {}
 
+    // heartbeat per tenere viva la connessione
+    const heartbeat = setInterval(() => {
+        try { res.write(': keepalive\n\n'); } catch (_) {}
+    }, 25000);
+
     req.on('close', () => {
         const set = sseClientsByChatbotId.get(key);
         if (set) {
             set.delete(res);
             if (set.size === 0) sseClientsByChatbotId.delete(key);
         }
+        clearInterval(heartbeat);
+        console.log(`[SSE] Subscriber closed for chatbot ${id}`);
         res.end();
     });
 });
