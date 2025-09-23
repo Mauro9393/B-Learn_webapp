@@ -17,51 +17,52 @@ function Login() {
   const [showAttemptsWarning, setShowAttemptsWarning] = useState(false);
   const [attemptsMessage, setAttemptsMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const disableLoginLimit = import.meta.env.DEV || String(import.meta.env.VITE_DISABLE_LOGIN_LIMIT) === 'true';
 
   useEffect(() => {
     document.body.classList.add('login-page');
-    
-    // Recupera i tentativi di login dal localStorage
-    const savedAttempts = localStorage.getItem('loginAttempts');
-    const savedEmail = localStorage.getItem('failedLoginEmail');
-    const lastAttemptTime = localStorage.getItem('lastLoginAttemptTime');
-    
-    if (savedAttempts && savedEmail && lastAttemptTime) {
-      const attempts = parseInt(savedAttempts);
-      const lastTime = parseInt(lastAttemptTime);
-      const now = Date.now();
+    if (!disableLoginLimit) {
+      // Recupera i tentativi di login dal localStorage
+      const savedAttempts = localStorage.getItem('loginAttempts');
+      const savedEmail = localStorage.getItem('failedLoginEmail');
+      const lastAttemptTime = localStorage.getItem('lastLoginAttemptTime');
       
-      // Se sono passati più di 30 minuti, resetta i tentativi
-      if (now - lastTime > 30 * 60 * 1000) {
-        localStorage.removeItem('loginAttempts');
-        localStorage.removeItem('failedLoginEmail');
-        localStorage.removeItem('lastLoginAttemptTime');
-      } else {
-        setLoginAttempts(attempts);
-        setEmail(savedEmail);
+      if (savedAttempts && savedEmail && lastAttemptTime) {
+        const attempts = parseInt(savedAttempts);
+        const lastTime = parseInt(lastAttemptTime);
+        const now = Date.now();
         
-        // Se ha già fatto 4 tentativi, redirect automatico
-        if (attempts >= 4) {
-          navigate('/forgot-password');
-          return;
-        }
-        
-        // Mostra avviso se ha già fatto tentativi
-        if (attempts > 0) {
-          const remainingAttempts = 4 - attempts;
-          const message = remainingAttempts === 1 
-            ? 'Il vous reste 1 tentative avant le blocage du compte.'
-            : `Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
-          setAttemptsMessage(message);
-          setShowAttemptsWarning(true);
+        // Se sono passati più di 30 minuti, resetta i tentativi
+        if (now - lastTime > 30 * 60 * 1000) {
+          localStorage.removeItem('loginAttempts');
+          localStorage.removeItem('failedLoginEmail');
+          localStorage.removeItem('lastLoginAttemptTime');
+        } else {
+          setLoginAttempts(attempts);
+          setEmail(savedEmail);
+          
+          // Se ha già fatto 4 tentativi, redirect automatico
+          if (attempts >= 4) {
+            navigate('/forgot-password');
+            return;
+          }
+          
+          // Mostra avviso se ha già fatto tentativi
+          if (attempts > 0) {
+            const remainingAttempts = 4 - attempts;
+            const message = remainingAttempts === 1 
+              ? 'Il vous reste 1 tentative avant le blocage du compte.'
+              : `Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
+            setAttemptsMessage(message);
+            setShowAttemptsWarning(true);
+          }
         }
       }
     }
-    
     return () => {
       document.body.classList.remove('login-page');
     };
-  }, [navigate]);
+  }, [navigate, disableLoginLimit]);
 
   const showPopupMessage = (title: string, message: string, icon: string = '🔒') => {
     setPopupData({ title, message, icon });
@@ -75,10 +76,12 @@ function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Se ha già fatto 4 tentativi, redirect automatico
-    if (loginAttempts >= 4) {
-      navigate('/forgot-password');
-      return;
+    if (!disableLoginLimit) {
+      // Se ha già fatto 4 tentativi, redirect automatico
+      if (loginAttempts >= 4) {
+        navigate('/forgot-password');
+        return;
+      }
     }
     
     try {
@@ -115,23 +118,39 @@ function Login() {
         
         navigate('/dashboard');
       } else {
-        // Login fallito, incrementa i tentativi
+        if (!disableLoginLimit) {
+          // Login fallito, incrementa i tentativi
+          const newAttempts = loginAttempts + 1;
+          setLoginAttempts(newAttempts);
+          // Salva i tentativi nel localStorage
+          localStorage.setItem('loginAttempts', newAttempts.toString());
+          localStorage.setItem('failedLoginEmail', email);
+          localStorage.setItem('lastLoginAttemptTime', Date.now().toString());
+          if (newAttempts >= 4) {
+            showPopupMessage('Compte bloqué', 'Trop de tentatives échouées. Vous avez été redirigé vers la page de récupération de mot de passe.', '🔒');
+            setTimeout(() => { navigate('/forgot-password'); }, 2000);
+          } else {
+            const remainingAttempts = 4 - newAttempts;
+            const message = remainingAttempts === 1 
+              ? 'Il vous reste 1 tentative avant le blocage du compte.'
+              : `Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
+            setAttemptsMessage(message);
+            setShowAttemptsWarning(true);
+          }
+        }
+      }
+    } catch (err) {
+      if (!disableLoginLimit) {
+        // Errore di connessione, incrementa i tentativi
         const newAttempts = loginAttempts + 1;
         setLoginAttempts(newAttempts);
-        
-        // Salva i tentativi nel localStorage
         localStorage.setItem('loginAttempts', newAttempts.toString());
         localStorage.setItem('failedLoginEmail', email);
         localStorage.setItem('lastLoginAttemptTime', Date.now().toString());
-        
         if (newAttempts >= 4) {
-          // Dopo 4 tentativi, redirect automatico
           showPopupMessage('Compte bloqué', 'Trop de tentatives échouées. Vous avez été redirigé vers la page de récupération de mot de passe.', '🔒');
-          setTimeout(() => {
-            navigate('/forgot-password');
-          }, 2000);
+          setTimeout(() => { navigate('/forgot-password'); }, 2000);
         } else {
-          // Mostra solo la scritta rossa per i primi 3 tentativi (senza popup)
           const remainingAttempts = 4 - newAttempts;
           const message = remainingAttempts === 1 
             ? 'Il vous reste 1 tentative avant le blocage du compte.'
@@ -139,29 +158,6 @@ function Login() {
           setAttemptsMessage(message);
           setShowAttemptsWarning(true);
         }
-      }
-    } catch (err) {
-      // Errore di connessione, incrementa i tentativi
-      const newAttempts = loginAttempts + 1;
-      setLoginAttempts(newAttempts);
-      
-      localStorage.setItem('loginAttempts', newAttempts.toString());
-      localStorage.setItem('failedLoginEmail', email);
-      localStorage.setItem('lastLoginAttemptTime', Date.now().toString());
-      
-      if (newAttempts >= 4) {
-        showPopupMessage('Compte bloqué', 'Trop de tentatives échouées. Vous avez été redirigé vers la page de récupération de mot de passe.', '🔒');
-        setTimeout(() => {
-          navigate('/forgot-password');
-        }, 2000);
-      } else {
-        // Mostra solo la scritta rossa per i primi 3 tentativi (senza popup)
-        const remainingAttempts = 4 - newAttempts;
-        const message = remainingAttempts === 1 
-          ? 'Il vous reste 1 tentative avant le blocage du compte.'
-          : `Il vous reste ${remainingAttempts} tentatives avant le blocage du compte.`;
-        setAttemptsMessage(message);
-        setShowAttemptsWarning(true);
       }
     }
   };
