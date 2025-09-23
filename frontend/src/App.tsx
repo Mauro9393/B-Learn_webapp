@@ -24,11 +24,13 @@ import "./assets/css/breadcrumbs.css";
 import './App.css'
 import { BreadcrumbProvider } from "./BreadcrumbContext";
 import { SettingsProvider } from "./SettingsContext";
+import { AuthProvider, useAuth } from './AuthContext';
 
 // Componente per proteggere le route che richiedono autenticazione
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { setUser, setIsAuthenticated: setCtxAuthenticated } = useAuth();
   
   useEffect(() => {
     const checkAuth = async () => {
@@ -40,11 +42,19 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         const data = await response.json();
         if (response.ok && data.success) {
           setIsAuthenticated(true);
+          setCtxAuthenticated(true);
+          if (data.user) {
+            setUser(data.user);
+          }
         } else {
           setIsAuthenticated(false);
+          setCtxAuthenticated(false);
+          setUser(null);
         }
       } catch (error) {
         setIsAuthenticated(false);
+        setCtxAuthenticated(false);
+        setUser(null);
       }
       setIsLoading(false);
     };
@@ -172,10 +182,12 @@ function App() {
   return (
     <SettingsProvider>
       <BreadcrumbProvider>
-        <Router basename="/">
-          <BreadcrumbsWrapper />
-          <AppLayout />
-        </Router>
+        <AuthProvider>
+          <Router basename="/">
+            <BreadcrumbsWrapper />
+            <AppLayout />
+          </Router>
+        </AuthProvider>
       </BreadcrumbProvider>
     </SettingsProvider>
   )

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './assets/css/dashboard.css';
 import { useNavigate} from 'react-router-dom';
 import { useBreadcrumbContext } from './BreadcrumbContext';
+import { useAuth } from './AuthContext';
 
 interface Chatbot {
   id: number;
@@ -49,9 +50,9 @@ function Dashboard() {
   const navigate = useNavigate();
   const { addBreadcrumb } = useBreadcrumbContext();
 
-  // Récupère l'email de l'utilisateur connecté
-  const userRole = localStorage.getItem('userRole');
-  const tenantId = localStorage.getItem('tenantId');
+  const { user } = useAuth();
+  const userRole = String(user?.role || '3');
+  const tenantId = String(user?.tenant_id || '');
 
   const [editingChatbot, setEditingChatbot] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
