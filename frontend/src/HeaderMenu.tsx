@@ -2,30 +2,28 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/css/headerMenu.css';
 import { useBreadcrumbContext } from './BreadcrumbContext';
+import { useAuth } from './AuthContext';
 
 const HeaderMenu: React.FC = () => {
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { addBreadcrumb } = useBreadcrumbContext();
-  const userRole = localStorage.getItem('userRole');
-  const userEmail = localStorage.getItem('userEmail') || '';
+  const { user, setIsAuthenticated, setUser } = useAuth();
+  const userRole = String(user?.role || '3');
+  const userEmail = user?.email || '';
 
   // Funzione logout
-  const handleLogout = () => {
-    // Pulisci tutti i dati di autenticazione
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('loginAttempts');
-    localStorage.removeItem('failedLoginEmail');
-    localStorage.removeItem('lastLoginAttemptTime');
-    
-    // Chiudi i dropdown
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/logout`, { method: 'POST', credentials: 'include' });
+    } catch {}
+    // Pulizia stato locale
+    setIsAuthenticated(false);
+    setUser(null);
     setProfileDropdown(false);
     setIsMenuOpen(false);
-    
-    // Reindirizza alla home
-    navigate('/');
+    navigate('/login');
   };
 
   // Funzione per cambiare password
@@ -35,8 +33,8 @@ const HeaderMenu: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  const isSuperAdmin = userRole === '1';
-  const isAdmin = userRole === '2';
+  const isSuperAdmin = userRole === '1' || String((user as any)?.role_name || '').toLowerCase() === 'superadmin';
+  const isAdmin = userRole === '2' || String((user as any)?.role_name || '').toLowerCase() === 'admin';
 
   // Ruolo testuale
   let roleLabel = 'User';
