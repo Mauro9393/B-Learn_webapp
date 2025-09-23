@@ -11,12 +11,26 @@ function Admin() {
   const [canResend, setCanResend] = useState(false);
   const [resendMsg, setResendMsg] = useState('');
 
-  // Sostituisci con il tuo email admin
-  const userRole = localStorage.getItem('userRole');
+  // Gating lato server tramite cookie/token
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const resp = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-auth`, { method: 'POST', credentials: 'include' });
+        const data = await resp.json();
+        if (resp.ok && data.success && (data.user?.role === 1 || data.user?.role_name === 'superadmin')) {
+          setAuthorized(true);
+        } else {
+          setAuthorized(false);
+        }
+      } catch {
+        setAuthorized(false);
+      }
+    })();
+  }, []);
 
-  if (userRole !== '1') {
-    return <div>Accès refusé</div>;
-  }
+  if (authorized === null) return <div>Chargement...</div>;
+  if (!authorized) return <div>Accès refusé</div>;
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +38,7 @@ function Admin() {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admins`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           email,
           password,

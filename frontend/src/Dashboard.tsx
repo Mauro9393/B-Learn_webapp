@@ -71,10 +71,9 @@ function Dashboard() {
       const r = await fetch(`/api/chatbots/${botId}/enabled`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
-          enabled: newVal,
-          updated_by: localStorage.getItem('userMail') || 'dashboard',
-          role: userRole
+          enabled: newVal
         })
       });
       if (!r.ok) throw new Error('PATCH failed');
@@ -91,6 +90,7 @@ function Dashboard() {
     try {
         const response = await fetch(`/api/chatbots/${chatbotId}`, {
             method: 'PUT',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: newName })
         });
@@ -111,6 +111,7 @@ function Dashboard() {
     try {
         const response = await fetch(`/api/chatbots/${chatbotId}/tenant`, {
             method: 'PUT',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tenant_id: newTenantId })
         });
@@ -121,10 +122,7 @@ function Dashboard() {
             const userRole = localStorage.getItem('userRole');
             const tenantId = localStorage.getItem('tenantId');
             let url = `/api/chatbots`;
-            if (userId && userRole && tenantId) {
-                url += `?user_id=${encodeURIComponent(userId)}&user_role=${encodeURIComponent(userRole)}&tenant_id=${encodeURIComponent(tenantId)}`;
-            }
-            const refreshResponse = await fetch(url);
+            const refreshResponse = await fetch(url, { credentials: 'include' });
             const refreshData = await refreshResponse.json();
             setChatbots(refreshData);
             
@@ -145,10 +143,7 @@ function Dashboard() {
       const userRole = localStorage.getItem('userRole');
       const tenantId = localStorage.getItem('tenantId');
       let url = `/api/chatbots`;
-      if (userId && userRole && tenantId) {
-        url += `?user_id=${encodeURIComponent(userId)}&user_role=${encodeURIComponent(userRole)}&tenant_id=${encodeURIComponent(tenantId)}`;
-      }
-      const response = await fetch(url);
+      const response = await fetch(url, { credentials: 'include' });
       const data = await response.json();
       setChatbots(data);
     };

@@ -17,7 +17,7 @@ const AddPartner = () => {
     const userRole = localStorage.getItem('userRole');
     const tenantId = localStorage.getItem('tenantId');
     if (!tenantId || !userId || !userRole) return;
-    fetch(`${import.meta.env.VITE_API_URL}/api/chatbots?user_id=${userId}&user_role=${userRole}&tenant_id=${tenantId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setChatbots(data);

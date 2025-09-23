@@ -27,6 +27,7 @@ function ChooseYourPw() {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/change-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ userId, password })
       });
       const result = await response.json();

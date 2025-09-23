@@ -131,6 +131,7 @@ const StudentList: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           emails: Array.from(selectedRows),
           storyline_key: storyline_key
@@ -156,7 +157,7 @@ const StudentList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/learners-list-maxscore?storyline_key=${storyline_key}`);
+        const res = await fetch(`/api/learners-list-maxscore?storyline_key=${storyline_key}`, { credentials: 'include' });
         const data = await res.json();
         setStudents(data);
         

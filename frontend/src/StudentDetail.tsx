@@ -223,7 +223,7 @@ const StudentDetail: React.FC = () => {
         
         const url = `/api/learner-detail?storyline_key=${storyline_key}&email=${encodeURIComponent(decodedEmail)}`;
         
-        const res = await fetch(url);
+        const res = await fetch(url, { credentials: 'include' });
         const data = await res.json();
         
         setSimulations(data);

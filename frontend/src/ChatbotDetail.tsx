@@ -561,7 +561,7 @@ const ChatbotDetail: React.FC = () => {
         
         // Fetch tutte le simulazioni per calcolare le statistiche
         try {
-          const allSimsRes = await fetch(`/api/userlist?chatbot_name=${storyline_key}`);
+          const allSimsRes = await fetch(`/api/userlist?chatbot_name=${storyline_key}`, { credentials: 'include' });
           const allSims = await allSimsRes.json();
           
           const totalSims = allSims.length;
@@ -603,7 +603,7 @@ const ChatbotDetail: React.FC = () => {
     const fetchBestLearnersForPeriod = async () => {
       setLoadingSims(true);
       try {
-        const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`);
+        const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`, { credentials: 'include' });
         const all = await res.json();
         const sims = applyPeriodFilter(all).filter((s: Simulation) => typeof s.score === 'number' && s.score >= 0);
         const best = (Array.from(sims.reduce((acc: Map<string, { name: string; user_email: string; score: number }>, s: Simulation) => {
@@ -629,7 +629,7 @@ const ChatbotDetail: React.FC = () => {
     const fetchAllGroups = async () => {
       try {
         // Fetch tutte le simulazioni per questo chatbot per estrarre tutti i gruppi
-        const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`);
+        const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`, { credentials: 'include' });
         const allSims = await res.json();
         
         // Estrai tutti i gruppi unici disponibili
@@ -716,7 +716,7 @@ const ChatbotDetail: React.FC = () => {
   const filterDataByGroup = async (group: string) => {
     try {
       // Fetch tutte le simulazioni per questo chatbot
-      const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`);
+      const res = await fetch(`/api/userlist?chatbot_name=${storyline_key}`, { credentials: 'include' });
       const allSimsRaw = await res.json();
       const allSims = applyPeriodFilter(allSimsRaw);
       

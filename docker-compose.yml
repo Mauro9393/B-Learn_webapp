@@ -17,6 +17,8 @@ services:
       DB_USER: myuser
       DB_PASSWORD: mypass
       DB_NAME: mydb
+      JWT_SECRET: change_me_dev_secret
+      CORS_ORIGINS: http://localhost:5173,http://localhost:5174
     depends_on:
       - db
 

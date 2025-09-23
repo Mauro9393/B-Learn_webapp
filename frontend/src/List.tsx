@@ -270,6 +270,7 @@ function List() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           ids: Array.from(selectedRows),
           chatbot_name: chatbotName
@@ -313,7 +314,7 @@ function List() {
       if (chatbotName) {
         url += `?chatbot_name=${encodeURIComponent(chatbotName)}`;
       }
-      const response = await fetch(url);
+      const response = await fetch(url, { credentials: 'include' });
       const data = await response.json();
       //console.log('=== DEBUG List.tsx - Dati ricevuti dal backend ===');
       console.log('Totale elementi:', data?.length);

@@ -1,6 +1,8 @@
 console.log("authRoutes.js caricato! VERSIONE AGGIORNATA -", new Date().toISOString());
 const express = require('express');
-const { registerUser, authenticateUser } = require('../auth');
+const jwt = require('jsonwebtoken');
+const Joi = require('joi');
+const { verifyToken, requireRole } = require('../middleware/auth');
 const router = express.Router();
 
 const pool = require('../../config/db');
@@ -96,6 +98,16 @@ router.post('/login', async(req, res) => {
     const { email, password } = req.body;
     try {
         console.log('Attempting database query for user:', email);
+        // Validazione input
+        const schema = Joi.object({
+            email: Joi.string().email().required(),
+            password: Joi.string().min(6).max(128).required()
+        });
+        const { error: vErr } = schema.validate({ email, password });
+        if (vErr) {
+            return res.status(400).json({ success: false, message: 'Parametri non validi' });
+        }
+
         const { rows } = await pool.query(`
             SELECT u.id, u.user_mail, u.user_pw, u.active,
                    u.role_id, r.name AS role_name, u.tenant_id, u.must_change_password
@@ -115,13 +127,35 @@ router.post('/login', async(req, res) => {
             }
             // Connexion réussie pour admin/superadmin même si non actifs
             console.log('Login successful for user:', email, 'role:', user.role_name);
+
+            // Genera JWT e imposta cookie HttpOnly
+            const secret = process.env.JWT_SECRET;
+            if (!secret) {
+                return res.status(500).json({ success: false, message: 'JWT non configurato' });
+            }
+            const token = jwt.sign({
+                id: user.id,
+                email: user.user_mail,
+                role_id: user.role_id,
+                role_name: user.role_name,
+                tenant_id: user.tenant_id
+            }, secret, { expiresIn: '8h' });
+
+            const isProd = process.env.NODE_ENV === 'production';
+            res.cookie('auth', token, {
+                httpOnly: true,
+                secure: isProd,
+                sameSite: isProd ? 'strict' : 'lax',
+                maxAge: 8 * 60 * 60 * 1000
+            });
+
             return res.json({
                 success: true,
-                role: user.role_id,
                 user: {
                     id: user.id,
                     email: user.user_mail,
                     role_name: user.role_name,
+                    role_id: user.role_id,
                     tenant_id: user.tenant_id,
                     must_change_password: user.must_change_password
                 }
@@ -137,9 +171,18 @@ router.post('/login', async(req, res) => {
     }
 });
 
-router.post('/admins', async(req, res) => {
+// Solo superadmin può creare admin
+router.post('/admins', verifyToken, requireRole(['superadmin', 1]), async(req, res) => {
     try {
         const { email, password, full_name, company } = req.body;
+        const schema = Joi.object({
+            email: Joi.string().email().required(),
+            password: Joi.string().min(8).max(128).required(),
+            full_name: Joi.string().min(1).max(200).allow(''),
+            company: Joi.string().min(1).max(200).required()
+        });
+        const { error: vErr } = schema.validate({ email, password, full_name, company });
+        if (vErr) return res.status(400).json({ success: false, message: 'Parametri non validi' });
 
         // 1. Récupère ou crée le tenant
         let tenant = await pool.query('SELECT id FROM tenants WHERE name = $1', [company]);
@@ -204,7 +247,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-router.post('/invite-partner', async(req, res) => {
+router.post('/invite-partner', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
     try {
         console.log("Requête reçue:", req.body);
         const { emails, tenantName, managerName, chatbotId } = req.body; // aggiunto chatbotId
@@ -275,7 +318,7 @@ router.get('/confirm', async(req, res) => {
 });
 
 console.log("Sto per registrare la route /chatbots");
-router.post('/chatbots', async(req, res) => {
+router.post('/chatbots', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
     try {
         const { name, storyline_key, description, tenant_id } = req.body;
         console.log("Reçu du frontend:", req.body);
@@ -288,12 +331,12 @@ router.post('/chatbots', async(req, res) => {
     }
 });
 
-router.get('/chatbots', async(req, res) => {
+router.get('/chatbots', verifyToken, async(req, res) => {
     try {
-        // Recupera user id, ruolo e tenant id dai parametri query (o sessione/autenticazione reale in produzione)
-        const userId = req.query.user_id;
-        const userRole = req.query.user_role; // '1' = superadmin, '2' = admin, '3' = user
-        const tenantId = req.query.tenant_id;
+        // Recupera dal token
+        const userId = String(req.user.id);
+        const userRole = String(req.user.role_id); // '1' = superadmin, '2' = admin, '3' = user
+        const tenantId = String(req.user.tenant_id);
 
         let result;
         if (userRole === '1') {
@@ -320,7 +363,7 @@ router.get('/chatbots', async(req, res) => {
 });
 
 // Stato ON/OFF per SPA (id numerico)
-router.get('/chatbots/:id/enabled', async(req, res) => {
+router.get('/chatbots/:id/enabled', verifyToken, async(req, res) => {
     try {
         const { id } = req.params;
         const r = await pool.query('SELECT id, enabled, updated_at FROM chatbots WHERE id = $1', [id]);
@@ -374,12 +417,12 @@ router.get('/chatbots/:id/enabled/stream', async(req, res) => {
 });
 
 // Toggle ON/OFF (usato dal bottone nella card)
-router.patch('/chatbots/:id/enabled', async(req, res) => {
+router.patch('/chatbots/:id/enabled', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
     try {
         const { id } = req.params;
         const enabled = !!req.body.enabled;
-        const role = req.body.role || null; // '1' superadmin, '2' admin
-        const updatedByBase = req.body.updated_by || 'dashboard';
+        const role = String(req.user.role_id);
+        const updatedByBase = 'dashboard';
         const updatedBy = role === '1' ? `superadmin:${updatedByBase}` : role === '2' ? `admin:${updatedByBase}` : updatedByBase;
 
         // Regola: se il chatbot è attualmente disattivato da un superadmin, un admin non può modificarlo
@@ -408,7 +451,7 @@ router.patch('/chatbots/:id/enabled', async(req, res) => {
 
 // Modifica nome card chatbot
 
-router.put('/chatbots/:id', async(req, res) => {
+router.put('/chatbots/:id', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
@@ -436,7 +479,7 @@ router.put('/chatbots/:id', async(req, res) => {
 });
 
 // Modifica tenant card chatbot (solo per super admin)
-router.put('/chatbots/:id/tenant', async(req, res) => {
+router.put('/chatbots/:id/tenant', verifyToken, requireRole(['superadmin', 1]), async(req, res) => {
     try {
         const { id } = req.params;
         const { tenant_id } = req.body;
@@ -483,7 +526,7 @@ router.put('/chatbots/:id/tenant', async(req, res) => {
     }
 });
 
-router.get('/tenants', async(req, res) => {
+router.get('/tenants', verifyToken, async(req, res) => {
     try {
         const result = await pool.query('SELECT id, name FROM tenants');
         res.json(result.rows);
@@ -492,7 +535,7 @@ router.get('/tenants', async(req, res) => {
     }
 });
 
-router.get('/userlist', async(req, res) => {
+router.get('/userlist', verifyToken, async(req, res) => {
     try {
         const chatbotName = req.query.chatbot_name;
         console.log("Filtro chatbot_name:", chatbotName);
@@ -534,7 +577,7 @@ router.get('/userlist', async(req, res) => {
 });
 
 // Endpoint per eliminare simulazioni multiple
-router.delete('/userlist/delete', async(req, res) => {
+router.delete('/userlist/delete', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
     try {
         const { ids, chatbot_name } = req.body;
 
@@ -571,7 +614,7 @@ router.delete('/userlist/delete', async(req, res) => {
 });
 
 // Rotta per ottenere le simulazioni del mese corrente per un chatbot
-router.get('/userlist/month', async(req, res) => {
+router.get('/userlist/month', verifyToken, async(req, res) => {
     try {
         const chatbotName = req.query.chatbot_name;
         console.log("=== DEBUG /userlist/month ===");
@@ -688,7 +731,7 @@ router.get(
 );
 
 // Restituisce la lista degli studenti unici per uno specifico chatbot_name (storyline_key)
-router.get('/learners-list', async(req, res) => {
+router.get('/learners-list', verifyToken, async(req, res) => {
     try {
         const { storyline_key } = req.query;
         if (!storyline_key) {
@@ -714,7 +757,7 @@ router.get('/learners-list', async(req, res) => {
 });
 
 // Nuova rotta: restituisce la lista degli studenti unici per uno specifico chatbot_name (storyline_key) con lo score massimo
-router.get('/learners-list-maxscore', async(req, res) => {
+router.get('/learners-list-maxscore', verifyToken, async(req, res) => {
     try {
         const { storyline_key } = req.query;
         if (!storyline_key) {
@@ -750,7 +793,7 @@ router.get('/learners-list-maxscore', async(req, res) => {
 });
 
 // Endpoint per eliminare learners multiple
-router.delete('/learners/delete', async(req, res) => {
+router.delete('/learners/delete', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
     try {
         const { emails, storyline_key } = req.body;
 
@@ -786,7 +829,7 @@ router.delete('/learners/delete', async(req, res) => {
     }
 });
 
-router.get('/learner-detail', async(req, res) => {
+router.get('/learner-detail', verifyToken, async(req, res) => {
     const { storyline_key, email } = req.query;
     if (!storyline_key || !email) {
         return res.status(400).json({ message: 'Parametri mancanti' });
@@ -883,7 +926,7 @@ router.get('/learner-detail', async(req, res) => {
 });
 
 // Rotta per ottenere tutti gli utenti unici di tutti i chatbot (per super admin)
-router.get('/all-users', async(req, res) => {
+router.get('/all-users', verifyToken, requireRole(['superadmin', 1]), async(req, res) => {
     try {
         console.log('🔍 DEBUG: Eseguendo query /all-users... VERSIONE AGGIORNATA');
         console.log('🔍 DEBUG: Timestamp:', new Date().toISOString());
@@ -924,7 +967,7 @@ router.get('/all-users', async(req, res) => {
     }
 });
 
-router.post('/change-password', async(req, res) => {
+router.post('/change-password', verifyToken, async(req, res) => {
     const { userId, password } = req.body;
     if (!userId || !password) {
         return res.status(400).json({ success: false, message: 'Paramètres manquants.' });
@@ -1114,47 +1157,26 @@ router.get('/verify-reset-token', async(req, res) => {
 });
 
 // Endpoint per verificare l'autenticazione dell'utente
-router.post('/verify-auth', async(req, res) => {
+router.post('/verify-auth', verifyToken, async(req, res) => {
     try {
-        const { email, role } = req.body;
-
-        if (!email || !role) {
-            return res.status(400).json({ success: false, message: 'Email et rôle requis.' });
-        }
-
-        // Verifica se l'utente esiste nel database
-        const userRes = await pool.query(`
-            SELECT u.id, u.user_mail, u.role_id, u.active, r.name AS role_name
-            FROM users u
-            JOIN roles r ON u.role_id = r.id
-            WHERE u.user_mail = $1 AND u.role_id = $2
-        `, [email, role]);
-
-        if (userRes.rows.length === 0) {
-            return res.status(401).json({ success: false, message: 'Utilisateur non trouvé.' });
-        }
-
-        const user = userRes.rows[0];
-
-        // Per gli utenti normali, verifica che siano attivi
-        if (user.role_name === 'user' && !user.active) {
-            return res.status(401).json({ success: false, message: 'Compte non activé.' });
-        }
-
-        res.json({
-            success: true,
-            message: 'Authentification valide.',
-            user: {
-                id: user.id,
-                email: user.user_mail,
-                role: user.role_id,
-                role_name: user.role_name,
-                active: user.active
-            }
-        });
+        // Dati dal token
+        const user = {
+            id: req.user.id,
+            email: req.user.email,
+            role: req.user.role_id,
+            role_name: req.user.role_name,
+            tenant_id: req.user.tenant_id
+        };
+        res.json({ success: true, message: 'Authentification valide.', user });
     } catch (error) {
         console.error('Errore verify-auth:', error);
         res.status(500).json({ success: false, message: 'Erreur lors de la vérification de l\'authentification.' });
     }
+});
+
+// Logout: invalida cookie
+router.post('/logout', (req, res) => {
+    res.clearCookie('auth', { httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production' });
+    res.json({ success: true });
 });
 module.exports = router;

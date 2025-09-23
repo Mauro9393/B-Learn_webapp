@@ -32,49 +32,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   useEffect(() => {
     const checkAuth = async () => {
-      const userEmail = localStorage.getItem('userEmail');
-      const userRole = localStorage.getItem('userRole');
-      
-      if (!userEmail || !userRole) {
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-      
-      // Verifica opzionale del token con il backend
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-auth`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email: userEmail, role: userRole })
+          credentials: 'include'
         });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setIsAuthenticated(true);
-          } else {
-            // Token non valido, rimuovi i dati dal localStorage
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userRole');
-            setIsAuthenticated(false);
-          }
-        } else {
-          // Se il backend non risponde, considera comunque autenticato se ci sono i dati locali
-          // Questo permette di funzionare anche offline
+        const data = await response.json();
+        if (response.ok && data.success) {
           setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
         }
       } catch (error) {
-        console.warn('Errore di verifica auth, usando dati locali:', error);
-        // In caso di errore di rete, considera comunque autenticato se ci sono i dati locali
-        setIsAuthenticated(true);
+        setIsAuthenticated(false);
       }
-      
       setIsLoading(false);
     };
-    
     checkAuth();
   }, []);
   

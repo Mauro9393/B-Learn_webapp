@@ -14,7 +14,9 @@ const authenticateUser = async(email, password) => {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     const user = result.rows[0];
     if (user && await bcrypt.compare(password, user.password)) {
-        const token = jwt.sign({ id: user.id, email: user.email }, 'your_jwt_secret', { expiresIn: '1h' });
+        const secret = process.env.JWT_SECRET;
+        if (!secret) throw new Error('JWT non configurato');
+        const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: '1h' });
         return { token };
     }
     throw new Error('Invalid credentials');

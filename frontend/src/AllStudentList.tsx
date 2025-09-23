@@ -57,7 +57,7 @@ const AllStudentList: React.FC = () => {
     const fetchData = async () => {
       try {
         const apiUrl = 'http://localhost:3000'; // Forza uso server locale
-        const res = await fetch(`${apiUrl}/api/all-users`);
+        const res = await fetch(`${apiUrl}/api/all-users`, { credentials: 'include' });
         
         if (!res.ok) {
           console.error('Errore HTTP:', res.status, res.statusText);

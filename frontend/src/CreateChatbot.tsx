@@ -37,7 +37,7 @@ const CreateChatbot = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/tenants`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/tenants`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setTenants(data));
   }, []);
@@ -60,6 +60,7 @@ const CreateChatbot = () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbots`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           name,
           description,
