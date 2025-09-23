@@ -118,9 +118,6 @@ function Dashboard() {
         
         if (response.ok) {
             // Ricarica i dati dal server per assicurarsi che tutto sia sincronizzato
-            const userId = localStorage.getItem('userId');
-            const userRole = localStorage.getItem('userRole');
-            const tenantId = localStorage.getItem('tenantId');
             let url = `/api/chatbots`;
             const refreshResponse = await fetch(url, { credentials: 'include' });
             const refreshData = await refreshResponse.json();
@@ -139,9 +136,6 @@ function Dashboard() {
 
   useEffect(() => {
     const fetchChatbots = async () => {
-      const userId = localStorage.getItem('userId');
-      const userRole = localStorage.getItem('userRole');
-      const tenantId = localStorage.getItem('tenantId');
       let url = `/api/chatbots`;
       const response = await fetch(url, { credentials: 'include' });
       const data = await response.json();
