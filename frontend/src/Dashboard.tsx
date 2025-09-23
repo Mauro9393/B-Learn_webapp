@@ -166,14 +166,14 @@ function Dashboard() {
 
   useEffect(() => {
     if (userRole === '1') {
-      fetch(`/api/tenants`)
+      fetch(`/api/tenants`, { credentials: 'include' })
         .then(res => res.json())
         .then(data => setTenants(data));
     }
   }, [userRole]);
 
   useEffect(() => {
-    fetch(`/api/userlist?all=1`)
+    fetch(`/api/userlist?all=1`, { credentials: 'include' })
       .then(res => res.json())
       .then((data: UserlistRow[]) => {
         setUserlist(data);
