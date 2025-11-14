@@ -162,7 +162,7 @@ function Admin() {
         </p>
       )}
       
-      {/* Popup de confirmation - Stile originale da add-admin.html */}
+      {/* Popup confirmation - Original style of add-admin.html */}
       {showPopup && (
         <div className="popup-overlay show">
           <div className="popup-content">

@@ -32,7 +32,7 @@ body.home-page main {
 }
 
 
-/* Header con pulsante Connection */
+/* Header */
 
 .home-header {
     position: fixed;
@@ -40,22 +40,35 @@ body.home-page main {
     left: 0;
     right: 0;
     z-index: 1000;
-    padding: 1.5rem 2rem;
+    padding: 1rem 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: saturate(180%) blur(10px);
+}
+
+.home-header-inner {
+    width: 100%;
+    margin: 0;
+    padding: 0 48px;
+    /* distanza laterale aumentata leggermente */
+    /* elementi quasi a filo dei bordi */
     display: flex;
-    justify-content: flex-end;
     align-items: center;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    justify-content: space-between;
+}
+
+.home-logo-brand {
+    height: 60px;
+    width: auto;
+    cursor: pointer;
 }
 
 .connection-button {
-    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 100%);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
+    background: #fff;
+    color: #7F53F5 !important;
+    border: 1px solid #7F53F5;
+    border-radius: 20px;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -65,9 +78,28 @@ body.home-page main {
 }
 
 .connection-button:hover {
-    background: linear-gradient(90deg, #7F53F5 0%, #5B6DF6 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(127, 83, 245, 0.3);
+    background: #7F53F5;
+    color: #fff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(127, 83, 245, 0.25);
+}
+
+
+/* Stato focus/active: rimuove il bordo nero di default e usa un focus ring personalizzato */
+
+.connection-button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.connection-button:focus,
+.connection-button:active {
+    outline: none;
+    border-color: #7F53F5;
+}
+
+.connection-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(127, 83, 245, 0.35);
 }
 
 
@@ -238,9 +270,10 @@ body.home-page main {
     display: flex;
     align-items: stretch;
     justify-content: flex-start;
-    background: url('/assets/hero-bg.png') center center/cover no-repeat;
+    background: url('/assets/people.png') center center/cover no-repeat;
     overflow: hidden;
-    margin: 0;
+    margin: 80px 0 0 0;
+    /* sposta sotto l'header fisso */
     padding: 0;
     border-radius: 0;
     top: 0;
@@ -253,21 +286,32 @@ body.home-page main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(90deg, rgba(91, 109, 246, 0.95) 0%, rgba(127, 83, 245, 0.85) 100%);
+    background: linear-gradient(90deg, rgba(91, 109, 246, 0.5) 0%, rgba(127, 83, 245, 0.5) 50%, rgba(155, 89, 182, 0.5) 100%);
     z-index: 1;
     opacity: 1;
 }
 
+.home-hero-overlay-points {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/assets/point_effect.png') center center/cover no-repeat;
+    z-index: 2;
+}
+
 .home-hero-content {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 100%;
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding-left: 5vw;
+    text-align: center;
 }
 
 .home-hero-text {
@@ -287,6 +331,18 @@ body.home-page main {
     letter-spacing: -1px;
     line-height: 1.1;
     text-shadow: 0 2px 16px rgba(91, 109, 246, 0.18);
+}
+
+.home-hero-title.main-title {
+    font-size: 50px;
+}
+
+
+/* Forza colore bianco per il titolo hero */
+
+.home-hero-title.main-title,
+.home-hero-title.main-title strong {
+    color: #fff;
 }
 
 .home-hero-desc {
@@ -331,6 +387,225 @@ body.home-page main {
     margin: 0 auto 0px auto;
     padding: 0px 2rem 0 2rem;
     background: #fff;
+}
+
+
+/* --- NEW THREE FEATURE CARDS overlapping hero --- */
+
+.home-cards-row {
+    position: relative;
+    z-index: 10;
+    max-width: 1200px;
+    margin: -80px auto 80px auto;
+    /* overlap 1/3 in the hero */
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.home-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    padding: 38px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.home-card-image {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    margin-bottom: 12px;
+}
+
+.home-card-title {
+    font-weight: 700;
+    color: #5B6DF6;
+    margin: 8px 0 16px 0;
+}
+
+.home-card-text {
+    color: #444;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    .home-cards-row {
+        grid-template-columns: 1fr;
+        margin-top: 20px;
+    }
+}
+
+
+/* --- TWO WIDE STAGGERED CARDS --- */
+
+.home-staggered {
+    max-width: 1200px;
+    margin: 10px auto 60px auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 24px;
+}
+
+.home-staggered-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+}
+
+.home-staggered-card.left {
+    margin-right: 20%;
+    margin-bottom: 40px;
+}
+
+.home-staggered-card.right {
+    margin-left: 20%;
+    margin-bottom: 40px;
+}
+
+.home-staggered-content {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding: 64px 28px;
+}
+
+.home-staggered-card.left .home-staggered-content {
+    padding-right: 80px;
+}
+
+.home-staggered-card.left .home-staggered-content .text {
+    padding-right: 80px;
+}
+
+.home-staggered-card.right .home-staggered-content {
+    padding-left: 80px;
+}
+
+.home-staggered-card.right .home-staggered-content .text {
+    grid-template-columns: auto 1fr;
+    padding-left: 80px;
+}
+
+.home-staggered-content img {
+    width: 86px;
+    height: 86px;
+    object-fit: contain;
+    justify-self: center;
+    margin: 0 auto;
+}
+
+.home-staggered-content .text h3 {
+    color: #000000;
+    margin: 0 0 10px 0;
+}
+
+.home-staggered-content .text p {
+    color: #444;
+    margin: 0;
+}
+
+
+/* Text alignment per card */
+
+.home-staggered-card.left .text {
+    text-align: left;
+}
+
+.home-staggered-card.right .text {
+    text-align: right;
+}
+
+@media (max-width: 900px) {
+    .home-staggered-card.left,
+    .home-staggered-card.right {
+        margin: 0;
+    }
+    .home-staggered-content,
+    .home-staggered-card.right .home-staggered-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .home-staggered-content img {
+        margin: 0 auto;
+    }
+}
+
+
+/* --- FINAL CTA --- */
+
+.home-final-cta {
+    background: linear-gradient(90deg, #5B6DF6 0%, #7F53F5 50%, #9B59B6 100%);
+    padding: 80px 20px;
+    color: #fff;
+}
+
+.home-final-cta-inner {
+    max-width: 750px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.home-final-cta h2 {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 34px 0;
+}
+
+
+/* Forza colore bianco per il testo della CTA finale */
+
+.home-final-cta h2,
+.home-final-cta h2 strong {
+    color: #fff;
+}
+
+.home-final-cta-btn {
+    background: #fff;
+    color: #7F53F5 !important;
+    border: 2px solid #7F53F5;
+    border-radius: 20px;
+    padding: 16px 22px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-final-cta-btn:hover {
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15);
+}
+
+.home-final-cta-btn {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.home-final-cta-btn:focus,
+.home-final-cta-btn:active {
+    outline: none;
+    border-color: #7F53F5;
+}
+
+.home-final-cta-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
+}
+
+.home-final-cta-line {
+    width: 80px;
+    height: 2px;
+    background: #fff;
+    opacity: 0.9;
+    margin: 18px auto 0 auto;
+    border-radius: 1px;
 }
 
 .home-box {

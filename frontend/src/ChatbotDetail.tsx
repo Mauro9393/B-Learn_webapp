@@ -43,6 +43,7 @@ const ChatbotDetail: React.FC = () => {
   // Stato per le impostazioni
   const { settings, updateSettings } = useSettings();
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [isApiAccordionOpen, setIsApiAccordionOpen] = useState(false);
 
   // Periodo (aggiunta gestione personalizzata)
   // selectedPeriod: 'all' | '30' | '90' | '180' | 'custom'
@@ -514,6 +515,65 @@ const ChatbotDetail: React.FC = () => {
   // Funzione per gestire il cambio delle impostazioni
   const handleSettingChange = (setting: keyof Settings) => {
     updateSettings({ [setting]: !settings[setting] });
+  };
+
+  // Stato e funzioni per gestione chiave API per chatbot
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [apiKeyStatus, setApiKeyStatus] = useState<{ hasKey: boolean; last4?: string } | null>(null);
+  const [savingKey, setSavingKey] = useState(false);
+  const [savedNoticeLast4, setSavedNoticeLast4] = useState<string | null>(null);
+  const [deletingKey, setDeletingKey] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        if (!data?.storyline_key) return;
+        const r = await fetch(`/api/keys/status?provider=openai&chatbot_id=${encodeURIComponent(data.storyline_key)}`, { credentials: 'include' });
+        const j = await r.json();
+        setApiKeyStatus(j);
+      } catch {
+        setApiKeyStatus({ hasKey: false });
+      }
+    };
+    load();
+  }, [data?.storyline_key]);
+
+  const saveApiKey = async () => {
+    if (!apiKeyInput.trim() || !data?.storyline_key) return;
+    setSavingKey(true);
+    try {
+      const r = await fetch('/api/keys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ provider: 'openai', apiKey: apiKeyInput.trim(), chatbot_id: data.storyline_key })
+      });
+      const j = await r.json();
+      if (j?.success) {
+        setApiKeyInput('');
+        setApiKeyStatus({ hasKey: true, last4: j.last4 });
+        setSavedNoticeLast4(j.last4 || '');
+        setTimeout(() => setSavedNoticeLast4(null), 3000);
+      }
+    } catch {}
+    setSavingKey(false);
+  };
+
+  const deleteApiKey = async () => {
+    if (!data?.storyline_key) return;
+    setDeletingKey(true);
+    try {
+      const r = await fetch(`/api/keys?provider=openai&chatbot_id=${encodeURIComponent(data.storyline_key)}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      const j = await r.json();
+      if (j?.success) {
+        setApiKeyStatus({ hasKey: false });
+        setSavedNoticeLast4(null);
+      }
+    } catch {}
+    setDeletingKey(false);
   };
 
   // Rendering stelle media con riempimento parziale (0-5, supporto mezze)
@@ -1412,6 +1472,50 @@ const ChatbotDetail: React.FC = () => {
                   <span className={`toggle-slider ${settings.showRanking ? 'active' : 'inactive'}`}></span>
                 </label>
               </div>
+              {/* <div className="setting-item api-key-block">
+                <div
+                  className="api-key-header"
+                  onClick={() => setIsApiAccordionOpen(o => !o)}
+                  role="button"
+                  aria-expanded={isApiAccordionOpen}
+                >
+                  <span className="setting-label">Clé API OpenAI</span>
+                  <span className={`accordion-caret ${isApiAccordionOpen ? 'open' : ''}`}>›</span>
+                </div>
+                <div className={`api-key-accordion ${isApiAccordionOpen ? 'open' : ''}`}>
+                  <div className="api-key-stack">
+                    <input
+                      className="api-key-input"
+                      type="password"
+                      value={apiKeyInput}
+                      onChange={(e) => setApiKeyInput(e.target.value)}
+                      placeholder="••••••••••••"
+                    />
+                    {(savedNoticeLast4 || apiKeyStatus?.hasKey) && (
+                      <small className="api-key-status-ok center">
+                        Clé enregistrée pour ce chatbot (se termine par ••••{savedNoticeLast4 || apiKeyStatus?.last4})
+                      </small>
+                    )}
+                    <div className="api-key-buttons">
+                      <button
+                        className="action-btn primary api-key-save"
+                        disabled={savingKey || !apiKeyInput.trim()}
+                        onClick={saveApiKey}
+                        title="Enregistrer votre clé API"
+                      >
+                        Enregistrer votre clé API
+                      </button>
+                      <button
+                        className="action-btn danger api-key-delete"
+                        disabled={deletingKey}
+                        onClick={deleteApiKey}
+                        title="Supprimer la clé API"
+                      >
+                        Supprimer la clé API
+                      </button>
+                    </div>
+                  </div>
+                </div> */}
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const { verifyToken, requireRole } = require('../middleware/auth');
+const { ensureChatbotBelongsToTenant, ensureStorylineBelongsToTenant, isSuperAdmin } = require('../middleware/tenant');
 const router = express.Router();
 
 const pool = require('../../config/db');
@@ -12,8 +13,11 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const handlebars = require('handlebars');
 require('dotenv').config();
+const { encryptSecret, decryptSecret } = require('../utils/crypto');
+// Node >= 18 a fetch global; si non disponibile, décommentez la ligne ci-dessous et ajoutez node-fetch
+// const fetch = require('node-fetch');
 
-// SSE clients per chatbot id
+// Clients SSE par ID de chatbot
 const sseClientsByChatbotId = new Map(); // key: chatbot id (string), value: Set<res>
 
 function broadcastChatbotStatus(chatbotId, payload) {
@@ -98,7 +102,7 @@ router.post('/login', async(req, res) => {
     const { email, password } = req.body;
     try {
         console.log('Attempting database query for user:', email);
-        // Validazione input
+        // Validation des entrées
         const schema = Joi.object({
             email: Joi.string().email().required(),
             password: Joi.string().min(6).max(128).required()
@@ -128,7 +132,7 @@ router.post('/login', async(req, res) => {
             // Connexion réussie pour admin/superadmin même si non actifs
             console.log('Login successful for user:', email, 'role:', user.role_name);
 
-            // Genera JWT e imposta cookie HttpOnly
+            // Génère le JWT et définit le cookie HttpOnly
             const secret = process.env.JWT_SECRET;
             if (!secret) {
                 return res.status(500).json({ success: false, message: 'JWT non configurato' });
@@ -171,7 +175,7 @@ router.post('/login', async(req, res) => {
     }
 });
 
-// Solo superadmin può creare admin
+// Seul le superadmin peut créer des admins
 router.post('/admins', verifyToken, requireRole(['superadmin', 1]), async(req, res) => {
     try {
         const { email, password, full_name, company } = req.body;
@@ -182,7 +186,7 @@ router.post('/admins', verifyToken, requireRole(['superadmin', 1]), async(req, r
             company: Joi.string().min(1).max(200).required()
         });
         const { error: vErr } = schema.validate({ email, password, full_name, company });
-        if (vErr) return res.status(400).json({ success: false, message: 'Parametri non validi' });
+        if (vErr) return res.status(400).json({ success: false, message: 'MDP dois contenir au moins 8 caractéres' });
 
         // 1. Récupère ou crée le tenant
         let tenant = await pool.query('SELECT id FROM tenants WHERE name = $1', [company]);
@@ -200,7 +204,7 @@ router.post('/admins', verifyToken, requireRole(['superadmin', 1]), async(req, r
         const roleRes = await pool.query("SELECT id FROM roles WHERE name = 'admin'");
         const roleId = roleRes.rows[0].id;
 
-        // 2b. Evita duplicati per email
+        // 2b. Évite les doublons par e-mail
         const dupCheck = await pool.query('SELECT id FROM users WHERE user_mail = $1', [email]);
         if (dupCheck.rows.length > 0) {
             return res.status(409).json({ success: false, message: 'Email déjà enregistrée.' });
@@ -238,7 +242,7 @@ router.post('/admins', verifyToken, requireRole(['superadmin', 1]), async(req, r
     }
 });
 
-// Configura il trasporto email (esempio con Gmail, puoi usare anche altri provider)
+// Configure le transport d’e-mails (exemple avec Gmail, vous pouvez utiliser d’autres fournisseurs)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -250,7 +254,7 @@ const transporter = nodemailer.createTransport({
 router.post('/invite-partner', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
     try {
         console.log("Requête reçue:", req.body);
-        const { emails, tenantName, managerName, chatbotId } = req.body; // aggiunto chatbotId
+        const { emails, tenantName, managerName, chatbotId } = req.body; // ajouté chatbotId
         if (!emails || !Array.isArray(emails) || emails.length === 0) {
             return res.status(400).json({ success: false, message: "Aucun email fourni." });
         }
@@ -271,7 +275,7 @@ router.post('/invite-partner', verifyToken, requireRole(['superadmin', 'admin', 
 
         for (const email of emails) {
             const token = uuidv4();
-            // Sauvegarde l'invitation con chatbot_id
+            // Sauvegarde l’invitation avec chatbot_id
             await pool.query(
                 'INSERT INTO invitations (email, token, tenant_id, role_id, chatbot_id, expires_at, used, created_at) VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL \'2 days\', false, NOW())', [email, token, tenantId, roleId, chatbotId]
             );
@@ -301,7 +305,7 @@ router.get('/confirm', async(req, res) => {
     if (!token) {
         return res.status(400).send('Token mancante.');
     }
-    // Cerca il token valido e non usato
+    // Recherche le jeton valide et non utilisé
     const confRes = await pool.query(
         'SELECT * FROM email_confirmations WHERE token = $1 AND used = false AND expires_at > NOW()', [token]
     );
@@ -309,21 +313,28 @@ router.get('/confirm', async(req, res) => {
         return res.status(400).send('Token non valido o scaduto.');
     }
     const confirmation = confRes.rows[0];
-    // Attiva l'utente
+    // Active l’utilisateur
     await pool.query('UPDATE users SET active = true WHERE id = $1', [confirmation.user_id]);
-    // Segna il token come usato
+    // Marque le jeton comme utilisé
     await pool.query('UPDATE email_confirmations SET used = true WHERE id = $1', [confirmation.id]);
-    // Reindirizza alla pagina di conferma del frontend
+    // Redirige vers la page de confirmation du frontend
     res.redirect(`${process.env.FRONTEND_URL}/confirmation`);
 });
 
 console.log("Sto per registrare la route /chatbots");
 router.post('/chatbots', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
     try {
-        const { name, storyline_key, description, tenant_id } = req.body;
+        const { name, storyline_key, description } = req.body;
+        // Admin può creare solo nel proprio tenant; superadmin può specificare tenant_id
+        const effectiveTenantId = (String(req.user.role_id) === '1' || String(req.user.role_name).toLowerCase() === 'superadmin') ?
+            req.body.tenant_id :
+            req.user.tenant_id;
+        if (!effectiveTenantId) {
+            return res.status(400).json({ success: false, message: 'Tenant non specificato.' });
+        }
         console.log("Reçu du frontend:", req.body);
         await pool.query(
-            'INSERT INTO chatbots (name, storyline_key, tenant_id, description, created_at) VALUES ($1, $2, $3, $4, NOW())', [name, storyline_key, tenant_id, description]
+            'INSERT INTO chatbots (name, storyline_key, tenant_id, description, created_at) VALUES ($1, $2, $3, $4, NOW())', [name, storyline_key, effectiveTenantId, description]
         );
         res.json({ success: true, message: 'Chatbot créé avec succès !' });
     } catch (error) {
@@ -340,20 +351,20 @@ router.get('/chatbots', verifyToken, async(req, res) => {
 
         let result;
         if (userRole === '1') {
-            // Super admin: tutti i chatbot
+            // Super admin : tous les chatbots
             result = await pool.query('SELECT * FROM chatbots');
         } else if (userRole === '2') {
-            // Admin: solo i chatbot del proprio tenant
+            // Admin : seulement les chatbots de son tenant
             result = await pool.query('SELECT * FROM chatbots WHERE tenant_id = $1', [tenantId]);
         } else if (userRole === '3') {
-            // User normale: solo i chatbot collegati tramite user_chatbots
+            // Utilisateur : seulement les chatbots liés via user_chatbots
             result = await pool.query(`
                 SELECT c.* FROM chatbots c
                 JOIN user_chatbots uc ON c.id = uc.chatbot_id
                 WHERE uc.user_id = $1
             `, [userId]);
         } else {
-            // Default: nessun chatbot
+            // Par défaut : aucun chatbot
             result = { rows: [] };
         }
         res.json(result.rows);
@@ -362,19 +373,25 @@ router.get('/chatbots', verifyToken, async(req, res) => {
     }
 });
 
-// Stato ON/OFF per SPA (id numerico)
+// État ON/OFF pour SPA (ID numérique)
 router.get('/chatbots/:id/enabled', verifyToken, async(req, res) => {
     try {
         const { id } = req.params;
-        const r = await pool.query('SELECT id, enabled, updated_at FROM chatbots WHERE id = $1', [id]);
-        if (r.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trovato' });
+        // Se non superadmin, il chatbot deve appartenere al tenant dell'utente
+        let r;
+        if (String(req.user.role_id) === '1' || String(req.user.role_name).toLowerCase() === 'superadmin') {
+            r = await pool.query('SELECT id, enabled, updated_at FROM chatbots WHERE id = $1', [id]);
+        } else {
+            r = await pool.query('SELECT id, enabled, updated_at FROM chatbots WHERE id = $1 AND tenant_id = $2', [id, req.user.tenant_id]);
+        }
+        if (r.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trouvé' });
         res.json({ id: Number(id), enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at });
     } catch (e) {
         res.status(500).json({ message: e.message });
     }
 });
 
-// SSE: sottoscrizione allo stato enabled di un chatbot per aggiornamenti live
+// SSE : abonnement à l’état enabled d’un chatbot pour des mises à jour en direct
 router.get('/chatbots/:id/enabled/stream', async(req, res) => {
     const { id } = req.params;
     console.log(`[SSE] New subscriber for chatbot ${id}`);
@@ -382,7 +399,7 @@ router.get('/chatbots/:id/enabled/stream', async(req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
-    // CORS aperto per lo stream (utile per file:// o domini esterni)
+    // CORS ouvert pour le flux (utile pour file:// ou des domaines externes)
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.flushHeaders && res.flushHeaders();
 
@@ -391,7 +408,7 @@ router.get('/chatbots/:id/enabled/stream', async(req, res) => {
     const clients = sseClientsByChatbotId.get(key);
     clients.add(res);
 
-    // invia stato iniziale
+    // envoie l’état initial
     try {
         const r = await pool.query('SELECT id, enabled, updated_at, updated_by FROM chatbots WHERE id = $1', [id]);
         if (r.rows.length > 0) {
@@ -399,7 +416,7 @@ router.get('/chatbots/:id/enabled/stream', async(req, res) => {
         }
     } catch (_) {}
 
-    // heartbeat per tenere viva la connessione
+    // heartbeat pour garder la connexion ouverte
     const heartbeat = setInterval(() => {
         try { res.write(': keepalive\n\n'); } catch (_) {}
     }, 25000);
@@ -416,8 +433,8 @@ router.get('/chatbots/:id/enabled/stream', async(req, res) => {
     });
 });
 
-// Toggle ON/OFF (usato dal bottone nella card)
-router.patch('/chatbots/:id/enabled', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
+// Bascule ON/OFF (utilisée par le bouton sur la carte)
+router.patch('/chatbots/:id/enabled', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), ensureChatbotBelongsToTenant, async(req, res) => {
     try {
         const { id } = req.params;
         const enabled = !!req.body.enabled;
@@ -425,12 +442,12 @@ router.patch('/chatbots/:id/enabled', verifyToken, requireRole(['superadmin', 'a
         const updatedByBase = 'dashboard';
         const updatedBy = role === '1' ? `superadmin:${updatedByBase}` : role === '2' ? `admin:${updatedByBase}` : updatedByBase;
 
-        // Regola: se il chatbot è attualmente disattivato da un superadmin, un admin non può modificarlo
+        // Règle : si le chatbot est actuellement désactivé par un superadmin, un admin ne peut pas le modifier
         const curr = await pool.query('SELECT enabled, updated_by FROM chatbots WHERE id = $1', [id]);
-        if (curr.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trovato' });
+        if (curr.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trouvé' });
         const current = curr.rows[0];
         if (role !== '1' && current.enabled === false && current.updated_by && String(current.updated_by).startsWith('superadmin')) {
-            return res.status(403).json({ message: 'Bloccato: chatbot disattivato da super admin.' });
+            return res.status(403).json({ message: 'Blocked: chatbot disables by super admin.' });
         }
 
         const r = await pool.query(
@@ -439,9 +456,9 @@ router.patch('/chatbots/:id/enabled', verifyToken, requireRole(['superadmin', 'a
              WHERE id = $3
              RETURNING id, enabled, updated_at`, [enabled, updatedBy, id]
         );
-        if (r.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trovato' });
+        if (r.rows.length === 0) return res.status(404).json({ message: 'Chatbot non trouvé' });
         const payload = { id: Number(id), enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at, updated_by: updatedBy };
-        // broadcast SSE agli iscritti
+        // Diffusion SSE aux abonnés
         broadcastChatbotStatus(id, payload);
         res.json(payload);
     } catch (e) {
@@ -449,22 +466,22 @@ router.patch('/chatbots/:id/enabled', verifyToken, requireRole(['superadmin', 'a
     }
 });
 
-// Modifica nome card chatbot
+// Modifier le nom de la carte du chatbot
 
-router.put('/chatbots/:id', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
+router.put('/chatbots/:id', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), ensureChatbotBelongsToTenant, async(req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
 
-        // Validazione
+        // Validation
         if (!name || name.trim() === '') {
-            return res.status(400).json({ success: false, message: 'Il nome non può essere vuoto' });
+            return res.status(400).json({ success: false, message: 'Le cham' });
         }
 
-        // Verifica che il chatbot esista
+        // Vérifie que le chatbot existe
         const checkResult = await pool.query('SELECT id FROM chatbots WHERE id = $1', [id]);
         if (checkResult.rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Chatbot non trovato' });
+            return res.status(404).json({ success: false, message: 'Chatbot non trouvé' });
         }
 
         await pool.query(
@@ -478,34 +495,34 @@ router.put('/chatbots/:id', verifyToken, requireRole(['superadmin', 'admin', 1, 
     }
 });
 
-// Modifica tenant card chatbot (solo per super admin)
+// Modifier le tenant de la carte du chatbot (seulement pour super admin)
 router.put('/chatbots/:id/tenant', verifyToken, requireRole(['superadmin', 1]), async(req, res) => {
     try {
         const { id } = req.params;
         const { tenant_id } = req.body;
 
-        // Validazione
+        // Validation
         if (!tenant_id || isNaN(tenant_id)) {
             return res.status(400).json({ success: false, message: 'Tenant ID non valido' });
         }
 
-        // Verifica che il chatbot esista
+        // Vérifie que le chatbot existe
         const checkResult = await pool.query('SELECT id FROM chatbots WHERE id = $1', [id]);
         if (checkResult.rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Chatbot non trovato' });
+            return res.status(404).json({ success: false, message: 'Chatbot non trouvé' });
         }
 
-        // Verifica che il tenant esista
+        // Vérifie que le tenant existe
         const tenantCheck = await pool.query('SELECT id FROM tenants WHERE id = $1', [tenant_id]);
         if (tenantCheck.rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Tenant non trovato' });
+            return res.status(404).json({ success: false, message: 'Tenant non trouvé' });
         }
 
         await pool.query(
             'UPDATE chatbots SET tenant_id = $1 WHERE id = $2', [tenant_id, id]
         );
 
-        // Aggiungi automaticamente tutti gli utenti del nuovo tenant alla tabella user_chatbots
+        // Ajoute automatiquement tous les utilisateurs du nouveau tenant à la table user_chatbots
         const usersInTenant = await pool.query(
             'SELECT id FROM users WHERE tenant_id = $1', [tenant_id]
         );
@@ -539,34 +556,44 @@ router.get('/userlist', verifyToken, async(req, res) => {
     try {
         const chatbotName = req.query.chatbot_name;
         console.log("Filtro chatbot_name:", chatbotName);
-        let query = `
+        // Costruisce query con join a chatbots per filtrare per tenant (non superadmin)
+        let base = `
             SELECT 
-                id, user_email, chatbot_name, name, score, 
-                chat_history, chat_analysis, created_at, usergroup,
-                stars, review,
+                ul.id, ul.user_email, ul.chatbot_name, ul.name, ul.score, 
+                ul.chat_history, ul.chat_analysis, ul.created_at, ul.usergroup,
+                ul.stars, ul.review,
                 CASE 
-                    WHEN timesession IS NULL OR timesession = '00:00:00' THEN '-'
-                    WHEN EXTRACT(HOUR FROM timesession) = 0 THEN 
+                    WHEN ul.timesession IS NULL OR ul.timesession = '00:00:00' THEN '-'
+                    WHEN EXTRACT(HOUR FROM ul.timesession) = 0 THEN 
                         CONCAT(
-                            LPAD(EXTRACT(MINUTE FROM timesession)::text, 2, '0'), ':', 
-                            LPAD(EXTRACT(SECOND FROM timesession)::text, 2, '0')
+                            LPAD(EXTRACT(MINUTE FROM ul.timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(SECOND FROM ul.timesession)::text, 2, '0')
                         )
                     ELSE 
                         CONCAT(
-                            LPAD(EXTRACT(HOUR FROM timesession)::text, 2, '0'), ':', 
-                            LPAD(EXTRACT(MINUTE FROM timesession)::text, 2, '0'), ':', 
-                            LPAD(EXTRACT(SECOND FROM timesession)::text, 2, '0')
+                            LPAD(EXTRACT(HOUR FROM ul.timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(MINUTE FROM ul.timesession)::text, 2, '0'), ':', 
+                            LPAD(EXTRACT(SECOND FROM ul.timesession)::text, 2, '0')
                         )
                 END AS temp
-            FROM userlist
+            FROM userlist ul
+            JOIN chatbots c ON c.storyline_key = ul.chatbot_name
         `;
-        let params = [];
+        const params = [];
+        const clauses = [];
+        const superadmin = (String(req.user.role_id) === '1' || String(req.user.role_name).toLowerCase() === 'superadmin');
+        if (!superadmin) {
+            clauses.push(`c.tenant_id = $${params.length + 1}`);
+            params.push(req.user.tenant_id);
+        }
         if (chatbotName) {
-            query += " WHERE chatbot_name = $1";
+            clauses.push(`ul.chatbot_name = $${params.length + 1}`);
             params.push(chatbotName);
         } else if (!req.query.all) {
             return res.status(200).json([]);
         }
+        const where = clauses.length ? ` WHERE ${clauses.join(' AND ')}` : '';
+        const query = base + where;
         console.log("Query eseguita:", query, params);
         const result = await pool.query(query, params);
         console.log("Risultati trovati:", result.rows.length);
@@ -576,8 +603,8 @@ router.get('/userlist', verifyToken, async(req, res) => {
     }
 });
 
-// Endpoint per eliminare simulazioni multiple
-router.delete('/userlist/delete', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
+// Endpoint pour supprimer plusieurs simulations
+router.delete('/userlist/delete', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), ensureStorylineBelongsToTenant, async(req, res) => {
     try {
         const { ids, chatbot_name } = req.body;
 
@@ -589,15 +616,23 @@ router.delete('/userlist/delete', verifyToken, requireRole(['superadmin', 'admin
             return res.status(400).json({ error: 'chatbot_name mancante' });
         }
 
-        // Elimina le simulazioni selezionate
-        const placeholders = ids.map((_, index) => `$${index + 2}`).join(',');
-        const query = `
-            DELETE FROM userlist 
-            WHERE id IN (${placeholders}) 
-            AND chatbot_name = $1
+        // Supprime les simulations sélectionnées (scoped au tenant per non superadmin)
+        const superadmin = (String(req.user.role_id) === '1' || String(req.user.role_name).toLowerCase() === 'superadmin');
+        const idPlaceholders = ids.map((_, index) => `$${index + 3}`).join(',');
+        let query = `
+            DELETE FROM userlist ul USING chatbots c
+            WHERE ul.chatbot_name = $1
+              AND ul.id IN (${idPlaceholders})
+              AND c.storyline_key = ul.chatbot_name
         `;
-
-        const params = [chatbot_name, ...ids];
+        const params = [chatbot_name, null, ...ids]; // placeholder per eventuale tenant
+        if (!superadmin) {
+            query += ` AND c.tenant_id = $2`;
+            params[1] = req.user.tenant_id;
+        } else {
+            // rimuovi il placeholder $2 se superadmin
+            params.splice(1, 1);
+        }
         const result = await pool.query(query, params);
 
         console.log(`Eliminate ${result.rowCount} simulazioni per il chatbot ${chatbot_name}`);
@@ -613,7 +648,7 @@ router.delete('/userlist/delete', verifyToken, requireRole(['superadmin', 'admin
     }
 });
 
-// Rotta per ottenere le simulazioni del mese corrente per un chatbot
+// Route pour obtenir les simulations du mois en cours pour un chatbot
 router.get('/userlist/month', verifyToken, async(req, res) => {
     try {
         const chatbotName = req.query.chatbot_name;
@@ -625,7 +660,7 @@ router.get('/userlist/month', verifyToken, async(req, res) => {
             return res.status(400).json({ message: 'chatbot_name mancante' });
         }
 
-        // Calcola inizio e fine mese corrente
+        // Calcule le début et la fin du mois en cours
         const now = new Date();
         const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -634,20 +669,40 @@ router.get('/userlist/month', verifyToken, async(req, res) => {
         console.log("Inizio mese:", startMonth);
         console.log("Fine mese:", endMonth);
 
-        // Prima controlliamo se ci sono dati per questo chatbot (senza filtro date)
-        const checkResult = await pool.query(
-            `SELECT COUNT(*) as total FROM userlist WHERE chatbot_name = $1`, [chatbotName]
-        );
+        // D’abord, on vérifie s’il existe des données pour ce chatbot (filtrate per tenant se non superadmin)
+        const superadmin = (String(req.user.role_id) === '1' || String(req.user.role_name).toLowerCase() === 'superadmin');
+        const checkResult = superadmin ?
+            await pool.query(`SELECT COUNT(*) as total FROM userlist WHERE chatbot_name = $1`, [chatbotName]) :
+            await pool.query(`
+                SELECT COUNT(*) as total
+                FROM userlist ul
+                JOIN chatbots c ON c.storyline_key = ul.chatbot_name
+                WHERE ul.chatbot_name = $1 AND c.tenant_id = $2
+            `, [chatbotName, req.user.tenant_id]);
         console.log("Totale record per questo chatbot (senza filtro date):", checkResult.rows[0].total);
 
-        // Ora controlliamo tutti i chatbot_name disponibili
-        const allChatbots = await pool.query(`SELECT DISTINCT chatbot_name FROM userlist`);
+        // Maintenant, on vérifie tous les chatbot_name disponibles (scoped se non superadmin)
+        const allChatbots = superadmin ?
+            await pool.query(`SELECT DISTINCT chatbot_name FROM userlist`) :
+            await pool.query(`
+                SELECT DISTINCT ul.chatbot_name
+                FROM userlist ul
+                JOIN chatbots c ON c.storyline_key = ul.chatbot_name
+                WHERE c.tenant_id = $1
+            `, [req.user.tenant_id]);
         console.log("Tutti i chatbot_name disponibili:", allChatbots.rows.map(r => r.chatbot_name));
 
-        // Query per filtrare per chatbot_name e created_at nel mese corrente
-        const result = await pool.query(
-            `SELECT * FROM userlist WHERE chatbot_name = $1 AND created_at >= $2 AND created_at < $3`, [chatbotName, startMonth, endMonth]
-        );
+        // Requête pour filtrer par chatbot_name et created_at dans le mois en cours
+        const result = superadmin ?
+            await pool.query(`SELECT * FROM userlist WHERE chatbot_name = $1 AND created_at >= $2 AND created_at < $3`, [chatbotName, startMonth, endMonth]) :
+            await pool.query(`
+                SELECT ul.*
+                FROM userlist ul
+                JOIN chatbots c ON c.storyline_key = ul.chatbot_name
+                WHERE ul.chatbot_name = $1
+                  AND ul.created_at >= $2 AND ul.created_at < $3
+                  AND c.tenant_id = $4
+            `, [chatbotName, startMonth, endMonth, req.user.tenant_id]);
 
         // console.log("Query eseguita con parametri:", [chatbotName, startMonth, endMonth]);
         //  console.log("Risultati trovati per il mese:", result.rows.length);
@@ -661,7 +716,7 @@ router.get('/userlist/month', verifyToken, async(req, res) => {
     }
 });
 
-// Restituisce un chatbot tramite storyline_key con stats learners/simulations/avg_score
+// Retourne un chatbot par storyline_key avec les stats learners/simulations/avg_score
 router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
     try {
         const { storyline_key } = req.params;
@@ -673,10 +728,10 @@ router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
             WHERE c.storyline_key = $1
         `, [storyline_key]);
         if (chatbotRes.rows.length === 0) {
-            return res.status(404).json({ message: 'Chatbot non trovato' });
+            return res.status(404).json({ message: 'Chatbot non trouvé' });
         }
         const chatbot = chatbotRes.rows[0];
-        // Prendi stats da userlist - simulazioni completate per avg_score, tutti i learners per il conteggio
+        // Prends les statistiques depuis la liste des utilisateurs – simulations terminées pour la moyenne des scores, tous les apprenants pour le comptage.
         const statsRes = await pool.query(`
             SELECT 
                 COUNT(CASE WHEN score >= 0 THEN 1 END) AS simulations,
@@ -695,7 +750,7 @@ router.get('/chatbots/storyline/:storyline_key', async(req, res) => {
     }
 });
 
-// Preflight CORS per la rotta di stato (aperto)
+// Prévol CORS pour la route d’état (ouvert)
 router.options('/chatbots/storyline/:storyline_key/status', (req, res) => {
     res.set({
         'Access-Control-Allow-Origin': '*',
@@ -705,7 +760,7 @@ router.options('/chatbots/storyline/:storyline_key/status', (req, res) => {
     return res.sendStatus(204);
 });
 
-// Endpoint che Storyline può leggere tramite storyline_key, con CORS aperto e no-cache
+// Endpoint que Storyline peut lire via storyline_key, avec CORS ouvert et no-cache
 router.get(
     '/chatbots/storyline/:storyline_key/status',
     (req, res, next) => {
@@ -720,7 +775,7 @@ router.get(
             const { storyline_key } = req.params;
             const r = await pool.query('SELECT enabled, updated_at FROM chatbots WHERE storyline_key = $1', [storyline_key]);
             if (r.rows.length === 0) {
-                // fallback "fail-open": se non c’è record, consideriamo enabled=true
+                // Repli « fail-open » : s’il n’y a pas d’enregistrement, on considère enabled=true
                 return res.json({ chatbot: storyline_key, enabled: true });
             }
             res.json({ chatbot: storyline_key, enabled: r.rows[0].enabled, updated_at: r.rows[0].updated_at });
@@ -730,8 +785,8 @@ router.get(
     }
 );
 
-// Restituisce la lista degli studenti unici per uno specifico chatbot_name (storyline_key)
-router.get('/learners-list', verifyToken, async(req, res) => {
+// Retourne la liste des apprenants uniques pour un chatbot_name spécifique (storyline_key)
+router.get('/learners-list', verifyToken, ensureStorylineBelongsToTenant, async(req, res) => {
     try {
         const { storyline_key } = req.query;
         if (!storyline_key) {
@@ -756,12 +811,12 @@ router.get('/learners-list', verifyToken, async(req, res) => {
     }
 });
 
-// Nuova rotta: restituisce la lista degli studenti unici per uno specifico chatbot_name (storyline_key) con lo score massimo
-router.get('/learners-list-maxscore', verifyToken, async(req, res) => {
+// Nouvelle route : retourne la liste des apprenants uniques pour un chatbot_name spécifique (storyline_key) avec le score maximum
+router.get('/learners-list-maxscore', verifyToken, ensureStorylineBelongsToTenant, async(req, res) => {
     try {
         const { storyline_key } = req.query;
         if (!storyline_key) {
-            return res.status(400).json({ message: 'storyline_key mancante' });
+            return res.status(400).json({ message: 'storyline_key not found' });
         }
 
         console.log('Learners list request for storyline_key:', storyline_key);
@@ -787,57 +842,64 @@ router.get('/learners-list-maxscore', verifyToken, async(req, res) => {
 
         res.json(result.rows);
     } catch (error) {
-        console.error('Errore in /learners-list-maxscore:', error);
+        console.error('Error on /learners-list-maxscore:', error);
         res.status(500).json({ message: error.message });
     }
 });
 
-// Endpoint per eliminare learners multiple
-router.delete('/learners/delete', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), async(req, res) => {
+// Endpoint pour supprimer plusieurs apprenants
+router.delete('/learners/delete', verifyToken, requireRole(['superadmin', 'admin', 1, 2]), ensureStorylineBelongsToTenant, async(req, res) => {
     try {
         const { emails, storyline_key } = req.body;
 
         if (!emails || !Array.isArray(emails) || emails.length === 0) {
-            return res.status(400).json({ error: 'Emails mancanti o non valide' });
+            return res.status(400).json({ error: 'Not emails providers' });
         }
 
         if (!storyline_key) {
-            return res.status(400).json({ error: 'storyline_key mancante' });
+            return res.status(400).json({ error: 'storyline_key not found' });
         }
 
-        // Elimina tutti i record dei learners selezionati per questo chatbot
-        const placeholders = emails.map((_, index) => `$${index + 2}`).join(',');
-        const query = `
-            DELETE FROM userlist 
-            WHERE user_email IN (${placeholders}) 
-            AND chatbot_name = $1
+        // Supprime tous les enregistrements des apprenants sélectionnés pour ce chatbot
+        const superadmin = (String(req.user.role_id) === '1' || String(req.user.role_name).toLowerCase() === 'superadmin');
+        const emailPlaceholders = emails.map((_, index) => `$${index + 3}`).join(',');
+        let query = `
+            DELETE FROM userlist ul USING chatbots c
+            WHERE ul.chatbot_name = $1
+              AND ul.user_email IN (${emailPlaceholders})
+              AND c.storyline_key = ul.chatbot_name
         `;
-
-        const params = [storyline_key, ...emails];
+        const params = [storyline_key, null, ...emails];
+        if (!superadmin) {
+            query += ` AND c.tenant_id = $2`;
+            params[1] = req.user.tenant_id;
+        } else {
+            params.splice(1, 1);
+        }
         const result = await pool.query(query, params);
 
-        console.log(`Eliminati ${result.rowCount} record per i learners del chatbot ${storyline_key}`);
+        console.log(`Deleted ${result.rowCount} records for learners of chatbot ${storyline_key}`);
 
         res.status(200).json({
             success: true,
-            message: `${result.rowCount} record/i eliminati con successo`,
+            message: `${result.rowCount} records deleted succesfully`,
             deletedCount: result.rowCount
         });
     } catch (err) {
-        console.error('Errore eliminazione learners:', err);
+        console.error('Error deleting learners:', err);
         res.status(500).json({ error: err.message });
     }
 });
 
-router.get('/learner-detail', verifyToken, async(req, res) => {
+router.get('/learner-detail', verifyToken, ensureStorylineBelongsToTenant, async(req, res) => {
     const { storyline_key, email } = req.query;
     if (!storyline_key || !email) {
-        return res.status(400).json({ message: 'Parametri mancanti' });
+        return res.status(400).json({ message: 'Parametres manquants' });
     }
     try {
         console.log('Learner detail request:', { storyline_key, email });
 
-        // Prima controlliamo tutti i dati per questo chatbot
+        // On vérifie d’abord toutes les données pour ce chatbot
         const allData = await pool.query(`
             SELECT user_email, name, COUNT(*) as count
             FROM userlist
@@ -852,7 +914,7 @@ router.get('/learner-detail', verifyToken, async(req, res) => {
             sampleData: allData.rows
         });
 
-        // Cerchiamo specificamente l'email "review@baberlearning.fr"
+        // Nous recherchons spécifiquement l’e-mail "review@baberlearning.fr"
         const reviewEmailCheck = await pool.query(`
             SELECT user_email, name, COUNT(*) as count
             FROM userlist
@@ -865,7 +927,7 @@ router.get('/learner-detail', verifyToken, async(req, res) => {
             data: reviewEmailCheck.rows
         });
 
-        // Proviamo sia con l'email originale che con la versione codificata
+        // Nous essayons à la fois l’e-mail originale et la version encodée
         let result = await pool.query(`
             SELECT 
                 *,
@@ -888,7 +950,7 @@ router.get('/learner-detail', verifyToken, async(req, res) => {
             ORDER BY created_at DESC
         `, [storyline_key, email]);
 
-        // Se non troviamo nulla, proviamo con la versione codificata
+        // Si nous ne trouvons rien, nous essayons avec la version encodée
         if (result.rows.length === 0) {
             const encodedEmail = encodeURIComponent(email);
             console.log('Trying with encoded email:', encodedEmail);
@@ -925,7 +987,7 @@ router.get('/learner-detail', verifyToken, async(req, res) => {
     }
 });
 
-// Rotta per ottenere tutti gli utenti unici di tutti i chatbot (per super admin)
+// Route pour obtenir tous les utilisateurs uniques de tous les chatbots (pour super admin)
 router.get('/all-users', verifyToken, requireRole(['superadmin', 1]), async(req, res) => {
     try {
         console.log('🔍 DEBUG: Eseguendo query /all-users... VERSIONE AGGIORNATA');
@@ -948,7 +1010,7 @@ router.get('/all-users', verifyToken, requireRole(['superadmin', 1]), async(req,
             GROUP BY ul.user_email, ul.chatbot_name, t.name
             ORDER BY last_date_raw DESC
         `);
-        // Adatto i dati per il frontend (aggiungo id, email, name, chatbot_name, group, simulations, score, last_date)
+        // J’adapte les données pour le frontend (j’ajoute id, email, name, chatbot_name, group, simulations, score, last_date)
         const users = result.rows.map(row => ({
             id: row.id,
             email: row.email,
@@ -983,7 +1045,7 @@ router.post('/change-password', verifyToken, async(req, res) => {
     }
 });
 
-// Rotte per il reset password
+// Routes de réinitialisation du mot de passe
 router.post('/forgot-password', async(req, res) => {
     try {
         const { email } = req.body;
@@ -993,15 +1055,15 @@ router.post('/forgot-password', async(req, res) => {
             return res.status(400).json({ success: false, message: 'Email manquante.' });
         }
 
-        // Verifica configurazione PROD_URL
+        // Vérifie la configuration de PROD_URL
         if (!process.env.PROD_URL) {
-            console.error('❌ PROD_URL non configurato!');
+            console.error('❌ PROD_URL not configured!');
             return res.status(500).json({ success: false, message: 'Erreur de configuration du serveur.' });
         }
 
-        console.log('✅ PROD_URL configurato:', process.env.PROD_URL);
+        console.log('✅ PROD_URL configured:', process.env.PROD_URL);
 
-        // Verifica se l'utente esiste
+        // Vérifie si l’utilisateur existe
         const userRes = await pool.query('SELECT id, user_mail, full_name, reset_password_token, reset_password_expires FROM users WHERE user_mail = $1', [email]);
         console.log('User found:', userRes.rows.length > 0);
 
@@ -1011,11 +1073,11 @@ router.post('/forgot-password', async(req, res) => {
 
         const user = userRes.rows[0];
 
-        // Verifica se esiste già un token valido
+        // Vérifie s’il existe déjà un jeton valide
         if (user.reset_password_token && user.reset_password_expires && new Date(user.reset_password_expires) > new Date()) {
             console.log('User already has a valid reset token, sending existing link');
 
-            // Invia la mail con il token esistente
+            // Envoie l’e-mail avec le jeton existant
             const templateSource = fs.readFileSync(__dirname + '/../../templates/reset-password.html', 'utf8');
             const template = handlebars.compile(templateSource);
 
@@ -1046,24 +1108,24 @@ router.post('/forgot-password', async(req, res) => {
         const resetLink = `${process.env.PROD_URL}/api/verify-reset-token?token=${resetToken}`;
         console.log('Reset URL will be:', resetLink);
 
-        // Salva il token nel database
+        // Enregistre le jeton dans la base de données
         await pool.query(
             'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3', [resetToken, expiresAt, user.id]
         );
         console.log('Token saved to database');
 
-        // Verifica che il template esista
+        // Vérifie que le modèle existe
         const templatePath = __dirname + '/../../templates/reset-password.html';
         if (!fs.existsSync(templatePath)) {
             console.error('Template file not found:', templatePath);
             return res.status(500).json({ success: false, message: 'Erreur de configuration du serveur.' });
         }
 
-        // Carica il template HTML
+        // Charge le modèle HTML
         const templateSource = fs.readFileSync(templatePath, 'utf8');
         const template = handlebars.compile(templateSource);
 
-        // Compila il template con i dati dinamici
+        // Compile le modèle avec des données dynamiques
         const html = template({
             full_name: user.full_name,
             resetLink: resetLink
@@ -1072,7 +1134,7 @@ router.post('/forgot-password', async(req, res) => {
         console.log('Sending email to:', email);
         console.log('From email:', process.env.EMAIL_USER);
 
-        // Invia la mail
+        // Envoie l’e-mail
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
@@ -1095,7 +1157,7 @@ router.post('/reset-password', async(req, res) => {
             return res.status(400).json({ success: false, message: 'Token et mot de passe requis.' });
         }
 
-        // Verifica il token
+        // Vérifie le jeton
         const userRes = await pool.query(
             'SELECT id FROM users WHERE reset_password_token = $1 AND reset_password_expires > NOW()', [token]
         );
@@ -1107,7 +1169,7 @@ router.post('/reset-password', async(req, res) => {
         const userId = userRes.rows[0].id;
         const hashedPw = await bcrypt.hash(password, 10);
 
-        // Aggiorna la password e cancella il token
+        // Met à jour le mot de passe et supprime le jeton
         await pool.query(
             'UPDATE users SET user_pw = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2', [hashedPw, userId]
         );
@@ -1141,13 +1203,13 @@ router.get('/verify-reset-token', async(req, res) => {
 
         console.log('Token valid');
 
-        // Se la richiesta viene dal frontend (AJAX), restituisci JSON
+        // Si la requête provient du frontend (AJAX), renvoie du JSON
         if (req.headers.accept && req.headers.accept.includes('application/json')) {
             console.log('Returning JSON response for AJAX request');
             return res.json({ success: true, message: 'Token valide.' });
         }
 
-        // Altrimenti reindirizza (per i link diretti nell'email)
+        // Sinon redirige (pour les liens directs dans l’e-mail)
         console.log('Redirecting to frontend');
         res.redirect(`${process.env.FRONTEND_URL || process.env.PROD_URL}/reset-password?token=${token}`);
     } catch (error) {
@@ -1156,7 +1218,75 @@ router.get('/verify-reset-token', async(req, res) => {
     }
 });
 
-// Endpoint per verificare l'autenticazione dell'utente
+// Enregistre/met à jour la clé pour utilisateur + fournisseur + chatbot_id
+router.post('/keys', verifyToken, ensureChatbotBelongsToTenant, async(req, res) => {
+    try {
+        const { provider = 'openai', apiKey } = req.body || {};
+        const chatbot_id = String(((req && req.body && req.body.chatbot_id) || '')).trim();
+        if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length < 8) {
+            return res.status(400).json({ success: false, message: 'Clé API invalide.' });
+        }
+        if (!chatbot_id) {
+            return res.status(400).json({ success: false, message: 'chatbot_id manquant.' });
+        }
+
+        const enc = encryptSecret(apiKey.trim());
+        await pool.query(`
+            INSERT INTO api_keys (user_id, provider, chatbot_id, enc_key, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, NOW(), NOW())
+            ON CONFLICT (user_id, provider, chatbot_id)
+            DO UPDATE SET enc_key = EXCLUDED.enc_key, updated_at = NOW()
+        `, [req.user.id, provider, chatbot_id, enc]);
+
+        res.json({ success: true, last4: apiKey.trim().slice(-4) });
+    } catch (e) {
+        console.error('POST /keys error', e);
+        res.status(500).json({ success: false, message: 'Erreur enregistrement clé.' });
+    }
+});
+
+// État de la clé (ne renvoie pas la clé)
+router.get('/keys/status', verifyToken, ensureChatbotBelongsToTenant, async(req, res) => {
+    try {
+        const provider = req.query.provider || 'openai';
+        const chatbot_id = String((req.query.chatbot_id || '')).trim();
+        if (!chatbot_id) return res.json({ hasKey: false });
+
+        const r = await pool.query(`
+            SELECT enc_key FROM api_keys
+            WHERE user_id = $1 AND provider = $2 AND chatbot_id = $3
+            LIMIT 1
+        `, [req.user.id, provider, chatbot_id]);
+
+        if (r.rows.length === 0) return res.json({ hasKey: false });
+        let last4 = '';
+        try { last4 = decryptSecret(r.rows[0].enc_key).slice(-4); } catch {}
+        res.json({ hasKey: true, last4 });
+    } catch {
+        res.status(500).json({ hasKey: false });
+    }
+});
+
+// Supprime la clé pour utilisateur + fournisseur + chatbot_id (chaîne)
+router.delete('/keys', verifyToken, ensureChatbotBelongsToTenant, async(req, res) => {
+    try {
+        const provider = (req.query.provider || (req && req.body && req.body.provider) || 'openai').toString();
+        const chatbot_id = String(((req.query.chatbot_id || (req && req.body && req.body.chatbot_id) || ''))).trim();
+        if (!chatbot_id) return res.status(400).json({ success: false, message: 'chatbot_id manquant.' });
+
+        const del = await pool.query(`
+            DELETE FROM api_keys
+            WHERE user_id = $1 AND provider = $2 AND chatbot_id = $3
+        `, [req.user.id, provider, chatbot_id]);
+
+        return res.json({ success: true, deleted: del.rowCount || 0 });
+    } catch (e) {
+        console.error('DELETE /keys error', e);
+        res.status(500).json({ success: false });
+    }
+});
+
+// Endpoint pour vérifier l’authentification de l’utilisateur
 router.post('/verify-auth', verifyToken, async(req, res) => {
     try {
         // Dati dal token
@@ -1174,7 +1304,7 @@ router.post('/verify-auth', verifyToken, async(req, res) => {
     }
 });
 
-// Logout: invalida cookie
+// Logout : invalide le cookie
 router.post('/logout', (req, res) => {
     res.clearCookie('auth', { httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production' });
     res.json({ success: true });

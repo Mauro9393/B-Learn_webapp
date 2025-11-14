@@ -1022,6 +1022,103 @@
     font-weight: 500;
 }
 
+
+/* Inline form per API key */
+
+.api-key-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.api-key-inline input[type="password"] {
+    min-width: 260px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: #f7f8fa;
+    color: #333;
+}
+
+.api-key-status-ok {
+    color: #4caf50;
+    margin-left: auto;
+    padding-left: 12px;
+}
+
+
+/* --- Enhancements for API key section in Paramètres --- */
+
+.settings-modal-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 50vh;
+}
+
+.api-key-block {
+    border-bottom: none;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.api-key-title {
+    align-self: center;
+    margin-bottom: 8px;
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+.api-key-stack {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.api-key-input {
+    width: 100%;
+    min-width: 260px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: #f7f8fa;
+    color: #333;
+}
+
+.api-key-status-ok.center {
+    text-align: center;
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+    font-size: 0.9rem;
+}
+
+.api-key-save {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+}
+
+.api-key-delete {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+}
+
+.action-btn.danger {
+    background: #ef5350;
+    color: #fff;
+}
+
+.action-btn.danger:hover {
+    background: #e53935;
+}
+
 .toggle-switch {
     position: relative;
     display: inline-block;
@@ -1542,5 +1639,58 @@
     .chart-label-description {
         font-size: 0.55rem;
         margin-top: 3px;
+    }
+}
+
+
+/* Accordion API key */
+
+.settings-modal-body .api-key-block {
+    width: 100%;
+}
+
+.api-key-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px 0;
+}
+
+.accordion-caret {
+    display: inline-block;
+    transition: transform 0.25s ease;
+    color: #5B6DF6;
+    font-size: 1.1rem;
+}
+
+.accordion-caret.open {
+    transform: rotate(90deg);
+}
+
+.api-key-accordion {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+    width: 100%;
+}
+
+.api-key-accordion.open {
+    max-height: 320px;
+}
+
+.api-key-buttons {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+@media (max-width: 480px) {
+    .api-key-buttons {
+        flex-wrap: nowrap;
+        gap: 8px;
     }
 }

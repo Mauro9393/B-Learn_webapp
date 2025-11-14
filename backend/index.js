@@ -8,14 +8,14 @@ const authRoutes = require('./src/routes/authRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Hardening base
+// Renforcement de base
 app.disable('x-powered-by');
 app.use(helmet({
-    contentSecurityPolicy: false // Configura CSP separatamente se necessario
+    contentSecurityPolicy: false // Configurer CSP séparément si nécessaire
 }));
 
-// Configurazione CORS parametrizzata da env
-// Esempio: CORS_ORIGINS=http://localhost:5173,http://localhost:5174
+// Configuration CORS paramétrée par l'environnement
+// Exemple : CORS_ORIGINS=http://localhost:5173,http://localhost:5174
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,http://localhost:3000')
     .split(',')
     .map(o => o.trim())
@@ -23,7 +23,7 @@ const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http:
 
 app.use(cors({
     origin: function(origin, callback) {
-        if (!origin) return callback(null, true); // allow non-browser clients
+        if (!origin) return callback(null, true); // autoriser les clients non-navigateurs
         if (allowedOrigins.includes(origin)) return callback(null, true);
         return callback(new Error('Not allowed by CORS'));
     },

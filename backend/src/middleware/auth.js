@@ -13,18 +13,18 @@ function getTokenFromRequest(req) {
 function verifyToken(req, res, next) {
     const token = getTokenFromRequest(req);
     if (!token) {
-        return res.status(401).json({ success: false, message: 'Non autenticato' });
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
     }
     try {
         const secret = process.env.JWT_SECRET;
         if (!secret) {
-            return res.status(500).json({ success: false, message: 'JWT non configurato' });
+            return res.status(500).json({ success: false, message: 'JWT not configured' });
         }
         const payload = jwt.verify(token, secret);
         req.user = payload;
         next();
     } catch (err) {
-        return res.status(401).json({ success: false, message: 'Token non valido' });
+        return res.status(401).json({ success: false, message: 'Token not valid' });
     }
 }
 
@@ -35,7 +35,7 @@ function requireRole(rolesAllowed) {
         const roleId = u.role_id;
         const allowed = rolesAllowed.some(r => r === roleName || r === roleId);
         if (!allowed) {
-            return res.status(403).json({ success: false, message: 'Accesso negato' });
+            return res.status(403).json({ success: false, message: 'Denied access' });
         }
         next();
     };

@@ -29,7 +29,7 @@ const AllStudentList: React.FC = () => {
   const { addBreadcrumb } = useBreadcrumbContext();
   const { settings } = useSettings();
 
-  // Dropdown personalizzati (stile identico a Période)
+  // Menus déroulants personnalisés (style identique à Période)
   const [isScoreMenuOpen, setIsScoreMenuOpen] = useState(false);
   const [isSimMenuOpen, setIsSimMenuOpen] = useState(false);
   const [isClientMenuOpen, setIsClientMenuOpen] = useState(false);
@@ -56,7 +56,7 @@ const AllStudentList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = 'http://localhost:3000'; // Forza uso server locale
+        const apiUrl = 'http://localhost:3000'; // Forcer l'utilisation du serveur local
         const res = await fetch(`${apiUrl}/api/all-users`, { credentials: 'include' });
         
         if (!res.ok) {
@@ -67,15 +67,15 @@ const AllStudentList: React.FC = () => {
         
         const data = await res.json();
         
-        // Verifica che data sia un array
+        // Vérifie que data est un tableau
         if (Array.isArray(data)) {
           setStudents(data);
         } else {
-          console.error('Dati non validi ricevuti dal backend:', data);
+          console.error('Not valid data received from backend:', data);
           setStudents([]);
         }
       } catch (e) {
-        console.error('Errore durante il fetch:', e);
+        console.error('Error during fetching:', e);
         setStudents([]);
       } finally {
         setLoading(false);
@@ -84,7 +84,7 @@ const AllStudentList: React.FC = () => {
     fetchData();
   }, []);
 
-  // Ottieni lista clienti unici
+  // Obtenir la liste des clients uniques
   const clientList = Array.isArray(students) 
     ? Array.from(new Set(students.map(stu => stu.client_name || stu.chatbot_name))).filter(Boolean)
     : [];
@@ -94,7 +94,7 @@ const AllStudentList: React.FC = () => {
     const matchesSearch =
       (stu.name?.toLowerCase() || '').includes(search.toLowerCase()) ||
       (stu.email?.toLowerCase() || '').includes(search.toLowerCase());
-    // Filtro per range di punteggio
+    // Filtre par plage de score
     const matchesScore = minScore ? (() => {
       const score = stu.score;
       switch(minScore) {
@@ -106,14 +106,14 @@ const AllStudentList: React.FC = () => {
         default: return true;
       }
     })() : true;
-    // Filtro per simulazioni minime
+    // Filtre par nombre minimum de simulations
     const matchesSimulations = minSimulations ? stu.simulations >= parseInt(minSimulations) : true;
-    // Filtro per cliente
+    // Filtre par client
     const matchesClient = clientFilter ? (stu.client_name || stu.chatbot_name) === clientFilter : true;
     return matchesSearch && matchesScore && matchesSimulations && matchesClient;
   }) : [];
 
-  // Funzione per parsing data formato giorno/mese/anno
+  // Fonction pour analyser une date au format jour/mois/année
   function parseDMY(dateStr: string) {
     if (!dateStr) return null;
     const [day, month, year] = dateStr.split(/[\/\-]/).map(Number);
@@ -121,16 +121,16 @@ const AllStudentList: React.FC = () => {
     return new Date(year, month - 1, day);
   }
 
-  // Funzione per ordinare gli studenti
+  // Fonction pour trier les apprenants
   const sortedStudents = React.useMemo(() => {
     let sortable = [...filteredStudents];
     if (sortConfig !== null) {
       sortable.sort((a, b) => {
         let aValue = a[sortConfig.key as keyof StudentRow];
         let bValue = b[sortConfig.key as keyof StudentRow];
-        // Gestione speciale per le colonne
+        // Gestion spéciale pour les colonnes
         if (sortConfig.key === 'name' || sortConfig.key === 'chatbot_name' || sortConfig.key === 'client_name' || sortConfig.key === 'group') {
-          // Per client_name, usa il valore effettivo o fallback su chatbot_name
+          // Pour client_name, utiliser la valeur réelle ou repli sur chatbot_name
           if (sortConfig.key === 'client_name') {
             aValue = String((aValue as string) || (a as any).chatbot_name || '').toLowerCase();
             bValue = String((bValue as string) || (b as any).chatbot_name || '').toLowerCase();
@@ -162,7 +162,7 @@ const AllStudentList: React.FC = () => {
     return sortable;
   }, [filteredStudents, sortConfig]);
 
-  // Funzione per cambiare ordinamento
+  // Fonction pour changer l'ordre de tri
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -171,7 +171,7 @@ const AllStudentList: React.FC = () => {
     setSortConfig({ key, direction });
   };
 
-  // Stato per la paginazione mobile
+  // État pour la pagination mobile
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 5;
   const totalPages = Math.ceil(filteredStudents.length / cardsPerPage);
@@ -183,7 +183,7 @@ const AllStudentList: React.FC = () => {
   return (
     <div className="">
       <main className="student-list-main">
-        {/* Card centrale titolo */}
+        {/* title central card */}
         <div className="student-list-title-card">
           <h1>Liste de tous les learners</h1>
         </div>
@@ -192,7 +192,7 @@ const AllStudentList: React.FC = () => {
           <span className="breadcrumb-link" onClick={() => navigate('/dashboard')}>Dashboard</span> &gt;
           <span className="current">Tous les utilisateurs</span>
         </div>*/}
-        {/* Filtri */}
+        {/* Filters */}
         <div className="filters">
           <input
             type="text"

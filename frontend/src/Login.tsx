@@ -165,11 +165,6 @@ function Login() {
   return (
     <>
       <main className="login-main-centered">
-        <div className="animated-bg">
-          {[...Array(12)].map((_, i) => (
-            <div className="sphere" key={i}></div>
-          ))}
-        </div>
         <div className="login-container">
           <div className="login-logo">
             <img src={logoBlearn} alt="B-learn Logo" />
