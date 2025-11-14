@@ -43,7 +43,7 @@ const ChatbotDetail: React.FC = () => {
   // Stato per le impostazioni
   const { settings, updateSettings } = useSettings();
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [isApiAccordionOpen, setIsApiAccordionOpen] = useState(false);
+  // const [isApiAccordionOpen, setIsApiAccordionOpen] = useState(false);
 
   // Periodo (aggiunta gestione personalizzata)
   // selectedPeriod: 'all' | '30' | '90' | '180' | 'custom'
@@ -518,63 +518,63 @@ const ChatbotDetail: React.FC = () => {
   };
 
   // Stato e funzioni per gestione chiave API per chatbot
-  const [apiKeyInput, setApiKeyInput] = useState('');
-  const [apiKeyStatus, setApiKeyStatus] = useState<{ hasKey: boolean; last4?: string } | null>(null);
-  const [savingKey, setSavingKey] = useState(false);
-  const [savedNoticeLast4, setSavedNoticeLast4] = useState<string | null>(null);
-  const [deletingKey, setDeletingKey] = useState(false);
+  // const [apiKeyInput, setApiKeyInput] = useState('');
+  // const [apiKeyStatus, setApiKeyStatus] = useState<{ hasKey: boolean; last4?: string } | null>(null);
+  // const [savingKey, setSavingKey] = useState(false);
+  // const [savedNoticeLast4, setSavedNoticeLast4] = useState<string | null>(null);
+  // const [deletingKey, setDeletingKey] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        if (!data?.storyline_key) return;
-        const r = await fetch(`/api/keys/status?provider=openai&chatbot_id=${encodeURIComponent(data.storyline_key)}`, { credentials: 'include' });
-        const j = await r.json();
-        setApiKeyStatus(j);
-      } catch {
-        setApiKeyStatus({ hasKey: false });
-      }
-    };
-    load();
-  }, [data?.storyline_key]);
+  // useEffect(() => {
+  //   const load = async () => {
+  //     try {
+  //       if (!data?.storyline_key) return;
+  //       const r = await fetch(`/api/keys/status?provider=openai&chatbot_id=${encodeURIComponent(data.storyline_key)}`, { credentials: 'include' });
+  //       const j = await r.json();
+  //       setApiKeyStatus(j);
+  //     } catch {
+  //       setApiKeyStatus({ hasKey: false });
+  //     }
+  //   };
+  //   load();
+  // }, [data?.storyline_key]);
 
-  const saveApiKey = async () => {
-    if (!apiKeyInput.trim() || !data?.storyline_key) return;
-    setSavingKey(true);
-    try {
-      const r = await fetch('/api/keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ provider: 'openai', apiKey: apiKeyInput.trim(), chatbot_id: data.storyline_key })
-      });
-      const j = await r.json();
-      if (j?.success) {
-        setApiKeyInput('');
-        setApiKeyStatus({ hasKey: true, last4: j.last4 });
-        setSavedNoticeLast4(j.last4 || '');
-        setTimeout(() => setSavedNoticeLast4(null), 3000);
-      }
-    } catch {}
-    setSavingKey(false);
-  };
+  // const saveApiKey = async () => {
+  //   if (!apiKeyInput.trim() || !data?.storyline_key) return;
+  //   setSavingKey(true);
+  //   try {
+  //     const r = await fetch('/api/keys', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       credentials: 'include',
+  //       body: JSON.stringify({ provider: 'openai', apiKey: apiKeyInput.trim(), chatbot_id: data.storyline_key })
+  //     });
+  //     const j = await r.json();
+  //     if (j?.success) {
+  //       setApiKeyInput('');
+  //       setApiKeyStatus({ hasKey: true, last4: j.last4 });
+  //       setSavedNoticeLast4(j.last4 || '');
+  //       setTimeout(() => setSavedNoticeLast4(null), 3000);
+  //     }
+  //   } catch {}
+  //   setSavingKey(false);
+  // };
 
-  const deleteApiKey = async () => {
-    if (!data?.storyline_key) return;
-    setDeletingKey(true);
-    try {
-      const r = await fetch(`/api/keys?provider=openai&chatbot_id=${encodeURIComponent(data.storyline_key)}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      const j = await r.json();
-      if (j?.success) {
-        setApiKeyStatus({ hasKey: false });
-        setSavedNoticeLast4(null);
-      }
-    } catch {}
-    setDeletingKey(false);
-  };
+  // const deleteApiKey = async () => {
+  //   if (!data?.storyline_key) return;
+  //   setDeletingKey(true);
+  //   try {
+  //     const r = await fetch(`/api/keys?provider=openai&chatbot_id=${encodeURIComponent(data.storyline_key)}`, {
+  //       method: 'DELETE',
+  //       credentials: 'include'
+  //     });
+  //     const j = await r.json();
+  //     if (j?.success) {
+  //       setApiKeyStatus({ hasKey: false });
+  //       setSavedNoticeLast4(null);
+  //     }
+  //   } catch {}
+  //   setDeletingKey(false);
+  // };
 
   // Rendering stelle media con riempimento parziale (0-5, supporto mezze)
   const renderAverageStars = (value: number) => {
